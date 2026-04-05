@@ -16,7 +16,7 @@ const Finance = () => {
 
   const [startDate, setStartDate] = useState(getLocalDateStr(firstDay));
   const [endDate, setEndDate] = useState(getLocalDateStr(lastDay));
-  
+
   const [comparisonParams, setComparisonParams] = useState({
     revenue: true,
     ticket: true,
@@ -31,17 +31,17 @@ const Finance = () => {
   const handleAIAnalysis = () => {
     setIsAnalyzing(true);
     setAiAnalysis(null);
-    
+
     setTimeout(() => {
       const topBarberName = barbers.length > 0 ? barbers[0].name : 'A Equipe';
       const formattedStart = startDate.split('-').reverse().join('/');
       const formattedEnd = endDate.split('-').reverse().join('/');
-      
+
       const analyses = [
         `Neste período selecionado (de **${formattedStart} a ${formattedEnd}**), **${topBarberName}** gerou maior movimentação total, representando aproximadamente R$ ${(stats.revenue * 0.4).toFixed(2)} do faturamento da barbearia.`,
         `O ticket médio geral medido foi de **R$ ${stats.averageTicket.toFixed(2)}**. ` + (stats.averageTicket > 40 ? 'Sua estratégia de upsell e ofertas casadas está funcionando muito bem!' : 'Isso indica uma oportunidade para recomendar serviços adicionais (ex: Sobrancelha ou Barboterapia) durante os cortes simples.')
       ];
-      
+
       setAiAnalysis({
         summary: "Análise processada e consolidada para as datas específicas do filtro.",
         insights: analyses,
@@ -106,7 +106,7 @@ const Finance = () => {
             <div style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '8px', borderRadius: '8px', color: '#10b981' }}><DollarSign size={18} /></div>
           </div>
           <div style={{ fontSize: '1.6rem', fontWeight: 700, marginBottom: '8px' }}>R$ {data.profit.toLocaleString('pt-BR')}</div>
-          <div style={{ fontSize: '0.8rem', color: '#10b981', fontWeight: 600 }}>Margem de {( (data.profit / data.revenue) * 100).toFixed(1)}%</div>
+          <div style={{ fontSize: '0.8rem', color: '#10b981', fontWeight: 600 }}>Margem de {((data.profit / data.revenue) * 100).toFixed(1)}%</div>
         </div>
       </div>
 
@@ -117,7 +117,7 @@ const Finance = () => {
             <Filter size={20} />
             <h3 style={{ fontSize: '1.2rem' }}>Parâmetros da IA</h3>
           </div>
-          
+
           <div style={{ display: 'grid', gap: '1.5rem' }}>
             {Object.keys(comparisonParams).map(param => (
               <div key={param} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -129,25 +129,25 @@ const Finance = () => {
                     {param === 'retention' ? 'Análise de quantos clientes retornam' : param === 'productivity' ? 'Tempo médio de cadeira vs ociosidade' : 'Comparativo bruto e crescimento'}
                   </p>
                 </div>
-                <div 
-                  onClick={() => setComparisonParams({...comparisonParams, [param]: !comparisonParams[param]})}
-                  style={{ 
-                    width: '40px', 
-                    height: '24px', 
-                    background: comparisonParams[param] ? '#000' : '#e5e7eb', 
-                    borderRadius: '12px', 
-                    position: 'relative', 
+                <div
+                  onClick={() => setComparisonParams({ ...comparisonParams, [param]: !comparisonParams[param] })}
+                  style={{
+                    width: '40px',
+                    height: '24px',
+                    background: comparisonParams[param] ? '#000' : '#e5e7eb',
+                    borderRadius: '12px',
+                    position: 'relative',
                     cursor: 'pointer',
                     transition: 'all 0.2s'
                   }}
                 >
-                  <div style={{ 
-                    width: '18px', 
-                    height: '18px', 
-                    background: '#fff', 
-                    borderRadius: '50%', 
-                    position: 'absolute', 
-                    top: '3px', 
+                  <div style={{
+                    width: '18px',
+                    height: '18px',
+                    background: '#fff',
+                    borderRadius: '50%',
+                    position: 'absolute',
+                    top: '3px',
                     left: comparisonParams[param] ? '20px' : '3px',
                     transition: 'all 0.2s'
                   }}></div>
@@ -156,8 +156,8 @@ const Finance = () => {
             ))}
           </div>
 
-          <button 
-            className="btn-primary" 
+          <button
+            className="btn-primary"
             style={{ width: '100%', marginTop: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '16px' }}
             onClick={handleAIAnalysis}
             disabled={isAnalyzing}
@@ -174,7 +174,7 @@ const Finance = () => {
                 <Sparkles size={24} style={{ color: '#fff' }} />
                 <h3 style={{ fontSize: '1.2rem', fontFamily: 'Outfit' }}>Relatório Especializado</h3>
               </div>
-              
+
               <div style={{ display: 'grid', gap: '1rem', marginBottom: '2rem' }}>
                 {aiAnalysis.insights.map((insight, i) => (
                   <div key={i} style={{ display: 'flex', gap: '12px', fontSize: '0.9rem', lineHeight: '1.5', opacity: 0.9 }}>
@@ -203,14 +203,14 @@ const Finance = () => {
               </p>
             </div>
           )}
-          
+
           <div className="glass-card">
             <h3 style={{ fontSize: '1.1rem', marginBottom: '1.5rem' }}>Evolução Mensal (Lucro)</h3>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: '12px', height: '120px' }}>
               {[30, 45, 65, 85, 75, 95].map((h, i) => (
                 <div key={i} style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                   <div style={{ width: '100%', height: `${h}%`, background: '#000', borderRadius: '6px', opacity: i === 5 ? 1 : 0.1 }}></div>
-                  <span style={{ fontSize: '0.65rem', marginTop: '8px', color: 'var(--text-secondary)' }}>M{i+1}</span>
+                  <span style={{ fontSize: '0.65rem', marginTop: '8px', color: 'var(--text-secondary)' }}>M{i + 1}</span>
                 </div>
               ))}
             </div>

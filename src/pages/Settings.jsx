@@ -6,6 +6,7 @@ const Settings = () => {
   const { 
     barbers, addBarber, updateBarber, removeBarber, 
     services, addService, updateService, removeService, 
+    products, addProduct, updateProduct, removeProduct,
     businessInfo, updateBusinessInfo 
   } = useApp();
   
@@ -13,6 +14,7 @@ const Settings = () => {
   
   const [newBarber, setNewBarber] = useState({ name: '', role: 'Barbeiro', email: '', password: '' });
   const [newService, setNewService] = useState({ name: '', duration: '30 min', price: '' });
+  const [newProduct, setNewProduct] = useState({ name: '', category: 'Cabelo', price: '', cost: '', stock: '' });
   const [bInfo, setBInfo] = useState(businessInfo);
 
   const handleAddBarber = () => {
@@ -28,6 +30,17 @@ const Settings = () => {
     if (!newService.name || !newService.price) return;
     addService({ ...newService, price: parseFloat(newService.price) });
     setNewService({ name: '', duration: '30 min', price: '' });
+  };
+
+  const handleAddProduct = () => {
+    if (!newProduct.name || !newProduct.price || !newProduct.stock) return;
+    addProduct({ 
+      ...newProduct, 
+      price: parseFloat(newProduct.price), 
+      cost: parseFloat(newProduct.cost) || 0,
+      stock: parseInt(newProduct.stock)
+    });
+    setNewProduct({ name: '', category: 'Cabelo', price: '', cost: '', stock: '' });
   };
 
   const handleSaveBusinessInfo = () => {
@@ -57,6 +70,12 @@ const Settings = () => {
             style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '14px', borderRadius: '10px', border: 'none', background: activeTab === 'services' ? '#000' : 'transparent', color: activeTab === 'services' ? '#fff' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: activeTab === 'services' ? 600 : 400, transition: 'all 0.2s' }}
           >
             <Scissors size={18} /> Catálogo de Serviços
+          </button>
+          <button 
+            onClick={() => setActiveTab('products')}
+            style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '14px', borderRadius: '10px', border: 'none', background: activeTab === 'products' ? '#000' : 'transparent', color: activeTab === 'products' ? '#fff' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: activeTab === 'products' ? 600 : 400, transition: 'all 0.2s' }}
+          >
+            <Plus size={18} /> Estoque de Produtos
           </button>
           <button 
             onClick={() => setActiveTab('business')}
@@ -108,35 +127,48 @@ const Settings = () => {
             </div>
           )}
 
-          {activeTab === 'services' && (
+          {activeTab === 'products' && (
             <div className="fade-in">
-              <h2 style={{ fontSize: '1.3rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}><Scissors size={20} /> Serviços e Preços</h2>
+              <h2 style={{ fontSize: '1.3rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}><Plus size={20} /> Gestão de Estoque</h2>
               
               <div style={{ display: 'grid', gridTemplateColumns: 'minmax(250px, 300px) 1fr', gap: '2rem' }}>
                 <div>
-                  <h3 style={{ fontSize: '1rem', marginBottom: '1rem', color: 'var(--text-secondary)' }}>Novo Serviço</h3>
-                  <input type="text" placeholder="Nome do Serviço" value={newService.name} onChange={e => setNewService({...newService, name: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', outline: 'none' }} />
-                  <div style={{ display: 'flex', gap: '10px', marginBottom: '1rem' }}>
-                    <input type="number" placeholder="Preço (R$)" value={newService.price} onChange={e => setNewService({...newService, price: e.target.value})} style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', outline: 'none' }} />
-                    <input type="text" placeholder="Ex: 30 min" value={newService.duration} onChange={e => setNewService({...newService, duration: e.target.value})} style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', outline: 'none' }} />
+                  <h3 style={{ fontSize: '1rem', marginBottom: '1rem', color: 'var(--text-secondary)' }}>Novo Produto</h3>
+                  <input type="text" placeholder="Nome do Produto" value={newProduct.name} onChange={e => setNewProduct({...newProduct, name: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', outline: 'none' }} />
+                  <select value={newProduct.category} onChange={e => setNewProduct({...newProduct, category: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', outline: 'none' }}>
+                    <option value="Cabelo">Cabelo</option>
+                    <option value="Barba">Barba</option>
+                    <option value="Bebidas">Bebidas</option>
+                    <option value="Outros">Outros</option>
+                  </select>
+                  <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                    <input type="number" placeholder="Venda (R$)" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', outline: 'none' }} />
+                    <input type="number" placeholder="Custo (R$)" value={newProduct.cost} onChange={e => setNewProduct({...newProduct, cost: e.target.value})} style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', outline: 'none' }} />
                   </div>
-                  <button className="btn-primary" onClick={handleAddService} style={{ width: '100%', padding: '12px', display: 'flex', justifyContent: 'center', gap: '8px' }}>
-                    <Plus size={18} /> Adicionar Serviço
+                  <input type="number" placeholder="Qtd. em Estoque" value={newProduct.stock} onChange={e => setNewProduct({...newProduct, stock: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)', outline: 'none' }} />
+                  <button className="btn-primary" onClick={handleAddProduct} style={{ width: '100%', padding: '12px', display: 'flex', justifyContent: 'center', gap: '8px' }}>
+                    <Plus size={18} /> Cadastrar no Estoque
                   </button>
                 </div>
 
                 <div>
-                  <h3 style={{ fontSize: '1rem', marginBottom: '1rem', color: 'var(--text-secondary)' }}>Catálogo Ativo ({services.length})</h3>
+                  <h3 style={{ fontSize: '1rem', marginBottom: '1rem', color: 'var(--text-secondary)' }}>Produtos em Prateleira ({products.length})</h3>
                   <div style={{ display: 'grid', gap: '12px' }}>
-                    {services.map(s => (
-                      <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: 'rgba(0,0,0,0.02)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                    {products.map(p => (
+                      <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: 'rgba(0,0,0,0.02)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                         <div>
-                          <p style={{ fontWeight: 600 }}>{s.name}</p>
-                          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{s.duration}</p>
+                          <p style={{ fontWeight: 600 }}>{p.name}</p>
+                          <p style={{ fontSize: '0.8rem', color: p.stock < 5 ? '#ef4444' : 'var(--text-secondary)', fontWeight: p.stock < 5 ? 600 : 400 }}>
+                            {p.stock < 5 ? <ShieldAlert size={14} style={{ display: 'inline', marginRight: '4px' }} /> : ''}
+                            Estoque: {p.stock} un.
+                          </p>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                          <span style={{ fontWeight: 700, color: '#10b981' }}>R$ {s.price}</span>
-                          <button style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer' }} onClick={() => removeService(s.id)}>
+                          <div style={{ textAlign: 'right' }}>
+                            <p style={{ fontWeight: 700, color: '#10b981', fontSize: '0.9rem' }}>R$ {p.price}</p>
+                            <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Custo: R$ {p.cost}</p>
+                          </div>
+                          <button style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer' }} onClick={() => removeProduct(p.id)}>
                             <Trash2 size={18} />
                           </button>
                         </div>

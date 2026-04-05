@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TrendingUp, Users, Calendar, Banknote, Clock, User, Scissors, X } from 'lucide-react';
+import { TrendingUp, Users, Calendar, Banknote, Clock, User, Scissors, X, ShoppingBag } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 const StatCard = ({ title, value, icon, trend }) => (
@@ -20,14 +20,16 @@ const StatCard = ({ title, value, icon, trend }) => (
 );
 
 const Dashboard = () => {
-  const { barbers, appointments, services, addAppointment } = useApp();
+  const { barbers, appointments, services, products, addAppointment, sellProduct, getFinancialStats } = useApp();
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSaleModalOpen, setIsSaleModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     customer: '', phone: '', serviceId: '', barberId: '', time: '09:00', date: startDate
   });
+  const [saleData, setSaleData] = useState({ productId: '', quantity: 1 });
 
   React.useEffect(() => {
     setFormData(prev => ({ ...prev, date: startDate }));
@@ -49,8 +51,22 @@ const Dashboard = () => {
     });
     
     setIsModalOpen(false);
-    setFormData({ customer: '', phone: '', serviceId: '', barberId: '', time: '09:00', date: selectedDate });
+    setFormData({ customer: '', phone: '', serviceId: '', barberId: '', time: '09:00', date: startDate });
   };
+
+  const handleSaleProduct = () => {
+    if (!saleData.productId) return;
+    const success = sellProduct(parseInt(saleData.productId), parseInt(saleData.quantity));
+    if (success) {
+      setIsSaleModalOpen(false);
+      setSaleData({ productId: '', quantity: 1 });
+    } else {
+      alert("Estoque insuficiente!");
+    }
+  };
+
+  const stats = getFinancialStats(startDate, endDate);
+  const filteredAppointments = appointments.filter(app => app.date >= startDate && app.date <= endDate);
 
   const getDatesInRange = (startStr, endStr) => {
     const dates = [];
@@ -85,8 +101,8 @@ const Dashboard = () => {
           </p>
         </div>
         <div style={{ display: 'flex', gap: '1rem' }}>
-          <button className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Clock size={18} /> Histórico
+          <button className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }} onClick={() => setIsSaleModalOpen(true)}>
+            <ShoppingBag size={18} /> Nova Venda
           </button>
           <button className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }} onClick={() => setIsModalOpen(true)}>
             <Calendar size={18} /> Novo Agendamento
@@ -95,10 +111,10 @@ const Dashboard = () => {
       </header>
 
       <div style={{ flexShrink: 0, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '1.5rem' }}>
-        <StatCard title="Clientes" value={filteredAppointments.length} icon={<Users size={20} />} trend={12} />
+        <StatCard title="Total (Serv. + Prod.)" value={stats.count} icon={<Users size={20} />} trend={12} />
         <StatCard title="Ocupação Geral" value={`${Math.min(100, Math.round((filteredAppointments.length / (barbers.filter(b => b.role === 'Barbeiro' && b.status === 'Ativo').length * 9 || 1)) * 100))}%`} icon={<Calendar size={20} />} trend={8} />
-        <StatCard title="Receita Estimada" value={`R$ ${filteredAppointments.reduce((sum, a) => sum + a.price, 0)}`} icon={<Banknote size={20} />} trend={15} />
-        <StatCard title="Ticket Médio" value={`R$ ${filteredAppointments.length ? Math.round(filteredAppointments.reduce((sum, a) => sum + a.price, 0) / filteredAppointments.length) : 0}`} icon={<TrendingUp size={20} />} trend={-2} />
+        <StatCard title="Receita (Intervalo)" value={`R$ ${stats.revenue.toLocaleString('pt-BR')}`} icon={<Banknote size={20} />} trend={15} />
+        <StatCard title="Ticket Médio" value={`R$ ${stats.averageTicket.toFixed(2)}`} icon={<TrendingUp size={20} />} trend={-2} />
       </div>
 
       {/* Multi-Date / Multi-Barber Agenda Grid */}
@@ -205,6 +221,52 @@ const Dashboard = () => {
           <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Agendado</span>
         </div>
       </div>
+
+      {isSaleModalOpen && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div className="glass-card fade-in" style={{ width: '400px', background: '#fff', padding: '2rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: '1.2rem', marginBottom: 0 }}>Venda de Balcão (PDV)</h2>
+              <button style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }} onClick={() => setIsSaleModalOpen(false)}><X size={20} /></button>
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Venda rápida de produtos sem necessidade de agendamento.</p>
+              
+              <select value={saleData.productId} onChange={e => setSaleData({...saleData, productId: e.target.value})} style={{ padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', outline: 'none' }}>
+                <option value="">Selecione o Produto</option>
+                {products.map(p => (
+                  <option key={p.id} value={p.id} disabled={p.stock <= 0}>
+                    {p.name} - R$ {p.price} ({p.stock} em estoque)
+                  </option>
+                ))}
+              </select>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <label style={{ fontSize: '0.9rem', fontWeight: 600 }}>Qtd:</label>
+                <input 
+                  type="number" 
+                  min="1" 
+                  value={saleData.quantity} 
+                  onChange={e => setSaleData({...saleData, quantity: e.target.value})} 
+                  style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', outline: 'none' }} 
+                />
+              </div>
+
+              <div style={{ padding: '1rem', background: 'rgba(0,0,0,0.02)', borderRadius: '10px', marginTop: '1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.1rem', fontWeight: 700 }}>
+                  <span>Total:</span>
+                  <span>R$ {(products.find(p => String(p.id) === String(saleData.productId))?.price * saleData.quantity || 0).toLocaleString('pt-BR')}</span>
+                </div>
+              </div>
+
+              <button className="btn-primary" style={{ marginTop: '1rem', padding: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }} onClick={handleSaleProduct} disabled={!saleData.productId || saleData.quantity <= 0}>
+                <ShoppingBag size={18} /> Finalizar Venda
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isModalOpen && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>

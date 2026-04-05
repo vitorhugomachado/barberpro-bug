@@ -49,11 +49,22 @@ export const AppProvider = ({ children }) => {
     email: 'contato@barberpro.com.br',
     address: 'Av. Paulista, 1000 - Bela Vista, São Paulo'
   }));
+  
+  const [products, setProducts] = useState(() => parseLocalString('bp_products', [
+    { id: 1, name: 'Pomada Modeladora', price: 45, cost: 20, stock: 15, category: 'Cabelo' },
+    { id: 2, name: 'Óleo para Barba', price: 35, cost: 15, stock: 8, category: 'Barba' },
+    { id: 3, name: 'Shampoo Mentolado', price: 55, cost: 25, stock: 12, category: 'Cabelo' },
+    { id: 4, name: 'Cerveja Artesanal', price: 15, cost: 8, stock: 24, category: 'Bebidas' },
+  ]));
+
+  const [productSales, setProductSales] = useState(() => parseLocalString('bp_product_sales', []));
 
   useEffect(() => { localStorage.setItem('bp_barbers', JSON.stringify(barbers)); }, [barbers]);
   useEffect(() => { localStorage.setItem('bp_appointments', JSON.stringify(appointments)); }, [appointments]);
   useEffect(() => { localStorage.setItem('bp_services', JSON.stringify(services)); }, [services]);
   useEffect(() => { localStorage.setItem('bp_business', JSON.stringify(businessInfo)); }, [businessInfo]);
+  useEffect(() => { localStorage.setItem('bp_products', JSON.stringify(products)); }, [products]);
+  useEffect(() => { localStorage.setItem('bp_product_sales', JSON.stringify(productSales)); }, [productSales]);
 
   const updateBusinessInfo = (newData) => setBusinessInfo({ ...businessInfo, ...newData });
 
@@ -84,20 +95,56 @@ export const AppProvider = ({ children }) => {
   const removeService = (id) => setServices(services.filter(s => s.id !== id));
   const updateService = (id, data) => setServices(services.map(s => s.id === id ? { ...s, ...data } : s));
 
+  const addProduct = (newProduct) => setProducts([...products, { ...newProduct, id: Date.now() }]);
+  const removeProduct = (id) => setProducts(products.filter(p => p.id !== id));
+  const updateProduct = (id, data) => setProducts(products.map(p => p.id === id ? { ...p, ...data } : p));
+  
+  const sellProduct = (productId, quantity = 1) => {
+    const product = products.find(p => p.id === productId);
+    if (!product || product.stock < quantity) return false;
+    
+    // Decrement Stock
+    setProducts(products.map(p => p.id === productId ? { ...p, stock: p.stock - quantity } : p));
+    
+    // Record Sale
+    setProductSales([...productSales, {
+      id: Date.now(),
+      productId,
+      productName: product.name,
+      price: product.price,
+      cost: product.cost,
+      quantity,
+      date: new Date().toISOString().split('T')[0]
+    }]);
+    return true;
+  };
+
   const getFinancialStats = (startDate, endDate) => {
     let finished = appointments.filter(app => app.status === 'Finalizado');
+    let soldProducts = productSales;
+
     if (startDate && endDate) {
       finished = finished.filter(app => app.date >= startDate && app.date <= endDate);
+      soldProducts = soldProducts.filter(sale => sale.date >= startDate && sale.date <= endDate);
     }
     
-    const revenue = finished.reduce((sum, app) => sum + app.price, 0);
+    const serviceRevenue = finished.reduce((sum, app) => sum + app.price, 0);
+    const productRevenue = soldProducts.reduce((sum, sale) => sum + (sale.price * sale.quantity), 0);
+    const productCost = soldProducts.reduce((sum, sale) => sum + (sale.cost * sale.quantity), 0);
+    
+    const revenue = serviceRevenue + productRevenue;
+    const itemsCount = finished.length + soldProducts.length;
+    
     const expenses = 4200; // Mock fixed expenses
     return {
       revenue,
+      serviceRevenue,
+      productRevenue,
+      productCost,
       expenses,
-      profit: revenue - expenses,
-      count: finished.length,
-      averageTicket: finished.length > 0 ? revenue / finished.length : 0
+      profit: revenue - expenses - productCost,
+      count: itemsCount,
+      averageTicket: itemsCount > 0 ? revenue / itemsCount : 0
     };
   };
 
@@ -117,6 +164,12 @@ export const AppProvider = ({ children }) => {
       addService,
       removeService,
       updateService,
+      products,
+      addProduct,
+      removeProduct,
+      updateProduct,
+      sellProduct,
+      productSales,
       updateBusinessInfo,
       getFinancialStats
     }}>
