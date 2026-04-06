@@ -1,131 +1,285 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AppContext = createContext();
+const API_URL = 'http://localhost:3001/api';
 
 export const AppProvider = ({ children }) => {
-  const parseLocalString = (key, defaultVal) => {
-    try {
-      const item = localStorage.getItem(key);
-      return item ? JSON.parse(item) : defaultVal;
-    } catch {
-      return defaultVal;
+  const [barbers, setBarbers] = useState([]);
+  const [appointments, setAppointments] = useState([]);
+  const [services, setServices] = useState([]);
+  const [businessInfo, setBusinessInfo] = useState({});
+  const [products, setProducts] = useState([]);
+  const [productSales, setProductSales] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [token, setToken] = useState(localStorage.getItem('barberpro_token'));
+  const [currentUser, setCurrentUser] = useState(null);
+
+  const apiFetch = async (url, options = {}) => {
+    const headers = {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    const res = await fetch(url, { ...options, headers });
+    if (res.status === 401) {
+      logout();
+    }
+    return res;
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [barbersRes, servicesRes, businessRes] = await Promise.all([
+          fetch(`${API_URL}/barbers`),
+          fetch(`${API_URL}/services`),
+          fetch(`${API_URL}/business`)
+        ]);
+
+        if (barbersRes.ok) setBarbers(await barbersRes.json());
+        if (servicesRes.ok) setServices(await servicesRes.json());
+        if (businessRes.ok) setBusinessInfo(await businessRes.json());
+        
+        if (token) {
+           try {
+             const userRes = await apiFetch(`${API_URL}/auth/me`);
+             if (userRes.ok) {
+               const user = await userRes.json();
+               setCurrentUser(user);
+               
+               // Fetch protected data only after auth success
+               const [apptsRes, prodsRes, salesRes] = await Promise.all([
+                 apiFetch(`${API_URL}/appointments`),
+                 apiFetch(`${API_URL}/products`),
+                 apiFetch(`${API_URL}/sales`)
+               ]);
+
+               if (apptsRes.ok) setAppointments(await apptsRes.json());
+               if (prodsRes.ok) setProducts(await prodsRes.json());
+               if (salesRes.ok) setProductSales(await salesRes.json());
+             } else {
+               logout();
+             }
+           } catch(e) {
+             console.error("Auth error on reload:", e);
+           }
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [token]);
+
+  const login = async (email, password) => {
+    const res = await fetch(`${API_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.message || 'Falha no login');
+    }
+
+    const { token: newToken, user } = await res.json();
+    setToken(newToken);
+    setCurrentUser(user);
+    localStorage.setItem('barberpro_token', newToken);
+    return user;
+  };
+
+  const logout = () => {
+    setToken(null);
+    setCurrentUser(null);
+    localStorage.removeItem('barberpro_token');
+  };
+
+  const updateBusinessInfo = async (newData) => {
+    const res = await apiFetch(`${API_URL}/business`, {
+      method: 'PUT',
+      body: JSON.stringify(newData)
+    });
+    if (res.ok) setBusinessInfo(await res.json());
+  };
+
+  const addAppointment = async (newApp) => {
+    const res = await fetch(`${API_URL}/appointments`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newApp)
+    });
+    if (res.ok) {
+        const savedApp = await res.json();
+        setAppointments([...appointments, savedApp]);
     }
   };
 
-  const [barbers, setBarbers] = useState(() => {
-    const defaultVal = [
-      { id: 1, name: 'Carlos Santos', email: 'carlos@barberpro.com', password: '123', role: 'Barbeiro', status: 'Ativo', permissions: ['dashboard', 'scheduler', 'clients'] },
-      { id: 2, name: 'André Lima', email: 'andre@barberpro.com', password: '123', role: 'Barbeiro', status: 'Ativo', permissions: ['scheduler', 'clients'] },
-      { id: 3, name: 'Rafael Costa', email: 'rafael@barberpro.com', password: '123', role: 'Barbeiro', status: 'Ativo', permissions: ['scheduler', 'clients'] },
-      { id: 4, name: 'Super Admin', email: 'admin@admin.com.br', password: 'admin', role: 'Gerente', status: 'Ativo', permissions: ['dashboard', 'scheduler', 'clients', 'finance', 'users', 'settings'] },
-    ];
-    const fromStorage = parseLocalString('bp_barbers', null);
-    if (!fromStorage) return defaultVal;
+  const updateAppointmentStatus = async (id, status) => {
+    const res = await apiFetch(`${API_URL}/appointments/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status })
+    });
+    if (res.ok) {
+        const updatedApp = await res.json();
+        setAppointments(appointments.map(app => app.id === id ? updatedApp : app));
+    }
+  };
 
-    // Migração para senhas antigas sem esse campo
-    return fromStorage.map(b => ({
-      ...b,
-      password: b.password || (b.role === 'Gerente' ? 'admin' : '123')
-    }));
-  });
+  const addBarber = async (newBarber) => {
+    const res = await apiFetch(`${API_URL}/barbers`, {
+      method: 'POST',
+      body: JSON.stringify({ ...newBarber, status: 'Ativo', permissions: ['scheduler', 'clients'] })
+    });
+    if (res.ok) {
+        const savedBarber = await res.json();
+        setBarbers([...barbers, savedBarber]);
+    }
+  };
 
-  const [appointments, setAppointments] = useState(() => parseLocalString('bp_appointments', [
-    { id: 1, customer: 'Vitor Machado', phone: '11999999999', service: 'Corte + Barba', barberId: 1, date: '2024-04-02', time: '09:00', status: 'Em progresso', price: 75 },
-    { id: 2, customer: 'João Silva', phone: '11888888888', service: 'Degradê', barberId: 2, date: '2024-04-02', time: '10:00', status: 'Agendado', price: 50 },
-    { id: 3, customer: 'Lucas Lima', phone: '11777777777', service: 'Corte Clássico', barberId: 3, date: '2024-04-02', time: '09:00', status: 'Finalizado', price: 50 },
-    { id: 4, customer: 'Marcos Braz', phone: '11666666666', service: 'Barboterapia', barberId: 1, date: '2024-04-02', time: '11:00', status: 'Agendado', price: 35 },
-  ]));
+  const updateBarberPermissions = async (id, permissions) => {
+    const res = await apiFetch(`${API_URL}/barbers/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ permissions })
+    });
+    if (res.ok) {
+        const updatedBarber = await res.json();
+        setBarbers(barbers.map(b => b.id === id ? updatedBarber : b));
+    }
+  };
 
-  const [services, setServices] = useState(() => parseLocalString('bp_services', [
-    { id: 1, name: 'Corte de Cabelo', price: 50, duration: '45 min' },
-    { id: 2, name: 'Barba Completa', price: 35, duration: '30 min' },
-    { id: 3, name: 'Corte + Barba', price: 75, duration: '1h 15 min' },
-    { id: 4, name: 'Limpeza de Pele', price: 40, duration: '30 min' },
-  ]));
+  const removeBarber = async (id) => {
+    const res = await apiFetch(`${API_URL}/barbers/${id}`, { method: 'DELETE' });
+    if (res.ok) setBarbers(barbers.filter(b => b.id !== id));
+  };
 
-  const [businessInfo, setBusinessInfo] = useState(() => parseLocalString('bp_business', {
-    name: 'BarberPro',
-    phone: '(11) 99999-9999',
-    email: 'contato@barberpro.com.br',
-    address: 'Av. Paulista, 1000 - Bela Vista, São Paulo'
-  }));
+  const updateBarber = async (id, data) => {
+    const res = await apiFetch(`${API_URL}/barbers/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+    if (res.ok) {
+        const updatedBarber = await res.json();
+        setBarbers(barbers.map(b => b.id === id ? updatedBarber : b));
+    }
+  };
   
-  const [products, setProducts] = useState(() => parseLocalString('bp_products', [
-    { id: 1, name: 'Pomada Modeladora', price: 45, cost: 20, stock: 15, category: 'Cabelo' },
-    { id: 2, name: 'Óleo para Barba', price: 35, cost: 15, stock: 8, category: 'Barba' },
-    { id: 3, name: 'Shampoo Mentolado', price: 55, cost: 25, stock: 12, category: 'Cabelo' },
-    { id: 4, name: 'Cerveja Artesanal', price: 15, cost: 8, stock: 24, category: 'Bebidas' },
-  ]));
-
-  const [productSales, setProductSales] = useState(() => parseLocalString('bp_product_sales', []));
-
-  useEffect(() => { localStorage.setItem('bp_barbers', JSON.stringify(barbers)); }, [barbers]);
-  useEffect(() => { localStorage.setItem('bp_appointments', JSON.stringify(appointments)); }, [appointments]);
-  useEffect(() => { localStorage.setItem('bp_services', JSON.stringify(services)); }, [services]);
-  useEffect(() => { localStorage.setItem('bp_business', JSON.stringify(businessInfo)); }, [businessInfo]);
-  useEffect(() => { localStorage.setItem('bp_products', JSON.stringify(products)); }, [products]);
-  useEffect(() => { localStorage.setItem('bp_product_sales', JSON.stringify(productSales)); }, [productSales]);
-
-  const updateBusinessInfo = (newData) => setBusinessInfo({ ...businessInfo, ...newData });
-
-  const addAppointment = (newApp) => {
-    setAppointments([...appointments, { ...newApp, id: Date.now() }]);
+  const toggleBarberStatus = async (id) => {
+    const barber = barbers.find(b => b.id === id);
+    const newStatus = barber.status === 'Ativo' ? 'Suspenso' : 'Ativo';
+    const res = await apiFetch(`${API_URL}/barbers/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ status: newStatus })
+    });
+    if (res.ok) {
+        const updatedBarber = await res.json();
+        setBarbers(barbers.map(b => b.id === id ? updatedBarber : b));
+    }
   };
 
-  const updateAppointmentStatus = (id, status) => {
-    setAppointments(appointments.map(app => app.id === id ? { ...app, status } : app));
+  const addService = async (newService) => {
+    const res = await apiFetch(`${API_URL}/services`, {
+      method: 'POST',
+      body: JSON.stringify(newService)
+    });
+    if (res.ok) setServices([...services, await res.json()]);
   };
 
-  const addBarber = (newBarber) => {
-    setBarbers([...barbers, { ...newBarber, id: Date.now(), status: 'Ativo', permissions: ['scheduler', 'clients'] }]);
+  const removeService = async (id) => {
+    const res = await apiFetch(`${API_URL}/services/${id}`, { method: 'DELETE' });
+    if (res.ok) setServices(services.filter(s => s.id !== id));
   };
 
-  const updateBarberPermissions = (id, permissions) => {
-    setBarbers(barbers.map(b => b.id === id ? { ...b, permissions } : b));
+  const updateService = async (id, data) => {
+    const res = await apiFetch(`${API_URL}/services/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+    if (res.ok) {
+        const updated = await res.json();
+        setServices(services.map(s => s.id === id ? updated : s));
+    }
   };
 
-  const removeBarber = (id) => setBarbers(barbers.filter(b => b.id !== id));
-  const updateBarber = (id, data) => setBarbers(barbers.map(b => b.id === id ? { ...b, ...data } : b));
+  const addProduct = async (newProduct) => {
+    const res = await apiFetch(`${API_URL}/products`, {
+      method: 'POST',
+      body: JSON.stringify(newProduct)
+    });
+    if (res.ok) setProducts([...products, await res.json()]);
+  };
+
+  const removeProduct = async (id) => {
+    const res = await apiFetch(`${API_URL}/products/${id}`, { method: 'DELETE' });
+    if (res.ok) setProducts(products.filter(p => p.id !== id));
+  };
+
+  const updateProduct = async (id, data) => {
+    const res = await apiFetch(`${API_URL}/products/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+    if (res.ok) {
+        const updated = await res.json();
+        setProducts(products.map(p => p.id === id ? updated : p));
+    }
+  };
   
-  const toggleBarberStatus = (id) => {
-    setBarbers(barbers.map(b => b.id === id ? { ...b, status: b.status === 'Ativo' ? 'Suspenso' : 'Ativo' } : b));
-  };
-
-  const addService = (newService) => setServices([...services, { ...newService, id: Date.now() }]);
-  const removeService = (id) => setServices(services.filter(s => s.id !== id));
-  const updateService = (id, data) => setServices(services.map(s => s.id === id ? { ...s, ...data } : s));
-
-  const addProduct = (newProduct) => setProducts([...products, { ...newProduct, id: Date.now() }]);
-  const removeProduct = (id) => setProducts(products.filter(p => p.id !== id));
-  const updateProduct = (id, data) => setProducts(products.map(p => p.id === id ? { ...p, ...data } : p));
-  
-  const sellProduct = (productId, quantity = 1) => {
+  const sellProduct = async (productId, quantity = 1, barberId = null) => {
     const product = products.find(p => p.id === productId);
     if (!product || product.stock < quantity) return false;
     
-    // Decrement Stock
-    setProducts(products.map(p => p.id === productId ? { ...p, stock: p.stock - quantity } : p));
+    await apiFetch(`${API_URL}/products/${productId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ stock: product.stock - quantity })
+    });
     
-    // Record Sale
-    setProductSales([...productSales, {
-      id: Date.now(),
-      productId,
-      productName: product.name,
-      price: product.price,
-      cost: product.cost,
-      quantity,
-      date: new Date().toISOString().split('T')[0]
-    }]);
-    return true;
+    const saleRes = await apiFetch(`${API_URL}/sales`, {
+      method: 'POST',
+      body: JSON.stringify({
+        productId,
+        productName: product.name,
+        price: product.price,
+        cost: product.cost,
+        quantity,
+        date: new Date().toISOString().split('T')[0],
+        barberId: barberId || null
+      })
+    });
+    
+    if (saleRes.ok) {
+        const savedSale = await saleRes.json();
+        setProducts(products.map(p => p.id === productId ? { ...p, stock: p.stock - quantity } : p));
+        setProductSales(prev => [...prev, savedSale]);
+        return true;
+    }
+    return false;
   };
 
-  const getFinancialStats = (startDate, endDate) => {
+  // barberId: null = geral, 'barbershop' = só produtos sem barbeiro, number = barbeiro específico
+  const getFinancialStats = (startDate, endDate, barberId = null) => {
     let finished = appointments.filter(app => app.status === 'Finalizado');
-    let soldProducts = productSales;
+    let soldProducts = [...productSales];
 
     if (startDate && endDate) {
       finished = finished.filter(app => app.date >= startDate && app.date <= endDate);
       soldProducts = soldProducts.filter(sale => sale.date >= startDate && sale.date <= endDate);
+    }
+
+    // Filtro por barbeiro
+    if (barberId === 'barbershop') {
+      // Apenas vendas de produto sem barbeiro vinculado (receita da barbearia)
+      finished = [];
+      soldProducts = soldProducts.filter(sale => !sale.barberId);
+    } else if (barberId) {
+      const id = Number(barberId);
+      finished = finished.filter(app => Number(app.barberId) === id);
+      soldProducts = soldProducts.filter(sale => Number(sale.barberId) === id);
     }
     
     const serviceRevenue = finished.reduce((sum, app) => sum + app.price, 0);
@@ -134,48 +288,45 @@ export const AppProvider = ({ children }) => {
     
     const revenue = serviceRevenue + productRevenue;
     const itemsCount = finished.length + soldProducts.length;
-    
-    const expenses = 4200; // Mock fixed expenses
     return {
-      revenue,
-      serviceRevenue,
-      productRevenue,
-      productCost,
-      expenses,
-      profit: revenue - expenses - productCost,
-      count: itemsCount,
-      averageTicket: itemsCount > 0 ? revenue / itemsCount : 0
+      revenue, serviceRevenue, productRevenue, productCost, expenses: 4200,
+      profit: revenue - 4200 - productCost, count: itemsCount,
+      averageTicket: itemsCount > 0 ? revenue / itemsCount : 0,
+      appointments: finished,
+      sales: soldProducts
     };
+  };
+
+  // Retorna ranking de barbeiros com stats individuais para o período
+  const getBarberRanking = (startDate, endDate) => {
+    return barbers
+      .filter(b => b.role === 'Barbeiro')
+      .map(barber => {
+        const stats = getFinancialStats(startDate, endDate, barber.id);
+        return {
+          ...barber,
+          serviceRevenue: stats.serviceRevenue,
+          productRevenue: stats.productRevenue,
+          revenue: stats.revenue,
+          count: stats.count,
+          averageTicket: stats.averageTicket
+        };
+      })
+      .sort((a, b) => b.revenue - a.revenue);
   };
 
   return (
     <AppContext.Provider value={{
-      barbers,
-      appointments,
-      services,
-      businessInfo,
-      addAppointment,
-      updateAppointmentStatus,
-      addBarber,
-      updateBarberPermissions,
-      removeBarber,
-      updateBarber,
-      toggleBarberStatus,
-      addService,
-      removeService,
-      updateService,
-      products,
-      addProduct,
-      removeProduct,
-      updateProduct,
-      sellProduct,
-      productSales,
-      updateBusinessInfo,
-      getFinancialStats
+      barbers, appointments, services, businessInfo, addAppointment, updateAppointmentStatus,
+      addBarber, updateBarberPermissions, removeBarber, updateBarber, toggleBarberStatus,
+      addService, removeService, updateService, products, addProduct, removeProduct,
+      updateProduct, sellProduct, productSales, updateBusinessInfo, getFinancialStats,
+      getBarberRanking, login, logout, currentUser, token, loading
     }}>
       {children}
     </AppContext.Provider>
   );
+
 };
 
 export const useApp = () => useContext(AppContext);

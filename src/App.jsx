@@ -12,35 +12,36 @@ import Settings from './pages/Settings';
 import { useApp } from './context/AppContext';
 
 function App() {
-  const { barbers } = useApp();
+  const { barbers, loading, login, logout, currentUser } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [userId, setUserId] = useState(null);
   const [viewMode, setViewMode] = useState('public');
-  
-  const currentUser = barbers.find(b => b.id === userId);
 
-  const handleLogin = (emailToLogin, pwd) => {
-    const foundUser = barbers.find(b => b.email === emailToLogin);
-    if (!foundUser) {
-      alert("Erro: Este e-mail não pertence a nenhum usuário cadastrado no sistema.");
-      return;
+  const handleLogin = async (emailToLogin, pwd) => {
+    try {
+      await login(emailToLogin, pwd);
+      console.log('Login successful');
+      setViewMode('admin');
+    } catch (error) {
+      alert(error.message || "Erro ao realizar login.");
     }
-    if (foundUser.password !== pwd) {
-      alert("Acesso Negado: Senha incorreta.");
-      return;
-    }
-    if (foundUser.status === 'Suspenso') {
-      alert("ACESSO NEGADO: Sua conta está atualmente suspensa pelo Administrador.");
-      return;
-    }
-    setUserId(foundUser.id);
-    setViewMode('admin');
   };
 
   const handleLogout = () => {
-    setUserId(null);
+    logout();
     setViewMode('public');
   };
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', flexDirection: 'column', gap: '20px' }}>
+        <div className="spinner" style={{ width: '40px', height: '40px', border: '4px solid rgba(0,0,0,0.1)', borderTop: '4px solid #000', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+        <p style={{ fontWeight: 500 }}>Carregando BarberPro...</p>
+        <style>{`
+          @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        `}</style>
+      </div>
+    );
+  }
 
   if (viewMode === 'public') {
     return (
@@ -90,6 +91,15 @@ function App() {
         return <Dashboard />;
     }
   };
+
+  if (!currentUser) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', flexDirection: 'column', gap: '20px' }}>
+        <p>Carregando perfil do usuário...</p>
+        <button className="btn-secondary" onClick={handleLogout}>Voltar ao Início</button>
+      </div>
+    );
+  }
 
   return (
     <div className="layout">

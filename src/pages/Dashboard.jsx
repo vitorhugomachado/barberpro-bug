@@ -29,7 +29,7 @@ const Dashboard = () => {
   const [formData, setFormData] = useState({
     customer: '', phone: '', serviceId: '', barberId: '', time: '09:00', date: startDate
   });
-  const [saleData, setSaleData] = useState({ productId: '', quantity: 1 });
+  const [saleData, setSaleData] = useState({ productId: '', quantity: 1, barberId: '' });
 
   React.useEffect(() => {
     setFormData(prev => ({ ...prev, date: startDate }));
@@ -54,16 +54,18 @@ const Dashboard = () => {
     setFormData({ customer: '', phone: '', serviceId: '', barberId: '', time: '09:00', date: startDate });
   };
 
-  const handleSaleProduct = () => {
+  const handleSaleProduct = async () => {
     if (!saleData.productId) return;
-    const success = sellProduct(parseInt(saleData.productId), parseInt(saleData.quantity));
+    const barberId = saleData.barberId ? parseInt(saleData.barberId) : null;
+    const success = await sellProduct(parseInt(saleData.productId), parseInt(saleData.quantity), barberId);
     if (success) {
       setIsSaleModalOpen(false);
-      setSaleData({ productId: '', quantity: 1 });
+      setSaleData({ productId: '', quantity: 1, barberId: '' });
     } else {
       alert("Estoque insuficiente!");
     }
   };
+
 
   const stats = getFinancialStats(startDate, endDate);
   const filteredAppointments = appointments.filter(app => app.date >= startDate && app.date <= endDate);
@@ -79,8 +81,6 @@ const Dashboard = () => {
     return dates;
   };
   const selectedDates = getDatesInRange(startDate, endDate);
-
-  const filteredAppointments = appointments.filter(app => app.date >= startDate && app.date <= endDate);
 
   const timeSlots = [
     '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'
@@ -224,7 +224,7 @@ const Dashboard = () => {
 
       {isSaleModalOpen && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="glass-card fade-in" style={{ width: '400px', background: '#fff', padding: '2rem' }}>
+          <div className="glass-card fade-in" style={{ width: '420px', background: '#fff', padding: '2rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.2rem', marginBottom: 0 }}>Venda de Balcão (PDV)</h2>
               <button style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }} onClick={() => setIsSaleModalOpen(false)}><X size={20} /></button>
@@ -241,6 +241,13 @@ const Dashboard = () => {
                   </option>
                 ))}
               </select>
+
+              <select value={saleData.barberId} onChange={e => setSaleData({...saleData, barberId: e.target.value})} style={{ padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', outline: 'none' }}>
+                <option value="">Barbeiro responsável (opcional)</option>
+                {barbers.filter(b => b.status === 'Ativo').map(b => (
+                  <option key={b.id} value={b.id}>{b.name}</option>
+                ))}
+              </select>
               
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <label style={{ fontSize: '0.9rem', fontWeight: 600 }}>Qtd:</label>
@@ -253,18 +260,29 @@ const Dashboard = () => {
                 />
               </div>
 
-              <div style={{ padding: '1rem', background: 'rgba(0,0,0,0.02)', borderRadius: '10px', marginTop: '1rem' }}>
+              <div style={{ padding: '1rem', background: 'rgba(0,0,0,0.02)', borderRadius: '10px', marginTop: '0.5rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.1rem', fontWeight: 700 }}>
                   <span>Total:</span>
                   <span>R$ {(products.find(p => String(p.id) === String(saleData.productId))?.price * saleData.quantity || 0).toLocaleString('pt-BR')}</span>
                 </div>
+                {saleData.barberId && (
+                  <div style={{ marginTop: '6px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                    Registrado para: <strong>{barbers.find(b => String(b.id) === String(saleData.barberId))?.name}</strong>
+                  </div>
+                )}
+                {!saleData.barberId && (
+                  <div style={{ marginTop: '6px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                    Venda registrada como receita da <strong>barbearia</strong>
+                  </div>
+                )}
               </div>
 
-              <button className="btn-primary" style={{ marginTop: '1rem', padding: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }} onClick={handleSaleProduct} disabled={!saleData.productId || saleData.quantity <= 0}>
+              <button className="btn-primary" style={{ marginTop: '0.5rem', padding: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }} onClick={handleSaleProduct} disabled={!saleData.productId || saleData.quantity <= 0}>
                 <ShoppingBag size={18} /> Finalizar Venda
               </button>
             </div>
           </div>
+
         </div>
       )}
 

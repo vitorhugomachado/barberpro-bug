@@ -52,29 +52,42 @@ const PublicBooking = () => {
           <div className="fade-in">
             <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>O que vamos fazer hoje?</h2>
             <div style={{ display: 'grid', gap: '1rem' }}>
-              {services.map(s => (
-                <div 
-                  key={s.id} 
-                  className="glass-card" 
-                  style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center', 
-                    cursor: 'pointer',
-                    border: selectedService?.id === s.id ? '2px solid #000' : '1px solid var(--border-color)',
-                    padding: '1.25rem'
-                  }}
-                  onClick={() => { setSelectedService(s); setStep(2); }}
-                >
-                  <div>
-                    <h3 style={{ fontSize: '1.1rem', marginBottom: '4px' }}>{s.name}</h3>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{s.duration}</p>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <span style={{ fontWeight: 700, fontSize: '1.1rem' }}>R$ {s.price}</span>
-                  </div>
+              {services.length === 0 ? (
+                <div style={{ padding: '2rem', textAlign: 'center', background: 'rgba(0,0,0,0.02)', borderRadius: '12px' }}>
+                  Nenhum serviço disponível no momento.
                 </div>
-              ))}
+              ) : (
+                services.map(s => (
+                  <button 
+                    key={s.id} 
+                    className="glass-card" 
+                    style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center', 
+                      cursor: 'pointer',
+                      width: '100%',
+                      textAlign: 'left',
+                      background: 'white',
+                      border: selectedService?.id === s.id ? '2px solid #000' : '1px solid var(--border-color)',
+                      padding: '1.25rem'
+                    }}
+                    onClick={() => { 
+                      console.log('Selected service:', s.name);
+                      setSelectedService(s); 
+                      setStep(2); 
+                    }}
+                  >
+                    <div>
+                      <h3 style={{ fontSize: '1.1rem', marginBottom: '4px', color: 'var(--text-primary)' }}>{s.name}</h3>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{s.duration}</p>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <span style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--text-primary)' }}>R$ {s.price}</span>
+                    </div>
+                  </button>
+                ))
+              )}
             </div>
           </div>
         );
@@ -83,35 +96,46 @@ const PublicBooking = () => {
           <div className="fade-in">
             <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>Escolha seu barbeiro</h2>
             <div style={{ display: 'grid', gap: '1rem' }}>
-              {barbers.filter(b => b.role === 'Barbeiro' && b.status === 'Ativo').map(b => (
-                <div 
-                  key={b.id} 
-                  className="glass-card" 
-                  style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: '1.5rem',
-                    cursor: 'pointer',
-                    border: selectedBarber?.id === b.id ? '2px solid #000' : '1px solid var(--border-color)',
-                    padding: '1.25rem'
-                  }}
-                  onClick={() => { setSelectedBarber(b); setStep(3); }}
-                >
-                  <div style={{ width: '60px', height: '60px', background: 'rgba(0,0,0,0.04)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 700 }}>
-                    {b.name.charAt(0)}
-                  </div>
-                  <div>
-                    <h3 style={{ fontSize: '1.1rem', marginBottom: '4px' }}>{b.name}</h3>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{b.role}</p>
-                  </div>
-                  <ChevronRight size={20} style={{ marginLeft: 'auto', color: 'var(--text-secondary)' }} />
+              {barbers.filter(b => b.role === 'Barbeiro' && b.status === 'Ativo').length === 0 ? (
+                <div style={{ padding: '2rem', textAlign: 'center', background: 'rgba(0,0,0,0.02)', borderRadius: '12px' }}>
+                  Não há barbeiros disponíveis para agendamento online hoje.
                 </div>
-              ))}
+              ) : (
+                barbers.filter(b => b.role === 'Barbeiro' && b.status === 'Ativo').map(b => (
+                  <div 
+                    key={b.id} 
+                    className="glass-card" 
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '1.5rem',
+                      cursor: 'pointer',
+                      background: 'white',
+                      border: selectedBarber?.id === b.id ? '2px solid #000' : '1px solid var(--border-color)',
+                      padding: '1.25rem'
+                    }}
+                    onClick={() => { 
+                      console.log('Selected barber:', b.name);
+                      setSelectedBarber(b); 
+                      setStep(3); 
+                    }}
+                  >
+                    <div style={{ width: '60px', height: '60px', background: 'rgba(0,0,0,0.04)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 700 }}>
+                      {b.name.charAt(0)}
+                    </div>
+                    <div>
+                      <h3 style={{ fontSize: '1.1rem', marginBottom: '4px' }}>{b.name}</h3>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{b.role}</p>
+                    </div>
+                    <ChevronRight size={20} style={{ marginLeft: 'auto', color: 'var(--text-secondary)' }} />
+                  </div>
+                ))
+              )}
             </div>
             <button className="btn-secondary" style={{ marginTop: '2rem' }} onClick={() => setStep(1)}>Voltar</button>
           </div>
         );
-      case 3:
+      case 3: {
         const baseTimeSlots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
         const extendedTimeSlots = ['18:00', '19:00', '20:00', '21:00'];
         const allTimeSlots = showMoreSlots ? [...baseTimeSlots, ...extendedTimeSlots] : baseTimeSlots;
@@ -218,6 +242,7 @@ const PublicBooking = () => {
             </div>
           </div>
         );
+      }
       case 4:
         return (
           <div className="fade-in">
