@@ -13,16 +13,44 @@ const Settings = () => {
   const [activeTab, setActiveTab] = useState('barbers');
   
   const [newBarber, setNewBarber] = useState({ name: '', role: 'Barbeiro', email: '', password: '' });
+  const [editingBarberId, setEditingBarberId] = useState(null);
+  
   const [newService, setNewService] = useState({ name: '', duration: '30 min', price: '' });
   const [newProduct, setNewProduct] = useState({ name: '', category: 'Cabelo', price: '', cost: '', stock: '' });
   const [bInfo, setBInfo] = useState(businessInfo);
 
   const handleAddBarber = () => {
-    if (!newBarber.name || !newBarber.password) {
-      alert("Nome e Senha são obrigatórios.");
+    if (!newBarber.name) {
+      alert("O nome é obrigatório.");
       return;
     }
-    addBarber(newBarber);
+    
+    if (editingBarberId) {
+      updateBarber(editingBarberId, newBarber);
+      setEditingBarberId(null);
+    } else {
+      if (!newBarber.password) {
+        alert("A senha é obrigatória para novos cadastros.");
+        return;
+      }
+      addBarber(newBarber);
+    }
+    
+    setNewBarber({ name: '', role: 'Barbeiro', email: '', password: '' });
+  };
+
+  const startEditBarber = (barber) => {
+    setEditingBarberId(barber.id);
+    setNewBarber({
+      name: barber.name,
+      role: barber.role,
+      email: barber.email || '',
+      password: '' // Manter vazio por segurança, só altera se preencher
+    });
+  };
+
+  const cancelEditBarber = () => {
+    setEditingBarberId(null);
     setNewBarber({ name: '', role: 'Barbeiro', email: '', password: '' });
   };
 
@@ -94,31 +122,72 @@ const Settings = () => {
               
               <div style={{ display: 'grid', gridTemplateColumns: 'minmax(250px, 300px) 1fr', gap: '2rem' }}>
                 <div>
-                  <h3 style={{ fontSize: '1rem', marginBottom: '1rem', color: 'var(--text-secondary)' }}>Adicionar Novo</h3>
-                  <input type="text" placeholder="Nome Completo" value={newBarber.name} onChange={e => setNewBarber({...newBarber, name: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', outline: 'none' }} />
-                  <input type="email" placeholder="E-mail de Acesso" value={newBarber.email} onChange={e => setNewBarber({...newBarber, email: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', outline: 'none' }} />
-                  <input type="password" placeholder="Senha de Acesso" value={newBarber.password} onChange={e => setNewBarber({...newBarber, password: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', outline: 'none' }} />
-                  <select value={newBarber.role} onChange={e => setNewBarber({...newBarber, role: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)', outline: 'none' }}>
+                  <h3 style={{ fontSize: '1rem', marginBottom: '1rem', color: 'var(--text-secondary)' }}>
+                    {editingBarberId ? 'Editar Profissional' : 'Adicionar Novo'}
+                  </h3>
+                  <input type="text" placeholder="Nome Completo" value={newBarber.name} onChange={e => setNewBarber({...newBarber, name: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '10px', borderRadius: '8px', border: editingBarberId ? '1px solid #bfdbfe' : '1px solid var(--border-color)', outline: 'none' }} />
+                  <input type="email" placeholder="E-mail de Acesso" value={newBarber.email} onChange={e => setNewBarber({...newBarber, email: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '10px', borderRadius: '8px', border: editingBarberId ? '1px solid #bfdbfe' : '1px solid var(--border-color)', outline: 'none' }} />
+                  <input type="password" placeholder={editingBarberId ? "Nova Senha (deixe vazio p/ manter)" : "Senha de Acesso"} value={newBarber.password} onChange={e => setNewBarber({...newBarber, password: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '10px', borderRadius: '8px', border: editingBarberId ? '1px solid #bfdbfe' : '1px solid var(--border-color)', outline: 'none' }} />
+                  <select value={newBarber.role} onChange={e => setNewBarber({...newBarber, role: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '1rem', borderRadius: '8px', border: editingBarberId ? '1px solid #bfdbfe' : '1px solid var(--border-color)', outline: 'none' }}>
                     <option value="Barbeiro">Barbeiro</option>
                     <option value="Gerente">Gerente</option>
                   </select>
-                  <button className="btn-primary" onClick={handleAddBarber} style={{ width: '100%', padding: '12px', display: 'flex', justifyContent: 'center', gap: '8px' }}>
-                    <Plus size={18} /> Salvar Profissional
-                  </button>
+                  
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <button className="btn-primary" onClick={handleAddBarber} style={{ flex: 1, padding: '12px', display: 'flex', justifyContent: 'center', gap: '8px', background: editingBarberId ? '#2563eb' : '#000' }}>
+                      {editingBarberId ? <Save size={18} /> : <Plus size={18} />} 
+                      {editingBarberId ? 'Atualizar Dados' : 'Salvar Profissional'}
+                    </button>
+                    {editingBarberId && (
+                      <button onClick={cancelEditBarber} style={{ padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: '#fff', cursor: 'pointer' }}>
+                        Cancelar
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div>
                   <h3 style={{ fontSize: '1rem', marginBottom: '1rem', color: 'var(--text-secondary)' }}>Cadastrados ({barbers.length})</h3>
                   <div style={{ display: 'grid', gap: '12px' }}>
                     {barbers.map(b => (
-                      <div key={b.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: 'rgba(0,0,0,0.02)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                        <div>
-                          <p style={{ fontWeight: 600 }}>{b.name}</p>
-                          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{b.role}</p>
+                      <div 
+                        key={b.id} 
+                        className="hover-trigger"
+                        onClick={() => startEditBarber(b)}
+                        style={{ 
+                          display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', 
+                          background: editingBarberId === b.id ? 'rgba(37, 99, 235, 0.05)' : 'rgba(0,0,0,0.02)', 
+                          borderRadius: '8px', border: editingBarberId === b.id ? '1px solid #bfdbfe' : '1px solid var(--border-color)',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                           <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#000', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 600 }}>
+                              {b.name.charAt(0)}
+                           </div>
+                           <div>
+                            <p style={{ fontWeight: 600 }}>{b.name} {editingBarberId === b.id && <span style={{ fontSize: '0.65rem', background: '#bfdbfe', color: '#1e40af', padding: '2px 6px', borderRadius: '4px', marginLeft: '8px' }}>Editando</span>}</p>
+                            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{b.role}</p>
+                          </div>
                         </div>
-                        <button style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '8px' }} onClick={() => removeBarber(b.id)}>
-                          <Trash2 size={18} />
-                        </button>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button 
+                            className="hover-visible"
+                            style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '8px' }}
+                          >
+                            <Edit2 size={16} />
+                          </button>
+                          <button 
+                            style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '8px' }} 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if(window.confirm(`Excluir ${b.name}?`)) removeBarber(b.id);
+                            }}
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>

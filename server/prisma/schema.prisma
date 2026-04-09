@@ -40,6 +40,7 @@ model Appointment {
   time     String
   status   String  @default("Agendado")
   price    Float
+  payments Json?
 }
 
 model Product {

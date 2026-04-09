@@ -154,3 +154,43 @@ button {
 ::-webkit-scrollbar-thumb:hover {
   background: #999;
 }
+
+/* --- Tech-Luxe Utilities --- */
+.pulse-bg {
+  animation: pulse-bg 2s infinite ease-in-out;
+}
+
+@keyframes pulse-bg {
+  0% { transform: scale(0.95); opacity: 0.5; }
+  50% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.5; }
+}
+
+.hover-visible {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.hover-trigger:hover .hover-visible {
+  opacity: 1;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Smoother entry animations for grid items */
+.stagger-1 { animation: fadeIn 0.4s ease-out 0.1s both; }
+.stagger-2 { animation: fadeIn 0.4s ease-out 0.2s both; }
+.stagger-3 { animation: fadeIn 0.4s ease-out 0.3s both; }
+.stagger-4 { animation: fadeIn 0.4s ease-out 0.4s both; }
+
+.gradient-text {
+  background: linear-gradient(135deg, #10b981, #059669);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

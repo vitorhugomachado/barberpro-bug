@@ -18,8 +18,16 @@ function App() {
 
   const handleLogin = async (emailToLogin, pwd) => {
     try {
-      await login(emailToLogin, pwd);
+      const userData = await login(emailToLogin, pwd);
       console.log('Login successful');
+      
+      // Redirecionamento inteligente baseado no cargo
+      if (userData?.role === 'Barbeiro') {
+        setActiveTab('scheduler');
+      } else {
+        setActiveTab('dashboard');
+      }
+      
       setViewMode('admin');
     } catch (error) {
       alert(error.message || "Erro ao realizar login.");
@@ -28,6 +36,7 @@ function App() {
 
   const handleLogout = () => {
     logout();
+    setActiveTab('dashboard'); // Reset tab state on logout
     setViewMode('public');
   };
 

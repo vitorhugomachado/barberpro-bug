@@ -33,7 +33,7 @@ export const AppProvider = ({ children }) => {
     const fetchData = async () => {
       try {
         const [barbersRes, servicesRes, businessRes] = await Promise.all([
-          fetch(`${API_URL}/barbers`),
+          apiFetch(`${API_URL}/barbers`),
           fetch(`${API_URL}/services`),
           fetch(`${API_URL}/business`)
         ]);
@@ -120,10 +120,10 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  const updateAppointmentStatus = async (id, status) => {
+  const updateAppointmentStatus = async (id, status, extraData = {}) => {
     const res = await apiFetch(`${API_URL}/appointments/${id}`, {
       method: 'PATCH',
-      body: JSON.stringify({ status })
+      body: JSON.stringify({ status, ...extraData })
     });
     if (res.ok) {
         const updatedApp = await res.json();

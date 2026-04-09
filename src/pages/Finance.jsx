@@ -1,12 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import {
   TrendingUp, DollarSign, PieChart, Sparkles, User, Filter,
-  ArrowUpRight, ArrowDownRight, Info, ShoppingBag, Scissors, Trophy, Store
+  ArrowUpRight, ArrowDownRight, Info, ShoppingBag, Scissors, Trophy, Store, LayoutList, CreditCard
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 const Finance = () => {
-  const { barbers, appointments, productSales, getFinancialStats, getBarberRanking } = useApp();
+  const { barbers, appointments, productSales, getFinancialStats, getBarberRanking, currentUser } = useApp();
 
   const getLocalDateStr = (d) => {
     let dt = new Date(d);
@@ -20,44 +20,67 @@ const Finance = () => {
 
   const [startDate, setStartDate] = useState(getLocalDateStr(firstDay));
   const [endDate, setEndDate] = useState(getLocalDateStr(lastDay));
-  const [selectedView, setSelectedView] = useState('geral'); // 'geral' | barberId | 'barbershop'
-
-  const [comparisonParams, setComparisonParams] = useState({
-    revenue: true, ticket: true, retention: true, productivity: false
+  
+  // Barbers must only see their own data
+  const [selectedView, setSelectedView] = useState(() => {
+    return currentUser?.role === 'Barbeiro' ? String(currentUser.id) : 'geral';
   });
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [aiAnalysis, setAiAnalysis] = useState(null);
 
-  const barberId = selectedView === 'geral' ? null : selectedView;
-  const stats = useMemo(() => getFinancialStats(startDate, endDate, barberId), [startDate, endDate, barberId, appointments, productSales]);
-  const ranking = useMemo(() => getBarberRanking(startDate, endDate), [startDate, endDate, appointments, productSales, barbers]);
+  const stats = useMemo(() => getFinancialStats(startDate, endDate, selectedView === 'geral' ? null : selectedView), [startDate, endDate, selectedView, getFinancialStats, appointments, productSales]);
+  
+  const ranking = useMemo(() => getBarberRanking(startDate, endDate), [startDate, endDate, getBarberRanking, appointments, productSales, barbers]);
+  
+  const barberShopProductStats = useMemo(() => getFinancialStats(startDate, endDate, 'barbershop'), [startDate, endDate, getFinancialStats, productSales]);
+  
+  const selectedBarber = useMemo(() => barbers.find(b => String(b.id) === selectedView), [barbers, selectedView]);
 
-  const barberShopProductStats = useMemo(() => getFinancialStats(startDate, endDate, 'barbershop'), [startDate, endDate, productSales]);
+  // Meticulous Financial Calculations
+  const revenueByService = useMemo(() => {
+    const acc = {};
+    const count = {};
+    if (!stats.appointments) return [];
+    stats.appointments.forEach(app => {
+      const srv = app.service || 'Outros';
+      acc[srv] = (acc[srv] || 0) + app.price;
+      count[srv] = (count[srv] || 0) + 1;
+    });
+    return Object.entries(acc)
+      .map(([name, total]) => ({ name, total, count: count[name] }))
+      .sort((a, b) => b.total - a.total);
+  }, [stats.appointments]);
 
-  const selectedBarber = useMemo(() => {
-    if (!barberId || barberId === 'barbershop') return null;
-    return barbers.find(b => String(b.id) === String(barberId));
-  }, [barberId, barbers]);
-
-  const handleAIAnalysis = () => {
-    setIsAnalyzing(true);
-    setAiAnalysis(null);
-    setTimeout(() => {
-      const topBarberName = ranking.length > 0 ? ranking[0]?.name : 'A Equipe';
-      const formattedStart = startDate.split('-').reverse().join('/');
-      const formattedEnd = endDate.split('-').reverse().join('/');
-      const analyses = [
-        `No período de **${formattedStart} a ${formattedEnd}**, **${topBarberName}** liderou o faturamento com R$ ${ranking[0]?.revenue?.toFixed(2) || '0.00'}.`,
-        `O ticket médio geral foi de **R$ ${stats.averageTicket.toFixed(2)}**. ` + (stats.averageTicket > 40 ? 'A estratégia de upsell está funcionando muito bem!' : 'Há oportunidade de recomendar serviços adicionais (ex: Sobrancelha, Barboterapia).')
-      ];
-      setAiAnalysis({
-        summary: 'Análise processada e consolidada para as datas específicas do filtro.',
-        insights: analyses,
-        recommendation: `Identificamos ${stats.count} registros finalizados no período. Recomendamos disparos informativos por WhatsApp para reativar essa base de clientes nas próximas semanas.`
+  const revenueByMethod = useMemo(() => {
+    const acc = {};
+    let totalComputed = 0;
+    if (!stats.appointments) return [];
+    stats.appointments.forEach(app => {
+      // Compatibility with split payments
+      if (app.payments && Array.isArray(app.payments)) {
+        app.payments.forEach(p => {
+          acc[p.method] = (acc[p.method] || 0) + Number(p.amount || 0);
+          totalComputed += Number(p.amount || 0);
+        });
+      } else {
+        // Fallback for older entries without payments structured array
+        acc['Outros'] = (acc['Outros'] || 0) + app.price;
+        totalComputed += app.price;
+      }
+    });
+    // Add product sales to the payment methods (Assuming they are mostly Dinheiro/Pix, we will bundle them as 'Caixa Balcão' for precise UI)
+    if (stats.sales && stats.sales.length > 0) {
+      stats.sales.forEach(sale => {
+        acc['Caixa Bar.]'] = (acc['Caixa Bar.]'] || 0) + (sale.price * sale.quantity);
+        totalComputed += (sale.price * sale.quantity);
       });
-      setIsAnalyzing(false);
-    }, 1500);
-  };
+    }
+    
+    return {
+      methods: Object.entries(acc)
+        .map(([method, total]) => ({ method, total, pct: totalComputed > 0 ? (total / totalComputed) * 100 : 0 }))
+        .sort((a, b) => b.total - a.total),
+      total: totalComputed
+    };
+  }, [stats.appointments, stats.sales]);
 
   const formatCurrency = (val) => `R$ ${(val || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
@@ -74,7 +97,7 @@ const Finance = () => {
         <div>
           <h1 style={{ fontSize: '1.8rem', marginBottom: '8px' }}>Gestão Financeira</h1>
           <p style={{ color: 'var(--text-secondary)' }}>
-            Relatórios detalhados e análise por barbeiro. Visualizando: <strong>{viewLabel}</strong>
+            Relatórios detalhados e análise. Visualizando: <strong>{viewLabel}</strong>
           </p>
         </div>
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -88,7 +111,8 @@ const Finance = () => {
         </div>
       </header>
 
-      {/* View Selector Tabs */}
+      {/* View Selector Tabs - Habilitado apenas para Administradores/Gerentes */}
+      {currentUser?.role !== 'Barbeiro' && (
       <div style={{ display: 'flex', gap: '8px', marginBottom: '2rem', flexWrap: 'wrap' }}>
         <button
           onClick={() => setSelectedView('geral')}
@@ -132,6 +156,7 @@ const Finance = () => {
           </button>
         ))}
       </div>
+      )}
 
       {/* KPI Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
@@ -253,75 +278,86 @@ const Finance = () => {
           </div>
         )}
 
-        {/* IA Analysis */}
+        {/* Advanced BI Dashboards */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          
+          {/* Dashboard 1: Desempenho por Mix de Serviços */}
           <div className="glass-card">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '2rem' }}>
-              <Filter size={20} />
-              <h3 style={{ fontSize: '1.1rem' }}>Parâmetros da IA</h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.5rem' }}>
+              <LayoutList size={20} />
+              <h3 style={{ fontSize: '1.1rem' }}>Desempenho por Mix de Serviços</h3>
             </div>
-            <div style={{ display: 'grid', gap: '1.5rem' }}>
-              {Object.keys(comparisonParams).map(param => (
-                <div key={param} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div>
-                    <p style={{ fontWeight: 600 }}>
-                      {param === 'retention' ? 'Taxa de Retenção' : param === 'productivity' ? 'Produtividade' : param === 'revenue' ? 'Faturamento Total' : 'Ticket Médio'}
-                    </p>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                      {param === 'retention' ? 'Análise de quantos clientes retornam' : param === 'productivity' ? 'Tempo médio de cadeira vs ociosidade' : 'Comparativo bruto e crescimento'}
-                    </p>
-                  </div>
-                  <div
-                    onClick={() => setComparisonParams({ ...comparisonParams, [param]: !comparisonParams[param] })}
-                    style={{ width: '40px', height: '24px', background: comparisonParams[param] ? '#000' : '#e5e7eb', borderRadius: '12px', position: 'relative', cursor: 'pointer', transition: 'all 0.2s', flexShrink: 0 }}
-                  >
-                    <div style={{ width: '18px', height: '18px', background: '#fff', borderRadius: '50%', position: 'absolute', top: '3px', left: comparisonParams[param] ? '20px' : '3px', transition: 'all 0.2s' }} />
-                  </div>
-                </div>
-              ))}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              {revenueByService.length === 0 ? (
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', textAlign: 'center', padding: '1rem 0' }}>Sem serviços no período.</p>
+              ) : (
+                revenueByService.map((srv, idx) => {
+                  const maxTotal = revenueByService[0].total || 1;
+                  const pct = (srv.total / maxTotal) * 100;
+                  return (
+                    <div key={srv.name}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                        <div>
+                          <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>{srv.name}</div>
+                          <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
+                            {srv.count} execuções
+                          </div>
+                        </div>
+                        <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{formatCurrency(srv.total)}</div>
+                      </div>
+                      <div style={{ height: '6px', background: '#f8f9fa', borderRadius: '3px', overflow: 'hidden', border: '1px solid rgba(0,0,0,0.05)' }}>
+                        <div style={{ height: '100%', width: `${pct}%`, background: idx === 0 ? '#2563eb' : '#93c5fd', borderRadius: '3px', transition: 'width 0.5s ease' }} />
+                      </div>
+                    </div>
+                  )
+                })
+              )}
             </div>
-            <button
-              className="btn-primary"
-              style={{ width: '100%', marginTop: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '14px' }}
-              onClick={handleAIAnalysis}
-              disabled={isAnalyzing}
-            >
-              <Sparkles size={18} /> {isAnalyzing ? 'Analisando...' : 'Gerar Análise por IA'}
-            </button>
           </div>
 
-          {aiAnalysis ? (
-            <div className="glass-card" style={{ background: '#000', color: '#fff', border: 'none' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.5rem' }}>
-                <Sparkles size={24} style={{ color: '#fff' }} />
-                <h3 style={{ fontSize: '1.1rem', fontFamily: 'Outfit' }}>Relatório Especializado</h3>
-              </div>
-              <div style={{ display: 'grid', gap: '1rem', marginBottom: '2rem' }}>
-                {aiAnalysis.insights.map((insight, i) => (
-                  <div key={i} style={{ display: 'flex', gap: '12px', fontSize: '0.9rem', lineHeight: '1.5', opacity: 0.9 }}>
-                    <div style={{ marginTop: '4px', minWidth: '6px', height: '6px', background: '#fff', borderRadius: '50%' }} />
-                    <p style={{ color: '#fff' }}>{insight.replace(/\*\*(.*?)\*\*/g, '$1')}</p>
-                  </div>
-                ))}
-              </div>
-              <div style={{ background: 'rgba(255,255,255,0.1)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                  <Info size={16} /><span style={{ fontWeight: 600, fontSize: '0.85rem' }}>DICA ESTRATÉGICA</span>
-                </div>
-                <p style={{ fontSize: '0.85rem', opacity: 0.9 }}>{aiAnalysis.recommendation}</p>
-              </div>
+          {/* Dashboard 2: Mapa de Pagamentos (Conciliação de Dinheiro vs Digital) */}
+          <div className="glass-card">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.5rem' }}>
+              <CreditCard size={20} />
+              <h3 style={{ fontSize: '1.1rem' }}>Conciliação de Pagamentos</h3>
             </div>
-          ) : (
-            <div className="glass-card" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '3rem' }}>
-              <div style={{ width: '80px', height: '80px', background: 'rgba(0,0,0,0.02)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2rem' }}>
-                <Sparkles size={40} style={{ opacity: 0.1 }} />
-              </div>
-              <h3 style={{ marginBottom: '12px' }}>Aguardando Análise</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '300px' }}>
-                Selecione os parâmetros ao lado e clique em gerar para que a inteligência artificial processe os dados.
-              </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              {revenueByMethod.methods.length === 0 ? (
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', textAlign: 'center', padding: '1rem 0' }}>Sem receita apurada.</p>
+              ) : (
+                revenueByMethod.methods.map((methodObj, idx) => {
+                  const methodColors = {
+                    'Pix': '#10b981', // green
+                    'Cartão de Crédito': '#8b5cf6', // purple
+                    'Cartão de Débito': '#3b82f6', // blue
+                    'Dinheiro': '#f59e0b', // orange
+                    'Caixa Bar.]': '#ef4444', // red
+                    'Outros': '#6b7280'
+                  };
+                  const color = methodColors[methodObj.method] || '#cbd5e1';
+                  
+                  return (
+                    <div key={methodObj.method}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: color }}></div>
+                          <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>{methodObj.method === 'Caixa Bar.]' ? 'Produtos (Não-classificado)' : methodObj.method}</div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{methodObj.pct.toFixed(1)}%</span>
+                          <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{formatCurrency(methodObj.total)}</span>
+                        </div>
+                      </div>
+                      <div style={{ height: '6px', background: '#f8f9fa', borderRadius: '3px', overflow: 'hidden', border: '1px solid rgba(0,0,0,0.05)' }}>
+                        <div style={{ height: '100%', width: `${methodObj.pct}%`, background: color, borderRadius: '3px', transition: 'width 0.5s ease' }} />
+                      </div>
+                    </div>
+                  )
+                })
+              )}
             </div>
-          )}
+          </div>
+
         </div>
       </div>
 
