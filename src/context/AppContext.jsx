@@ -41,6 +41,7 @@ export const AppProvider = ({ children }) => {
         if (barbersRes.ok) setBarbers(await barbersRes.json());
         if (servicesRes.ok) setServices(await servicesRes.json());
         if (businessRes.ok) setBusinessInfo(await businessRes.json());
+
         
         if (token) {
            try {
@@ -129,6 +130,10 @@ export const AppProvider = ({ children }) => {
         const updatedApp = await res.json();
         setAppointments(appointments.map(app => app.id === id ? updatedApp : app));
     }
+  };
+
+  const cancelAppointment = async (id) => {
+    return updateAppointmentStatus(id, 'Cancelado');
   };
 
   const addBarber = async (newBarber) => {
@@ -263,6 +268,12 @@ export const AppProvider = ({ children }) => {
 
   // barberId: null = geral, 'barbershop' = só produtos sem barbeiro, number = barbeiro específico
   const getFinancialStats = (startDate, endDate, barberId = null) => {
+    // Role-based isolation: Barbers always see only their own data
+    let effectiveBarberId = barberId;
+    if (currentUser && currentUser.role === 'Barbeiro' && !barberId) {
+      effectiveBarberId = currentUser.id;
+    }
+
     let finished = appointments.filter(app => app.status === 'Finalizado');
     let soldProducts = [...productSales];
 
@@ -272,12 +283,11 @@ export const AppProvider = ({ children }) => {
     }
 
     // Filtro por barbeiro
-    if (barberId === 'barbershop') {
-      // Apenas vendas de produto sem barbeiro vinculado (receita da barbearia)
+    if (effectiveBarberId === 'barbershop') {
       finished = [];
       soldProducts = soldProducts.filter(sale => !sale.barberId);
-    } else if (barberId) {
-      const id = Number(barberId);
+    } else if (effectiveBarberId) {
+      const id = Number(effectiveBarberId);
       finished = finished.filter(app => Number(app.barberId) === id);
       soldProducts = soldProducts.filter(sale => Number(sale.barberId) === id);
     }
@@ -298,9 +308,16 @@ export const AppProvider = ({ children }) => {
   };
 
   // Retorna ranking de barbeiros com stats individuais para o período
+  // Barbers only see their own stats in the ranking
   const getBarberRanking = (startDate, endDate) => {
-    return barbers
-      .filter(b => b.role === 'Barbeiro')
+    let targetBarbers = barbers.filter(b => b.role === 'Barbeiro');
+    
+    // Role-based isolation: Barbers only see themselves
+    if (currentUser && currentUser.role === 'Barbeiro') {
+      targetBarbers = targetBarbers.filter(b => b.id === currentUser.id);
+    }
+
+    return targetBarbers
       .map(barber => {
         const stats = getFinancialStats(startDate, endDate, barber.id);
         return {
@@ -318,7 +335,7 @@ export const AppProvider = ({ children }) => {
   return (
     <AppContext.Provider value={{
       barbers, appointments, services, businessInfo, addAppointment, updateAppointmentStatus,
-      addBarber, updateBarberPermissions, removeBarber, updateBarber, toggleBarberStatus,
+      cancelAppointment, addBarber, updateBarberPermissions, removeBarber, updateBarber, toggleBarberStatus,
       addService, removeService, updateService, products, addProduct, removeProduct,
       updateProduct, sellProduct, productSales, updateBusinessInfo, getFinancialStats,
       getBarberRanking, login, logout, currentUser, token, loading

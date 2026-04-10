@@ -35,10 +35,17 @@ const getSales = async (req, res) => {
   try {
     const { barberId } = req.query;
     const where = {};
-    if (barberId === 'null' || barberId === 'barbershop') {
-      where.barberId = null;
-    } else if (barberId) {
-      where.barberId = Number(barberId);
+
+    // Role-based filtering: Barbers only see their own sales
+    if (req.user.role !== 'Gerente') {
+      where.barberId = req.user.id;
+    } else {
+      // Manager can filter by barberId via query param
+      if (barberId === 'null' || barberId === 'barbershop') {
+        where.barberId = null;
+      } else if (barberId) {
+        where.barberId = Number(barberId);
+      }
     }
 
     const sales = await prisma.productSale.findMany({

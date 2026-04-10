@@ -17,7 +17,7 @@ router.get('/business', getBusinessInfo);
 router.post('/appointments', createAppointment); // Public booking
 
 // Protected Routes (Require Login)
-router.use('/barbers', authMiddleware, barberRoutes);
+router.use('/barbers', barberRoutes);
 router.get('/appointments', authMiddleware, getAppointments);
 router.patch('/appointments/:id', authMiddleware, updateAppointment);
 

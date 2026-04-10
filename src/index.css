@@ -194,3 +194,535 @@ button {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+/* ============================================
+   DASHBOARD — Operational Style
+   ============================================ */
+
+.dash-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-height: calc(100vh - 6rem);
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* --- Header --- */
+.dash-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dash-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--text-primary);
+}
+
+.dash-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dash-period-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f5f3ef;
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 12px;
+  padding: 6px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.dash-period-selector svg {
+  color: var(--text-secondary);
+}
+
+.dash-layout-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f5f3ef;
+  border: 1px solid rgba(0,0,0,0.06) !important;
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* --- KPI Cards Row --- */
+.dash-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.dash-kpi-card {
+  background: #f5f3ef;
+  border: 1px solid rgba(0,0,0,0.04);
+  border-radius: 20px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dash-kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
+
+.dash-kpi-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dash-kpi-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.dash-kpi-arrow {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.04);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.dash-kpi-arrow:hover {
+  background: rgba(0,0,0,0.08);
+}
+
+.dash-kpi-bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dash-kpi-value {
+  font-family: 'Outfit', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -1px;
+  color: var(--text-primary);
+}
+
+.dash-kpi-trend {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 0;
+}
+
+.dash-kpi-trend.up { color: #10b981; }
+.dash-kpi-trend.down { color: #ef4444; }
+
+.dash-kpi-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dash-kpi-icon.green {
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+}
+
+.dash-kpi-icon.purple {
+  background: rgba(139, 92, 246, 0.12);
+  color: #8b5cf6;
+}
+
+.dash-kpi-icon.amber {
+  background: rgba(217, 170, 81, 0.15);
+  color: #b8860b;
+}
+
+.dash-kpi-icon.slate {
+  background: rgba(100, 116, 139, 0.12);
+  color: #64748b;
+}
+
+/* --- Bottom Grid (3 columns) --- */
+.dash-bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+  flex: 1;
+  min-height: 0;
+}
+
+.dash-panel {
+  background: #f5f3ef;
+  border: 1px solid rgba(0,0,0,0.04);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.dash-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+}
+
+.dash-panel-header h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.dash-panel-body {
+  padding: 0 1.5rem 1.5rem;
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* --- Period Toggle (Day / Week / 6 Month) --- */
+.dash-toggle-group {
+  display: flex;
+  background: rgba(0,0,0,0.04);
+  border-radius: 10px;
+  padding: 3px;
+}
+
+.dash-toggle-btn {
+  padding: 5px 14px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+}
+
+.dash-toggle-btn.active {
+  background: #fff;
+  color: var(--text-primary);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* --- Barber Performance Bars --- */
+.dash-bar-item {
+  margin-bottom: 18px;
+}
+
+.dash-bar-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.dash-bar-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.dash-bar-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.dash-bar-value {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.dash-bar-track {
+  height: 8px;
+  background: rgba(0,0,0,0.06);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.dash-bar-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.8s ease;
+}
+
+/* --- Activity Timeline --- */
+.dash-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.dash-timeline-item {
+  display: flex;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.dash-timeline-item:last-child {
+  border-bottom: none;
+}
+
+.dash-timeline-time {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  padding-top: 2px;
+  min-width: 46px;
+}
+
+.dash-timeline-dot-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  position: relative;
+}
+
+.dash-timeline-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #000;
+  flex-shrink: 0;
+  margin-top: 5px;
+  border: 2px solid #f5f3ef;
+  z-index: 1;
+}
+
+.dash-timeline-dot.green { background: #10b981; }
+.dash-timeline-dot.blue { background: #3b82f6; }
+.dash-timeline-dot.amber { background: #f59e0b; }
+.dash-timeline-dot.red { background: #ef4444; }
+
+.dash-timeline-line {
+  flex: 1;
+  width: 2px;
+  background: rgba(0,0,0,0.08);
+}
+
+.dash-timeline-content h4 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 2px 0;
+}
+
+.dash-timeline-content p {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* --- Mini Calendar --- */
+.dash-mini-cal {
+  margin-bottom: 16px;
+}
+
+.dash-mini-cal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.dash-mini-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+}
+
+.dash-mini-cal-day-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  padding: 4px 0;
+}
+
+.dash-mini-cal-day {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0 auto;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.dash-mini-cal-day:hover {
+  background: rgba(0,0,0,0.06);
+}
+
+.dash-mini-cal-day.today {
+  background: #000;
+  color: #fff;
+  font-weight: 700;
+}
+
+/* --- Upcoming list items --- */
+.dash-upcoming-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.dash-upcoming-item:last-child {
+  border-bottom: none;
+}
+
+.dash-upcoming-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dash-upcoming-icon.scissors { background: rgba(16, 185, 129, 0.12); color: #10b981; }
+.dash-upcoming-icon.chart { background: rgba(59, 130, 246, 0.12); color: #3b82f6; }
+.dash-upcoming-icon.star { background: rgba(245, 158, 11, 0.12); color: #f59e0b; }
+.dash-upcoming-icon.sparkle { background: rgba(139, 92, 246, 0.12); color: #8b5cf6; }
+
+.dash-upcoming-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.dash-upcoming-info h4 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dash-upcoming-info p {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* --- Quick action buttons in header --- */
+.dash-quick-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.dash-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.dash-action-btn.primary {
+  background: #000;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+.dash-action-btn.primary:hover {
+  background: #222;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+.dash-action-btn.secondary {
+  background: #fff;
+  color: var(--text-primary);
+  border: 1px solid rgba(0,0,0,0.08) !important;
+}
+
+.dash-action-btn.secondary:hover {
+  background: #f8f7f5;
+}
+
+/* --- Settings icon button --- */
+.dash-icon-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.04);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  padding: 0;
+}
+
+.dash-icon-btn:hover {
+  background: rgba(0,0,0,0.08);
+}
+
+/* --- Responsive --- */
+@media (max-width: 1200px) {
+  .dash-bottom-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .dash-kpi-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .dash-bottom-grid {
+    grid-template-columns: 1fr;
+  }
+}

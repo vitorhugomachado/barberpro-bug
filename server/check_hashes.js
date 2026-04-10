@@ -4,11 +4,8 @@ const prisma = new PrismaClient();
 async function main() {
   const barbers = await prisma.barber.findMany({
     select: {
-      id: true,
-      name: true,
       email: true,
-      role: true,
-      status: true
+      password: true
     }
   });
   console.log(JSON.stringify(barbers, null, 2));
