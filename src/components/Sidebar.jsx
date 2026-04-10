@@ -13,7 +13,7 @@ const Sidebar = ({ activeTab, setActiveTab, user }) => {
   return (
     <div className="sidebar">
       <div className="brand" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '3rem' }}>
-        <div style={{ background: '#000', color: '#fff', padding: '8px', borderRadius: '12px' }}>
+        <div style={{ background: 'var(--accent-color)', color: 'var(--accent-text)', padding: '8px', borderRadius: '12px' }}>
           <Scissors size={24} />
         </div>
         <h2 className="brand-font" style={{ fontSize: '1.25rem', letterSpacing: '-0.5px' }}>BARBERPRO</h2>

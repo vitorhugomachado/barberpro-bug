@@ -89,25 +89,25 @@ const Settings = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           <button 
             onClick={() => setActiveTab('barbers')}
-            style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '14px', borderRadius: '10px', border: 'none', background: activeTab === 'barbers' ? '#000' : 'transparent', color: activeTab === 'barbers' ? '#fff' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: activeTab === 'barbers' ? 600 : 400, transition: 'all 0.2s' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '14px', borderRadius: '10px', border: 'none', background: activeTab === 'barbers' ? 'var(--accent-color)' : 'transparent', color: activeTab === 'barbers' ? 'var(--accent-text)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: activeTab === 'barbers' ? 600 : 400, transition: 'all 0.2s' }}
           >
             <User size={18} /> Profissionais da Equipe
           </button>
           <button 
             onClick={() => setActiveTab('services')}
-            style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '14px', borderRadius: '10px', border: 'none', background: activeTab === 'services' ? '#000' : 'transparent', color: activeTab === 'services' ? '#fff' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: activeTab === 'services' ? 600 : 400, transition: 'all 0.2s' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '14px', borderRadius: '10px', border: 'none', background: activeTab === 'services' ? 'var(--accent-color)' : 'transparent', color: activeTab === 'services' ? 'var(--accent-text)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: activeTab === 'services' ? 600 : 400, transition: 'all 0.2s' }}
           >
             <Scissors size={18} /> Catálogo de Serviços
           </button>
           <button 
             onClick={() => setActiveTab('products')}
-            style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '14px', borderRadius: '10px', border: 'none', background: activeTab === 'products' ? '#000' : 'transparent', color: activeTab === 'products' ? '#fff' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: activeTab === 'products' ? 600 : 400, transition: 'all 0.2s' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '14px', borderRadius: '10px', border: 'none', background: activeTab === 'products' ? 'var(--accent-color)' : 'transparent', color: activeTab === 'products' ? 'var(--accent-text)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: activeTab === 'products' ? 600 : 400, transition: 'all 0.2s' }}
           >
             <Plus size={18} /> Estoque de Produtos
           </button>
           <button 
             onClick={() => setActiveTab('business')}
-            style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '14px', borderRadius: '10px', border: 'none', background: activeTab === 'business' ? '#000' : 'transparent', color: activeTab === 'business' ? '#fff' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: activeTab === 'business' ? 600 : 400, transition: 'all 0.2s' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '14px', borderRadius: '10px', border: 'none', background: activeTab === 'business' ? 'var(--accent-color)' : 'transparent', color: activeTab === 'business' ? 'var(--accent-text)' : 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', fontWeight: activeTab === 'business' ? 600 : 400, transition: 'all 0.2s' }}
           >
             <SettingsIcon size={18} /> Perfil do Negócio
           </button>
@@ -125,16 +125,16 @@ const Settings = () => {
                   <h3 style={{ fontSize: '1rem', marginBottom: '1rem', color: 'var(--text-secondary)' }}>
                     {editingBarberId ? 'Editar Profissional' : 'Adicionar Novo'}
                   </h3>
-                  <input type="text" placeholder="Nome Completo" value={newBarber.name} onChange={e => setNewBarber({...newBarber, name: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '10px', borderRadius: '8px', border: editingBarberId ? '1px solid #bfdbfe' : '1px solid var(--border-color)', outline: 'none' }} />
-                  <input type="email" placeholder="E-mail de Acesso" value={newBarber.email} onChange={e => setNewBarber({...newBarber, email: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '10px', borderRadius: '8px', border: editingBarberId ? '1px solid #bfdbfe' : '1px solid var(--border-color)', outline: 'none' }} />
-                  <input type="password" placeholder={editingBarberId ? "Nova Senha (deixe vazio p/ manter)" : "Senha de Acesso"} value={newBarber.password} onChange={e => setNewBarber({...newBarber, password: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '10px', borderRadius: '8px', border: editingBarberId ? '1px solid #bfdbfe' : '1px solid var(--border-color)', outline: 'none' }} />
-                  <select value={newBarber.role} onChange={e => setNewBarber({...newBarber, role: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '1rem', borderRadius: '8px', border: editingBarberId ? '1px solid #bfdbfe' : '1px solid var(--border-color)', outline: 'none' }}>
+                  <input type="text" placeholder="Nome Completo" value={newBarber.name} onChange={e => setNewBarber({...newBarber, name: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '10px', borderRadius: '8px', border: editingBarberId ? '1px solid var(--brand-200)' : '1px solid var(--border-color)', outline: 'none' }} />
+                  <input type="email" placeholder="E-mail de Acesso" value={newBarber.email} onChange={e => setNewBarber({...newBarber, email: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '10px', borderRadius: '8px', border: editingBarberId ? '1px solid var(--brand-200)' : '1px solid var(--border-color)', outline: 'none' }} />
+                  <input type="password" placeholder={editingBarberId ? "Nova Senha (deixe vazio p/ manter)" : "Senha de Acesso"} value={newBarber.password} onChange={e => setNewBarber({...newBarber, password: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '10px', borderRadius: '8px', border: editingBarberId ? '1px solid var(--brand-200)' : '1px solid var(--border-color)', outline: 'none' }} />
+                  <select value={newBarber.role} onChange={e => setNewBarber({...newBarber, role: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '1rem', borderRadius: '8px', border: editingBarberId ? '1px solid var(--brand-200)' : '1px solid var(--border-color)', outline: 'none' }}>
                     <option value="Barbeiro">Barbeiro</option>
                     <option value="Gerente">Gerente</option>
                   </select>
                   
                   <div style={{ display: 'flex', gap: '10px' }}>
-                    <button className="btn-primary" onClick={handleAddBarber} style={{ flex: 1, padding: '12px', display: 'flex', justifyContent: 'center', gap: '8px', background: editingBarberId ? '#2563eb' : '#000' }}>
+                    <button className="btn-primary" onClick={handleAddBarber} style={{ flex: 1, padding: '12px', display: 'flex', justifyContent: 'center', gap: '8px', background: editingBarberId ? 'var(--brand-600)' : 'var(--accent-color)' }}>
                       {editingBarberId ? <Save size={18} /> : <Plus size={18} />} 
                       {editingBarberId ? 'Atualizar Dados' : 'Salvar Profissional'}
                     </button>
@@ -156,18 +156,18 @@ const Settings = () => {
                         onClick={() => startEditBarber(b)}
                         style={{ 
                           display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', 
-                          background: editingBarberId === b.id ? 'rgba(37, 99, 235, 0.05)' : 'rgba(0,0,0,0.02)', 
-                          borderRadius: '8px', border: editingBarberId === b.id ? '1px solid #bfdbfe' : '1px solid var(--border-color)',
+                          background: editingBarberId === b.id ? 'var(--brand-50)' : 'rgba(0,0,0,0.02)', 
+                          borderRadius: '8px', border: editingBarberId === b.id ? '1px solid var(--brand-200)' : '1px solid var(--border-color)',
                           cursor: 'pointer',
                           transition: 'all 0.2s'
                         }}
                       >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                           <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#000', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 600 }}>
+                           <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--accent-color)', color: 'var(--accent-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 600 }}>
                               {b.name.charAt(0)}
                            </div>
                            <div>
-                            <p style={{ fontWeight: 600 }}>{b.name} {editingBarberId === b.id && <span style={{ fontSize: '0.65rem', background: '#bfdbfe', color: '#1e40af', padding: '2px 6px', borderRadius: '4px', marginLeft: '8px' }}>Editando</span>}</p>
+                            <p style={{ fontWeight: 600 }}>{b.name} {editingBarberId === b.id && <span style={{ fontSize: '0.65rem', background: 'var(--brand-200)', color: '#1e40af', padding: '2px 6px', borderRadius: '4px', marginLeft: '8px' }}>Editando</span>}</p>
                             <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{b.role}</p>
                           </div>
                         </div>
@@ -234,7 +234,7 @@ const Settings = () => {
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                           <div style={{ textAlign: 'right' }}>
-                            <p style={{ fontWeight: 700, color: '#10b981', fontSize: '0.9rem' }}>R$ {p.price}</p>
+                            <p style={{ fontWeight: 700, color: 'var(--brand-600)', fontSize: '0.9rem' }}>R$ {p.price}</p>
                             <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Custo: R$ {p.cost}</p>
                           </div>
                           <button style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer' }} onClick={() => removeProduct(p.id)}>

@@ -16,12 +16,12 @@ const LoginPage = ({ onLogin }) => {
       display: 'flex', 
       alignItems: 'center', 
       justifyContent: 'center',
-      background: '#fcfcfc',
+      background: 'var(--bg-color)',
       padding: '2rem'
     }}>
       <div className="glass-card fade-in" style={{ width: '100%', maxWidth: '400px', padding: '3rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-          <div style={{ background: '#000', color: '#fff', padding: '12px', borderRadius: '14px', width: 'fit-content', margin: '0 auto 1.5rem' }}>
+          <div style={{ background: 'var(--accent-color)', color: 'var(--accent-text)', padding: '12px', borderRadius: '14px', width: 'fit-content', margin: '0 auto 1.5rem' }}>
             <Scissors size={24} />
           </div>
           <h1 style={{ fontSize: '1.8rem', marginBottom: '8px' }}>BarberPro</h1>
@@ -63,7 +63,7 @@ const LoginPage = ({ onLogin }) => {
         </form>
 
         <div style={{ marginTop: '2rem', textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-          Esqueceu sua senha? <span style={{ color: '#000', fontWeight: 600, cursor: 'pointer' }}>Recuperar</span>
+          Esqueceu sua senha? <span style={{ color: 'var(--accent-color)', fontWeight: 600, cursor: 'pointer' }}>Recuperar</span>
         </div>
       </div>
     </div>

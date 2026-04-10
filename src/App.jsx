@@ -15,6 +15,16 @@ function App() {
   const { barbers, loading, login, logout, currentUser } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [viewMode, setViewMode] = useState('public');
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+
+  React.useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
 
   const handleLogin = async (emailToLogin, pwd) => {
     try {
@@ -43,7 +53,7 @@ function App() {
   if (loading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', flexDirection: 'column', gap: '20px' }}>
-        <div className="spinner" style={{ width: '40px', height: '40px', border: '4px solid rgba(0,0,0,0.1)', borderTop: '4px solid #000', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+        <div className="spinner" style={{ width: '40px', height: '40px', border: '4px solid rgba(0,0,0,0.1)', borderTop: '4px solid var(--accent-color)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
         <p style={{ fontWeight: 500 }}>Carregando BarberPro...</p>
         <style>{`
           @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -62,14 +72,15 @@ function App() {
             position: 'fixed', 
             bottom: '20px', 
             right: '20px', 
-            background: '#000', 
-            color: '#fff', 
+            background: 'var(--accent-color)', 
+            color: 'var(--accent-text, #fff)', 
             padding: '10px 20px', 
             borderRadius: '20px',
             fontSize: '0.8rem',
             fontWeight: 600,
             cursor: 'pointer',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            zIndex: 1000
           }}
         >
           Área do Profissional
@@ -116,11 +127,14 @@ function App() {
       <main className="main-content">
         <header style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '20px', marginBottom: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: '32px', height: '32px', background: '#000', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 600 }}>
+            <div style={{ width: '32px', height: '32px', background: 'var(--accent-color)', color: 'var(--accent-text, #fff)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 600 }}>
               {currentUser?.name?.charAt(0).toUpperCase()}
             </div>
             <span style={{ fontSize: '0.9rem', fontWeight: 600, textTransform: 'capitalize' }}>{currentUser?.name} ({currentUser?.role})</span>
           </div>
+          <button onClick={toggleTheme} className="dash-icon-btn" style={{ fontSize: '1.2rem' }} title="Alternar Tema">
+            {theme === 'light' ? '🌙' : '☀️'}
+          </button>
           <button className="btn-secondary" onClick={handleLogout} style={{ fontSize: '0.8rem' }}>Sair</button>
         </header>
         {renderContent()}

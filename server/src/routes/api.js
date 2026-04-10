@@ -7,6 +7,7 @@ const { getServices, createService, updateService, deleteService } = require('..
 const { getAppointments, createAppointment, updateAppointment } = require('../controllers/appointmentController');
 const { getProducts, createProduct, deleteProduct, updateProduct, getSales, createSale } = require('../controllers/productController');
 const { getBusinessInfo, updateBusinessInfo } = require('../controllers/businessController');
+const { getExpenses, createExpense, updateExpense, deleteExpense } = require('../controllers/expenseController');
 
 const router = express.Router();
 
@@ -31,6 +32,11 @@ router.put('/products/:id', authMiddleware, updateProduct);
 router.delete('/products/:id', authMiddleware, deleteProduct);
 router.get('/sales', authMiddleware, getSales);
 router.post('/sales', authMiddleware, createSale);
+
+router.get('/expenses', authMiddleware, getExpenses);
+router.post('/expenses', authMiddleware, createExpense);
+router.put('/expenses/:id', authMiddleware, updateExpense);
+router.delete('/expenses/:id', authMiddleware, deleteExpense);
 
 router.put('/business', authMiddleware, updateBusinessInfo);
 

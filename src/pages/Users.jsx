@@ -76,8 +76,8 @@ const Users = () => {
                   </td>
                   <td style={{ padding: '16px 0' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <div style={{ width: '6px', height: '6px', background: '#10b981', borderRadius: '50%' }}></div>
-                      <span style={{ fontSize: '0.85rem', color: '#10b981', fontWeight: 600 }}>{user.status}</span>
+                      <div style={{ width: '6px', height: '6px', background: 'var(--brand-500)', borderRadius: '50%' }}></div>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--brand-600)', fontWeight: 600 }}>{user.status}</span>
                     </div>
                   </td>
                   <td style={{ padding: '16px 1.5rem', textAlign: 'right' }}>
@@ -130,7 +130,7 @@ const Users = () => {
                         style={{ 
                           width: '40px', 
                           height: '22px', 
-                          background: isEnabled ? '#000' : '#e5e7eb', 
+                          background: isEnabled ? 'var(--accent-color)' : 'var(--border-color)', 
                           borderRadius: '11px', 
                           position: 'relative', 
                           cursor: 'pointer',
@@ -140,7 +140,7 @@ const Users = () => {
                         <div style={{ 
                           width: '16px', 
                           height: '16px', 
-                          background: '#fff', 
+                          background: 'var(--bg-color)', 
                           borderRadius: '50%', 
                           position: 'absolute', 
                           top: '3px', 
@@ -156,7 +156,7 @@ const Users = () => {
               <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)', textAlign: 'center' }}>
                 <button 
                   className="btn-secondary" 
-                  style={{ width: '100%', color: selectedUser.status === 'Ativo' ? '#ef4444' : '#10b981', borderColor: selectedUser.status === 'Ativo' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)' }}
+                  style={{ width: '100%', color: selectedUser.status === 'Ativo' ? '#ef4444' : '#10b981', borderColor: selectedUser.status === 'Ativo' ? 'rgba(239, 68, 68, 0.2)' : 'var(--brand-200)' }}
                   onClick={() => {
                     toggleBarberStatus(selectedUser.id);
                     setSelectedUser({ ...selectedUser, status: selectedUser.status === 'Ativo' ? 'Suspenso' : 'Ativo' });

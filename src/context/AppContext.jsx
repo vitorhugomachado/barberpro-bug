@@ -10,6 +10,7 @@ export const AppProvider = ({ children }) => {
   const [businessInfo, setBusinessInfo] = useState({});
   const [products, setProducts] = useState([]);
   const [productSales, setProductSales] = useState([]);
+  const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(localStorage.getItem('barberpro_token'));
   const [currentUser, setCurrentUser] = useState(null);
@@ -51,15 +52,17 @@ export const AppProvider = ({ children }) => {
                setCurrentUser(user);
                
                // Fetch protected data only after auth success
-               const [apptsRes, prodsRes, salesRes] = await Promise.all([
+               const [apptsRes, prodsRes, salesRes, expensesRes] = await Promise.all([
                  apiFetch(`${API_URL}/appointments`),
                  apiFetch(`${API_URL}/products`),
-                 apiFetch(`${API_URL}/sales`)
+                 apiFetch(`${API_URL}/sales`),
+                 apiFetch(`${API_URL}/expenses`)
                ]);
 
                if (apptsRes.ok) setAppointments(await apptsRes.json());
                if (prodsRes.ok) setProducts(await prodsRes.json());
                if (salesRes.ok) setProductSales(await salesRes.json());
+               if (expensesRes.ok) setExpenses(await expensesRes.json());
              } else {
                logout();
              }
@@ -266,6 +269,30 @@ export const AppProvider = ({ children }) => {
     return false;
   };
 
+  const addExpense = async (newExpense) => {
+    const res = await apiFetch(`${API_URL}/expenses`, {
+      method: 'POST',
+      body: JSON.stringify(newExpense)
+    });
+    if (res.ok) setExpenses([...expenses, await res.json()]);
+  };
+
+  const removeExpense = async (id) => {
+    const res = await apiFetch(`${API_URL}/expenses/${id}`, { method: 'DELETE' });
+    if (res.ok) setExpenses(expenses.filter(e => e.id !== id));
+  };
+
+  const updateExpense = async (id, data) => {
+    const res = await apiFetch(`${API_URL}/expenses/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+    if (res.ok) {
+        const updated = await res.json();
+        setExpenses(expenses.map(e => e.id === id ? updated : e));
+    }
+  };
+
   // barberId: null = geral, 'barbershop' = só produtos sem barbeiro, number = barbeiro específico
   const getFinancialStats = (startDate, endDate, barberId = null) => {
     // Role-based isolation: Barbers always see only their own data
@@ -276,10 +303,12 @@ export const AppProvider = ({ children }) => {
 
     let finished = appointments.filter(app => app.status === 'Finalizado');
     let soldProducts = [...productSales];
+    let periodExpenses = [...expenses];
 
     if (startDate && endDate) {
       finished = finished.filter(app => app.date >= startDate && app.date <= endDate);
       soldProducts = soldProducts.filter(sale => sale.date >= startDate && sale.date <= endDate);
+      periodExpenses = periodExpenses.filter(e => e.date >= startDate && e.date <= endDate);
     }
 
     // Filtro por barbeiro
@@ -295,15 +324,17 @@ export const AppProvider = ({ children }) => {
     const serviceRevenue = finished.reduce((sum, app) => sum + app.price, 0);
     const productRevenue = soldProducts.reduce((sum, sale) => sum + (sale.price * sale.quantity), 0);
     const productCost = soldProducts.reduce((sum, sale) => sum + (sale.cost * sale.quantity), 0);
+    const expensesTotal = periodExpenses.reduce((sum, e) => sum + e.amount, 0);
     
     const revenue = serviceRevenue + productRevenue;
     const itemsCount = finished.length + soldProducts.length;
     return {
-      revenue, serviceRevenue, productRevenue, productCost, expenses: 4200,
-      profit: revenue - 4200 - productCost, count: itemsCount,
+      revenue, serviceRevenue, productRevenue, productCost, expenses: expensesTotal,
+      profit: revenue - expensesTotal - productCost, count: itemsCount,
       averageTicket: itemsCount > 0 ? revenue / itemsCount : 0,
       appointments: finished,
-      sales: soldProducts
+      sales: soldProducts,
+      expensesList: periodExpenses
     };
   };
 
@@ -338,7 +369,8 @@ export const AppProvider = ({ children }) => {
       cancelAppointment, addBarber, updateBarberPermissions, removeBarber, updateBarber, toggleBarberStatus,
       addService, removeService, updateService, products, addProduct, removeProduct,
       updateProduct, sellProduct, productSales, updateBusinessInfo, getFinancialStats,
-      getBarberRanking, login, logout, currentUser, token, loading
+      getBarberRanking, login, logout, currentUser, token, loading,
+      expenses, addExpense, removeExpense, updateExpense
     }}>
       {children}
     </AppContext.Provider>

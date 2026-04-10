@@ -72,3 +72,11 @@ model BusinessInfo {
   email   String
   address String
 }
+
+model Expense {
+  id          Int     @id @default(autoincrement())
+  description String
+  amount      Float
+  date        String
+  category    String?
+}

@@ -194,7 +194,7 @@ const Dashboard = () => {
 
   const timeSlots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
   const periodLabel = statPeriod === 'hoje' ? 'Hoje' : statPeriod === 'semana' ? 'Últimos 7 dias' : 'Últimos 30 dias';
-  const barberColors = ['#000', '#64748b', '#94a3b8', '#cbd5e1', '#e2e8f0'];
+  const barberColors = ['var(--brand-700)', 'var(--brand-600)', 'var(--brand-500)', 'var(--brand-400)', 'var(--brand-300)'];
   const maxRevenue = ranking.length > 0 ? Math.max(...ranking.map(b => b.revenue), 1) : 1;
 
   const getStatusConfig = (status) => {
@@ -379,7 +379,7 @@ const Dashboard = () => {
       {/* ═══════ ACTION MODAL (Pago / Cancelar / Em Progresso) ═══════ */}
       {actionModal.open && actionModal.app && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="glass-card fade-in" style={{ width: '480px', background: '#fff', padding: '2rem' }}>
+          <div className="glass-card fade-in" style={{ width: '480px', background: 'var(--surface-color)', padding: '2rem' }}>
             
             {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
@@ -390,10 +390,10 @@ const Dashboard = () => {
             </div>
 
             {/* Appointment Info */}
-            <div style={{ padding: '1rem', background: '#f8f9fa', borderRadius: '12px', marginBottom: '1.25rem', border: '1px solid var(--border-color)' }}>
+            <div style={{ padding: '1rem', background: 'var(--panel-bg)', borderRadius: '12px', marginBottom: '1.25rem', border: '1px solid var(--border-color)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                 <span style={{ fontWeight: 600 }}>{actionModal.app.customer}</span>
-                <span style={{ fontWeight: 700, color: '#10b981', fontSize: '1.1rem' }}>R$ {actionModal.app.price.toFixed(2)}</span>
+                <span style={{ fontWeight: 700, color: 'var(--brand-600)', fontSize: '1.1rem' }}>R$ {actionModal.app.price.toFixed(2)}</span>
               </div>
               <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
                 {actionModal.app.service} — {actionModal.app.time} — {actionModal.app.date}
@@ -402,7 +402,7 @@ const Dashboard = () => {
                 <span style={{
                   display: 'inline-block', padding: '2px 8px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase',
                   background: actionModal.app.status === 'Em progresso' ? 'rgba(37,99,235,0.1)' : 'rgba(0,0,0,0.05)',
-                  color: actionModal.app.status === 'Em progresso' ? '#2563eb' : 'var(--text-secondary)'
+                  color: actionModal.app.status === 'Em progresso' ? 'var(--accent-color)' : 'var(--text-secondary)'
                 }}>
                   {actionModal.app.status}
                 </span>
@@ -415,7 +415,7 @@ const Dashboard = () => {
                 {actionModal.app.status === 'Agendado' && (
                   <button onClick={handleMarkInProgress} style={{
                     display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 18px', borderRadius: '12px',
-                    background: 'rgba(37,99,235,0.06)', border: '1px solid rgba(37,99,235,0.15)', color: '#2563eb',
+                    background: 'var(--brand-50)', border: '1px solid var(--brand-200)', color: 'var(--accent-color)',
                     fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer', transition: 'all 0.2s'
                   }}>
                     <Play size={18} /> Iniciar Atendimento
@@ -423,7 +423,7 @@ const Dashboard = () => {
                 )}
                 <button onClick={() => setActionModal({ ...actionModal, step: 'payment' })} style={{
                   display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 18px', borderRadius: '12px',
-                  background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.15)', color: '#10b981',
+                  background: 'var(--brand-50)', border: '1px solid rgba(16,185,129,0.15)', color: 'var(--brand-600)',
                   fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer', transition: 'all 0.2s'
                 }}>
                   <CheckCircle size={18} /> Marcar como Pago
@@ -443,7 +443,7 @@ const Dashboard = () => {
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                   <label style={{ fontSize: '0.9rem', fontWeight: 600 }}>Composição de Pagamento</label>
-                  <button onClick={handleAddSplit} style={{ background: '#fff', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '6px 10px', fontSize: '0.75rem', fontWeight: 600, display: 'flex', gap: '4px' }}>
+                  <button onClick={handleAddSplit} style={{ background: 'var(--surface-color)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '6px 10px', fontSize: '0.75rem', fontWeight: 600, display: 'flex', gap: '4px' }}>
                     <Plus size={14}/> Dividir
                   </button>
                 </div>
@@ -503,7 +503,7 @@ const Dashboard = () => {
       {/* ═══════ VENDA MODAL ═══════ */}
       {isSaleModalOpen && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="glass-card fade-in" style={{ width: '420px', background: '#fff', padding: '2rem' }}>
+          <div className="glass-card fade-in" style={{ width: '420px', background: 'var(--surface-color)', padding: '2rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.2rem', marginBottom: 0 }}>Venda Direta (PDV)</h2>
               <button style={{ background: 'none' }} onClick={() => setIsSaleModalOpen(false)}><X size={20} /></button>
@@ -532,7 +532,7 @@ const Dashboard = () => {
       {/* ═══════ AGENDAMENTO MODAL ═══════ */}
       {isModalOpen && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="glass-card fade-in" style={{ width: '420px', background: '#fff', padding: '2rem' }}>
+          <div className="glass-card fade-in" style={{ width: '420px', background: 'var(--surface-color)', padding: '2rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.2rem', margin: 0 }}>Reservar Horário</h2>
               <button style={{ background: 'none' }} onClick={() => setIsModalOpen(false)}><X size={20} /></button>
@@ -545,7 +545,7 @@ const Dashboard = () => {
               </select>
               {/* Barbers can only book for themselves */}
               {isBarber ? (
-                <div style={{ padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: '#f8f9fa', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                <div style={{ padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--panel-bg)', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
                   Profissional: <strong style={{ color: 'var(--text-primary)' }}>{currentUser.name}</strong>
                 </div>
               ) : (

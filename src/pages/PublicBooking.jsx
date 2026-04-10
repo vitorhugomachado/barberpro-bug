@@ -24,7 +24,7 @@ const PublicBooking = () => {
           height: '4px', 
           width: '40px', 
           borderRadius: '2px', 
-          background: step >= s ? '#000' : 'rgba(0,0,0,0.05)',
+          background: step >= s ? 'var(--accent-color)' : 'var(--border-color)',
           transition: 'all 0.3s ease'
         }}></div>
       ))}
@@ -68,8 +68,8 @@ const PublicBooking = () => {
                       cursor: 'pointer',
                       width: '100%',
                       textAlign: 'left',
-                      background: 'white',
-                      border: selectedService?.id === s.id ? '2px solid #000' : '1px solid var(--border-color)',
+                      background: 'var(--surface-color)',
+                      border: selectedService?.id === s.id ? '2px solid var(--accent-color)' : '1px solid var(--border-color)',
                       padding: '1.25rem'
                     }}
                     onClick={() => { 
@@ -110,8 +110,8 @@ const PublicBooking = () => {
                       alignItems: 'center', 
                       gap: '1.5rem',
                       cursor: 'pointer',
-                      background: 'white',
-                      border: selectedBarber?.id === b.id ? '2px solid #000' : '1px solid var(--border-color)',
+                      background: 'var(--surface-color)',
+                      border: selectedBarber?.id === b.id ? '2px solid var(--accent-color)' : '1px solid var(--border-color)',
                       padding: '1.25rem'
                     }}
                     onClick={() => { 
@@ -120,7 +120,7 @@ const PublicBooking = () => {
                       setStep(3); 
                     }}
                   >
-                    <div style={{ width: '60px', height: '60px', background: 'rgba(0,0,0,0.04)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 700 }}>
+                    <div style={{ width: '60px', height: '60px', background: 'var(--icon-bg)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 700 }}>
                       {b.name.charAt(0)}
                     </div>
                     <div>
@@ -151,22 +151,22 @@ const PublicBooking = () => {
 
         return (
           <div className="fade-in">
-            <div className="glass-card" style={{ padding: '2rem', background: '#fff' }}>
+            <div className="glass-card" style={{ padding: '2rem', background: 'var(--surface-color)' }}>
               
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <div style={{ width: '38px', height: '38px', background: 'url("https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=100&q=80") center/cover', borderRadius: '50%', backgroundColor: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                    {!selectedBarber?.avatar && <span style={{fontWeight: 'bold', fontSize: '14px', color: '#555'}}>{selectedBarber?.name?.charAt(0)}</span>}
+                    {!selectedBarber?.avatar && <span style={{fontWeight: 'bold', fontSize: '14px', color: 'var(--text-secondary)'}}>{selectedBarber?.name?.charAt(0)}</span>}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontWeight: 600, fontSize: '0.95rem', color: '#333' }}>{selectedBarber?.name}</span>
-                    <button style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px' }} onClick={() => setStep(2)}>
+                    <span style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--text-primary)' }}>{selectedBarber?.name}</span>
+                    <button style={{ background: 'none', border: 'none', color: 'var(--accent-color)', cursor: 'pointer', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px' }} onClick={() => setStep(2)}>
                        ⇄ Alterar
                     </button>
                   </div>
                 </div>
                 <button 
-                  style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}
+                  style={{ background: 'none', border: 'none', color: 'var(--accent-color)', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}
                   onClick={() => setIsWaitlistOpen(true)}
                 >
                   + Fila de espera
@@ -175,25 +175,25 @@ const PublicBooking = () => {
 
               <div style={{ marginBottom: '2.5rem' }}>
                 <div 
-                  style={{ border: '1px solid #e5e7eb', borderRadius: '8px', padding: '8px 14px', position: 'relative', cursor: 'pointer' }}
+                  style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '8px 14px', position: 'relative', cursor: 'pointer' }}
                   onClick={() => dateInputRef.current && dateInputRef.current.showPicker()}
                 >
-                  <span style={{ position: 'absolute', top: '6px', left: '14px', fontSize: '0.7rem', color: '#9ca3af' }}>Data</span>
+                  <span style={{ position: 'absolute', top: '6px', left: '14px', fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Data</span>
                   <input 
                     ref={dateInputRef}
                     type="date" 
                     value={selectedDate} 
                     onChange={e => setSelectedDate(e.target.value)} 
                     onClick={e => e.stopPropagation()}
-                    style={{ width: '100%', border: 'none', background: 'transparent', outline: 'none', paddingTop: '16px', fontSize: '0.95rem', color: '#2563eb', cursor: 'pointer', fontFamily: 'inherit' }}
+                    style={{ width: '100%', border: 'none', background: 'transparent', outline: 'none', paddingTop: '16px', fontSize: '0.95rem', color: 'var(--accent-color)', cursor: 'pointer', fontFamily: 'inherit' }}
                   />
-                  <Calendar size={16} style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', pointerEvents: 'none' }} />
+                  <Calendar size={16} style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', pointerEvents: 'none' }} />
                 </div>
               </div>
               
-              <h4 style={{ textAlign: 'center', marginBottom: '2rem', fontWeight: 700, fontSize: '1.05rem', color: '#111' }}>Datas sugeridas</h4>
+              <h4 style={{ textAlign: 'center', marginBottom: '2rem', fontWeight: 700, fontSize: '1.05rem', color: 'var(--text-primary)' }}>Datas sugeridas</h4>
               
-              <h5 style={{ fontSize: '0.9rem', marginBottom: '1rem', color: '#555', fontWeight: 600 }}>
+              <h5 style={{ fontSize: '0.9rem', marginBottom: '1rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
                 {cleanHeaderDate}
               </h5>
 
@@ -209,30 +209,30 @@ const PublicBooking = () => {
                         fontWeight: 600,
                         opacity: isBooked ? 0.3 : 1,
                         cursor: isBooked ? 'not-allowed' : 'pointer',
-                        background: isBooked ? '#f9fafb' : '#f9fafb',
+                        background: isBooked ? 'var(--panel-bg)' : 'var(--panel-bg)',
                         border: '1px solid',
-                        borderColor: isBooked ? 'transparent' : '#f3f4f6',
+                        borderColor: isBooked ? 'transparent' : 'var(--panel-bg)',
                         borderRadius: '6px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         gap: '6px',
-                        color: isBooked ? '#9ca3af' : '#1f2937',
+                        color: isBooked ? 'var(--text-secondary)' : 'var(--text-primary)',
                         transition: 'all 0.2s',
                         boxShadow: isBooked ? 'none' : '0 1px 2px rgba(0,0,0,0.02)'
                       }}
                       disabled={isBooked}
                       onClick={() => { setSelectedTime(t); setStep(4); }}
                     >
-                      <Clock size={14} style={{ color: '#9ca3af' }} /> {t}
+                      <Clock size={14} style={{ color: 'var(--text-secondary)' }} /> {t}
                     </button>
                   );
                 })}
               </div>
               
-              <div style={{ textAlign: 'center', marginTop: '1.5rem', borderBottom: '1px dashed #e5e7eb', paddingBottom: '2rem', marginBottom: '1rem' }}>
+              <div style={{ textAlign: 'center', marginTop: '1.5rem', borderBottom: '1px dashed var(--border-color)', paddingBottom: '2rem', marginBottom: '1rem' }}>
                 <button 
-                  style={{ background: 'none', border: 'none', color: '#2563eb', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.5px' }}
+                  style={{ background: 'none', border: 'none', color: 'var(--accent-color)', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.5px' }}
                   onClick={() => setShowMoreSlots(!showMoreSlots)}
                 >
                   {showMoreSlots ? 'Ver Menos' : 'Ver Mais'}
@@ -303,7 +303,7 @@ const PublicBooking = () => {
       case 5:
         return (
           <div className="fade-in" style={{ textAlign: 'center', padding: '2rem 0' }}>
-            <div style={{ background: '#ecfdf5', color: '#10b981', width: '80px', height: '80px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem' }}>
+            <div style={{ background: 'var(--brand-50)', color: 'var(--brand-600)', width: '80px', height: '80px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem' }}>
               <Check size={40} />
             </div>
             <h2 style={{ fontSize: '1.8rem', marginBottom: '1rem' }}>Pronto, {clientInfo.name.split(' ')[0]}!</h2>
@@ -348,12 +348,12 @@ const PublicBooking = () => {
   return (
     <div style={{ 
       minHeight: '100vh', 
-      background: '#fcfcfc',
+      background: 'var(--bg-color)',
       padding: '4rem 2rem'
     }}>
       <div style={{ maxWidth: '600px', margin: '0 auto' }}>
         <header style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-          <div style={{ background: '#000', color: '#fff', padding: '12px', borderRadius: '14px', width: 'fit-content', margin: '0 auto 1.5rem' }}>
+          <div style={{ background: 'var(--accent-color)', color: 'var(--accent-text)', padding: '12px', borderRadius: '14px', width: 'fit-content', margin: '0 auto 1.5rem' }}>
             <Scissors size={24} />
           </div>
           <h1 style={{ fontSize: '2.5rem', marginBottom: '8px' }}>{businessInfo?.name || 'BarberPro'}</h1>
@@ -366,7 +366,7 @@ const PublicBooking = () => {
         
         {isWaitlistOpen && (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-            <div className="glass-card fade-in" style={{ width: '90%', maxWidth: '400px', background: '#fff', padding: '2rem' }}>
+            <div className="glass-card fade-in" style={{ width: '90%', maxWidth: '400px', background: 'var(--surface-color)', padding: '2rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                 <h2 style={{ fontSize: '1.2rem', marginBottom: 0 }}>Fila de Espera</h2>
                 <button style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }} onClick={() => {setIsWaitlistOpen(false); setWaitlistSuccess(false);}}><X size={20} /></button>
@@ -374,7 +374,7 @@ const PublicBooking = () => {
               
               {waitlistSuccess ? (
                  <div style={{ textAlign: 'center', padding: '1rem 0' }}>
-                   <div style={{ background: '#ecfdf5', color: '#10b981', width: '60px', height: '60px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
+                   <div style={{ background: 'var(--brand-50)', color: 'var(--brand-600)', width: '60px', height: '60px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
                      <Check size={30} />
                    </div>
                    <h3 style={{ marginBottom: '1rem' }}>Sua vaga está garantida!</h3>

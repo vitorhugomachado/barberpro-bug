@@ -31,7 +31,7 @@ const Scheduler = () => {
   startOfWeek.setDate(curr.getDate() - (day - 1));
   
   const timeSlots = [
-    '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'
+    '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'
   ];
 
   const days = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
@@ -135,10 +135,10 @@ const Scheduler = () => {
   // Status color helper
   const getStatusStyle = (status) => {
     switch (status) {
-      case 'Finalizado': return { bg: '#f0fdf4', border: '#bbf7d0', badge: '#10b981', label: 'Pago' };
-      case 'Em progresso': return { bg: '#eff6ff', border: '#bfdbfe', badge: '#2563eb', label: 'Atd.' };
+      case 'Finalizado': return { bg: 'var(--brand-50)', border: 'var(--brand-200)', badge: 'var(--brand-600)', label: 'Pago' };
+      case 'Em progresso': return { bg: 'var(--brand-100)', border: 'var(--brand-300)', badge: 'var(--brand-700)', label: 'Atd.' };
       case 'Cancelado': return { bg: '#fef2f2', border: '#fecaca', badge: '#ef4444', label: 'Canc.' };
-      default: return { bg: '#fff', border: 'var(--border-color)', badge: '#e2e8f0', label: 'Ag' };
+      default: return { bg: 'var(--panel-bg)', border: 'var(--border-color)', badge: 'var(--brand-200)', label: 'Ag' };
     }
   };
 
@@ -183,9 +183,9 @@ const Scheduler = () => {
                  display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '20px',
                  fontWeight: 600, fontSize: '0.85rem', flexShrink: 0,
                  transition: 'all 0.2s ease',
-                 background: selectedBarberId === 'all' ? '#000' : 'rgba(0,0,0,0.03)',
-                 color: selectedBarberId === 'all' ? '#fff' : 'var(--text-secondary)',
-                 border: selectedBarberId === 'all' ? '1px solid #000' : '1px solid var(--border-color)'
+                 background: selectedBarberId === 'all' ? 'var(--accent-color)' : 'var(--hover-bg)',
+                 color: selectedBarberId === 'all' ? 'var(--accent-text)' : 'var(--text-secondary)',
+                 border: selectedBarberId === 'all' ? '1px solid var(--accent-color)' : '1px solid var(--border-color)'
                }}>
                <Users size={14} /> Todos (Macro)
              </button>
@@ -199,12 +199,12 @@ const Scheduler = () => {
                    display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 14px 6px 6px', borderRadius: '20px',
                    fontWeight: 600, fontSize: '0.85rem', flexShrink: 0,
                    transition: 'all 0.2s ease',
-                   background: selectedBarberId === String(barber.id) ? '#fff' : 'rgba(0,0,0,0.02)',
-                   color: selectedBarberId === String(barber.id) ? '#2563eb' : 'var(--text-primary)',
-                   border: selectedBarberId === String(barber.id) ? '1px solid #bfdbfe' : '1px solid var(--border-color)',
-                   boxShadow: selectedBarberId === String(barber.id) ? '0 4px 6px rgba(37, 99, 235, 0.05)' : 'none'
+                   background: selectedBarberId === String(barber.id) ? 'var(--surface-color)' : 'var(--hover-bg)',
+                   color: selectedBarberId === String(barber.id) ? 'var(--accent-color)' : 'var(--text-primary)',
+                   border: selectedBarberId === String(barber.id) ? '1px solid var(--brand-300)' : '1px solid var(--border-color)',
+                   boxShadow: selectedBarberId === String(barber.id) ? '0 4px 6px rgba(102, 153, 0, 0.1)' : 'none'
                  }}>
-                 <div style={{ width: '24px', height: '24px', borderRadius: '12px', background: selectedBarberId === String(barber.id) ? '#2563eb' : '#e2e8f0', color: selectedBarberId === String(barber.id) ? '#fff' : '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem' }}>
+                 <div style={{ width: '24px', height: '24px', borderRadius: '12px', background: selectedBarberId === String(barber.id) ? 'var(--accent-color)' : 'var(--icon-bg)', color: selectedBarberId === String(barber.id) ? 'var(--accent-text)' : 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem' }}>
                    {barber.name.charAt(0)}
                  </div>
                  {barber.name.split(' ')[0]}
@@ -227,26 +227,26 @@ const Scheduler = () => {
         </div>
 
         {/* Calendar Main Grid */}
-        <div className="glass-card hide-scrollbar" style={{ padding: '0', position: 'relative', overflow: 'auto', display: 'flex', flexDirection: 'column', border: '1px solid rgba(0,0,0,0.08)' }}>
+        <div className="glass-card hide-scrollbar" style={{ padding: '0', position: 'relative', overflow: 'auto', display: 'flex', flexDirection: 'column', border: '1px solid var(--border-color)' }}>
           
           {/* Days Header */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(140px, 1fr))', gap: '0', borderBottom: '1px solid var(--border-color)', position: 'sticky', top: 0, background: '#fff', zIndex: 30 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(140px, 1fr))', gap: '0', borderBottom: '1px solid var(--border-color)', position: 'sticky', top: 0, background: 'var(--surface-color)', zIndex: 30 }}>
             {days.map((day, i) => {
               const date = getDayDate(i);
               const isToday = date === todayStr;
               return (
-                <div key={day} style={{ textAlign: 'center', padding: '12px', background: isToday ? 'rgba(37, 99, 235, 0.03)' : 'transparent', borderRight: '1px solid var(--border-color)' }}>
-                  <div style={{ fontSize: '0.7rem', color: isToday ? '#2563eb' : 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{day}</div>
-                  <div style={{ fontSize: '1.2rem', fontWeight: 700, color: isToday ? '#2563eb' : 'inherit' }}>{date.split('-').reverse()[0]}</div>
+                <div key={day} style={{ textAlign: 'center', padding: '12px', background: isToday ? 'var(--brand-50)' : 'transparent', borderRight: '1px solid var(--border-color)' }}>
+                  <div style={{ fontSize: '0.7rem', color: isToday ? 'var(--accent-color)' : 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{day}</div>
+                  <div style={{ fontSize: '1.2rem', fontWeight: 700, color: isToday ? 'var(--accent-color)' : 'inherit' }}>{date.split('-').reverse()[0]}</div>
                 </div>
               );
             })}
           </div>
 
           {/* Grid Body */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(140px, 1fr))', gridTemplateRows: `repeat(12, ${selectedBarberId === 'all' ? '60px' : '90px'})`, gap: '0', position: 'relative', transition: 'grid-template-rows 0.3s ease' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(140px, 1fr))', gridTemplateRows: `repeat(${timeSlots.length}, ${selectedBarberId === 'all' ? '60px' : '90px'})`, gap: '0', position: 'relative', transition: 'grid-template-rows 0.3s ease' }}>
             
-            {Array.from({ length: 12 * 7 }).map((_, i) => {
+            {Array.from({ length: timeSlots.length * 7 }).map((_, i) => {
               const col = i % 7;
               const rowIdx = Math.floor(i / 7);
               const time = timeSlots[rowIdx];
@@ -271,8 +271,8 @@ const Scheduler = () => {
                     padding: '4px'
                   }}
                 >
-                  <div className="hover-visible" style={{ position: 'absolute', inset: '4px', border: '1px dashed #cbd5e1', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.01)', zIndex: 1 }}>
-                    <Plus size={14} style={{ color: '#94a3b8' }} />
+                  <div className="hover-visible" style={{ position: 'absolute', inset: '4px', border: '1px dashed var(--border-color)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.01)', zIndex: 1 }}>
+                    <Plus size={14} style={{ color: 'var(--text-secondary)' }} />
                   </div>
 
                   <div style={{ position: 'absolute', inset: '4px', zIndex: 2, display: 'flex', flexDirection: selectedBarberId === 'all' ? 'row' : 'column', gap: '4px', overflow: 'hidden' }}>
@@ -294,7 +294,7 @@ const Scheduler = () => {
                              display: 'flex', alignItems: 'center', justifyContent: 'center',
                              fontSize: '0.65rem', fontWeight: 700,
                              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                             border: '2px solid #fff',
+                             border: '2px solid var(--surface-color)',
                              cursor: (app.status !== 'Finalizado' && app.status !== 'Cancelado') ? 'pointer' : 'default'
                          }}>
                            {b?.name?.charAt(0)}
@@ -315,7 +315,7 @@ const Scheduler = () => {
                               flex: 1,
                               pointerEvents: 'auto',
                               background: ss.bg,
-                              color: '#000',
+                              color: 'var(--text-primary)',
                               borderRadius: '8px',
                               padding: '8px',
                               fontSize: '0.7rem',
@@ -352,7 +352,7 @@ const Scheduler = () => {
       {/* ═══════ ACTION MODAL ═══════ */}
       {actionModal.open && actionModal.app && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="glass-card fade-in" style={{ width: '480px', background: '#fff', padding: '2rem' }}>
+          <div className="glass-card fade-in" style={{ width: '480px', background: 'var(--surface-color)', padding: '2rem' }}>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.2rem', margin: 0 }}>
@@ -362,10 +362,10 @@ const Scheduler = () => {
             </div>
 
             {/* Appointment Info */}
-            <div style={{ padding: '1rem', background: '#f8f9fa', borderRadius: '12px', marginBottom: '1.25rem', border: '1px solid var(--border-color)' }}>
+            <div style={{ padding: '1rem', background: 'var(--panel-bg)', borderRadius: '12px', marginBottom: '1.25rem', border: '1px solid var(--border-color)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                 <span style={{ fontWeight: 600 }}>{actionModal.app.customer}</span>
-                <span style={{ fontWeight: 700, color: '#10b981', fontSize: '1.1rem' }}>R$ {actionModal.app.price.toFixed(2)}</span>
+                <span style={{ fontWeight: 700, color: 'var(--brand-600)', fontSize: '1.1rem' }}>R$ {actionModal.app.price.toFixed(2)}</span>
               </div>
               <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
                 {actionModal.app.service} — {actionModal.app.time} — {actionModal.app.date}
@@ -373,7 +373,7 @@ const Scheduler = () => {
               <div style={{ marginTop: '6px' }}>
                 <span style={{
                   display: 'inline-block', padding: '2px 8px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase',
-                  background: actionModal.app.status === 'Em progresso' ? 'rgba(37,99,235,0.1)' : 'rgba(0,0,0,0.05)',
+                  background: actionModal.app.status === 'Em progresso' ? 'var(--brand-100)' : 'rgba(0,0,0,0.05)',
                   color: actionModal.app.status === 'Em progresso' ? '#2563eb' : 'var(--text-secondary)'
                 }}>
                   {actionModal.app.status}
@@ -387,7 +387,7 @@ const Scheduler = () => {
                 {actionModal.app.status === 'Agendado' && (
                   <button onClick={handleMarkInProgress} style={{
                     display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 18px', borderRadius: '12px',
-                    background: 'rgba(37,99,235,0.06)', border: '1px solid rgba(37,99,235,0.15)', color: '#2563eb',
+                    background: 'var(--brand-50)', border: '1px solid var(--brand-200)', color: 'var(--brand-700)',
                     fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer'
                   }}>
                     <Play size={18} /> Iniciar Atendimento
@@ -395,7 +395,7 @@ const Scheduler = () => {
                 )}
                 <button onClick={() => setActionModal({ ...actionModal, step: 'payment' })} style={{
                   display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 18px', borderRadius: '12px',
-                  background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.15)', color: '#10b981',
+                  background: 'var(--brand-50)', border: '1px solid var(--brand-200)', color: 'var(--brand-600)',
                   fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer'
                 }}>
                   <CheckCircle size={18} /> Marcar como Pago
@@ -415,7 +415,7 @@ const Scheduler = () => {
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                   <label style={{ fontSize: '0.9rem', fontWeight: 600 }}>Composição de Pagamento</label>
-                  <button onClick={handleAddSplit} style={{ background: '#fff', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '6px 10px', fontSize: '0.75rem', fontWeight: 600, display: 'flex', gap: '4px' }}>
+                  <button onClick={handleAddSplit} style={{ background: 'var(--surface-color)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '6px 10px', fontSize: '0.75rem', fontWeight: 600, display: 'flex', gap: '4px' }}>
                     <Plus size={14}/> Dividir
                   </button>
                 </div>
@@ -475,7 +475,7 @@ const Scheduler = () => {
       {/* ═══════ AGENDAMENTO MODAL ═══════ */}
       {isModalOpen && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="glass-card fade-in" style={{ width: '420px', background: '#fff', padding: '2rem' }}>
+          <div className="glass-card fade-in" style={{ width: '420px', background: 'var(--surface-color)', padding: '2rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.2rem', margin: 0 }}>Reservar Horário</h2>
               <button style={{ background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => setIsModalOpen(false)}><X size={20} /></button>
@@ -489,7 +489,7 @@ const Scheduler = () => {
               </select>
               {/* Barbers can only book for themselves */}
               {isBarber ? (
-                <div style={{ padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: '#f8f9fa', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                <div style={{ padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--panel-bg)', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
                   Profissional: <strong style={{ color: 'var(--text-primary)' }}>{currentUser.name}</strong>
                 </div>
               ) : (
