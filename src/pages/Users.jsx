@@ -62,8 +62,12 @@ const Users = () => {
                 >
                   <td style={{ padding: '16px 1.5rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div style={{ width: '36px', height: '36px', background: 'rgba(0,0,0,0.04)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.8rem' }}>
-                        {user.name.charAt(0).toUpperCase()}
+                      <div style={{ width: '36px', height: '36px', borderRadius: '50%', overflow: 'hidden', background: 'var(--icon-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {user.foto_perfil ? (
+                          <img src={user.foto_perfil} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                          <span style={{ fontWeight: 700, fontSize: '0.8rem' }}>{user.name.charAt(0).toUpperCase()}</span>
+                        )}
                       </div>
                       <div>
                         <p style={{ fontWeight: 600, fontSize: '0.9rem' }}>{user.name}</p>

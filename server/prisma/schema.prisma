@@ -19,8 +19,13 @@ model Barber {
   role         String
   status       String        @default("Ativo")
   permissions  Json
+  foto_perfil  String?
   appointments Appointment[]
   productSales ProductSale[]
+  shifts       WorkingShifts[]
+  deletedAt    DateTime?
+
+  @@index([deletedAt])
 }
 
 model Service {
@@ -42,6 +47,10 @@ model Appointment {
   status   String  @default("Agendado")
   price    Float
   payments Json?
+
+  @@index([date])
+  @@index([status])
+  @@index([barberId])
 }
 
 model Product {
@@ -63,6 +72,9 @@ model ProductSale {
   date        String
   barberId    Int?
   barber      Barber? @relation(fields: [barberId], references: [id])
+
+  @@index([date])
+  @@index([barberId])
 }
 
 model BusinessInfo {
@@ -79,4 +91,36 @@ model Expense {
   amount      Float
   date        String
   category    String?
+}
+
+model WorkingHours {
+  dia_semana      Int     @id
+  is_aberto       Boolean @default(true)
+  hora_abertura   String
+  hora_fechamento String
+  almoco_inicio   String?
+  almoco_fim      String?
+
+  @@map("horarios_funcionamento")
+}
+
+model Holiday {
+  id        Int    @id @default(autoincrement())
+  data      String @unique
+  descricao String
+
+  @@map("feriados")
+}
+
+model WorkingShifts {
+  id          String  @id @default(uuid())
+  id_barbeiro Int
+  barber      Barber  @relation(fields: [id_barbeiro], references: [id], onDelete: Cascade)
+  dia_semana  Int
+  hora_inicio String
+  hora_fim    String
+  ativo       Boolean @default(true)
+
+  @@unique([id_barbeiro, dia_semana, hora_inicio])
+  @@map("horarios_trabalho")
 }

@@ -12,31 +12,39 @@ const Settings = () => {
   
   const [activeTab, setActiveTab] = useState('barbers');
   
-  const [newBarber, setNewBarber] = useState({ name: '', role: 'Barbeiro', email: '', password: '' });
+  const defaultShifts = [1,2,3,4,5].map(d => ({ dia_semana: d, hora_inicio: '09:00', hora_fim: '18:00', ativo: true }));
+  const [newBarber, setNewBarber] = useState({ name: '', role: 'Barbeiro', email: '', password: '', foto_perfil: '', shifts: defaultShifts });
   const [editingBarberId, setEditingBarberId] = useState(null);
   
   const [newService, setNewService] = useState({ name: '', duration: '30 min', price: '' });
   const [newProduct, setNewProduct] = useState({ name: '', category: 'Cabelo', price: '', cost: '', stock: '' });
   const [bInfo, setBInfo] = useState(businessInfo);
 
-  const handleAddBarber = () => {
+  const handleAddBarber = async () => {
     if (!newBarber.name) {
       alert("O nome é obrigatório.");
+      return;
+    }
+    
+    if (!newBarber.email) {
+      alert("O e-mail é obrigatório para o login.");
       return;
     }
     
     if (editingBarberId) {
       updateBarber(editingBarberId, newBarber);
       setEditingBarberId(null);
+      setNewBarber({ name: '', role: 'Barbeiro', email: '', password: '', foto_perfil: '', shifts: defaultShifts });
     } else {
       if (!newBarber.password) {
         alert("A senha é obrigatória para novos cadastros.");
         return;
       }
-      addBarber(newBarber);
+      const success = await addBarber(newBarber);
+      if (success) {
+        setNewBarber({ name: '', role: 'Barbeiro', email: '', password: '', foto_perfil: '', shifts: defaultShifts });
+      }
     }
-    
-    setNewBarber({ name: '', role: 'Barbeiro', email: '', password: '' });
   };
 
   const startEditBarber = (barber) => {
@@ -45,13 +53,15 @@ const Settings = () => {
       name: barber.name,
       role: barber.role,
       email: barber.email || '',
-      password: '' // Manter vazio por segurança, só altera se preencher
+      password: '', // Manter vazio por segurança, só altera se preencher
+      foto_perfil: barber.foto_perfil || '',
+      shifts: barber.shifts || []
     });
   };
 
   const cancelEditBarber = () => {
     setEditingBarberId(null);
-    setNewBarber({ name: '', role: 'Barbeiro', email: '', password: '' });
+    setNewBarber({ name: '', role: 'Barbeiro', email: '', password: '', foto_perfil: '', shifts: defaultShifts });
   };
 
   const handleAddService = () => {
@@ -118,13 +128,56 @@ const Settings = () => {
           
           {activeTab === 'barbers' && (
             <div className="fade-in">
-              <h2 style={{ fontSize: '1.3rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}><User size={20} /> Membros da Equipe</h2>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                <h2 style={{ fontSize: '1.3rem', display: 'flex', alignItems: 'center', gap: '10px' }}><User size={20} /> Membros da Equipe</h2>
+                <button className="btn-primary" onClick={cancelEditBarber} style={{ padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem' }}>
+                  <Plus size={16} /> Novo Cadastro
+                </button>
+              </div>
               
               <div style={{ display: 'grid', gridTemplateColumns: 'minmax(250px, 300px) 1fr', gap: '2rem' }}>
-                <div>
-                  <h3 style={{ fontSize: '1rem', marginBottom: '1rem', color: 'var(--text-secondary)' }}>
-                    {editingBarberId ? 'Editar Profissional' : 'Adicionar Novo'}
+                <div style={{ background: 'var(--panel-bg)', padding: '1.5rem', borderRadius: '16px', border: editingBarberId ? '2px solid var(--accent-color)' : '1px solid var(--border-color)' }}>
+                  <h3 style={{ fontSize: '1.1rem', marginBottom: '1.5rem', color: editingBarberId ? 'var(--accent-color)' : 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {editingBarberId ? <><Edit2 size={18} /> Editando: {newBarber.name}</> : <><Plus size={18} /> Cadastrar Profissional</>}
                   </h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '1.5rem', gap: '10px' }}>
+                    <div 
+                      onClick={() => document.getElementById('fileInput').click()}
+                      style={{ 
+                        width: '80px', height: '80px', borderRadius: '50%', background: 'var(--panel-bg)', 
+                        border: '2px dashed var(--brand-400)', display: 'flex', alignItems: 'center', 
+                        justifyContent: 'center', overflow: 'hidden', position: 'relative', cursor: 'pointer',
+                        transition: 'all 0.2s', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)'
+                      }}
+                    >
+                      {newBarber.foto_perfil ? (
+                        <img src={newBarber.foto_perfil} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <div style={{ textAlign: 'center', color: 'var(--brand-700)' }}>
+                          <Plus size={24} style={{ margin: '0 auto' }} />
+                          <p style={{ fontSize: '0.6rem', fontWeight: 700, marginTop: '2px' }}>UPLOAD</p>
+                        </div>
+                      )}
+                    </div>
+                    <input 
+                      id="fileInput"
+                      type="file" 
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setNewBarber({...newBarber, foto_perfil: reader.result});
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      style={{ display: 'none' }} 
+                    />
+                    <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Clique no círculo para enviar do seu computador</p>
+                  </div>
+
                   <input type="text" placeholder="Nome Completo" value={newBarber.name} onChange={e => setNewBarber({...newBarber, name: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '10px', borderRadius: '8px', border: editingBarberId ? '1px solid var(--brand-200)' : '1px solid var(--border-color)', outline: 'none' }} />
                   <input type="email" placeholder="E-mail de Acesso" value={newBarber.email} onChange={e => setNewBarber({...newBarber, email: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '10px', borderRadius: '8px', border: editingBarberId ? '1px solid var(--brand-200)' : '1px solid var(--border-color)', outline: 'none' }} />
                   <input type="password" placeholder={editingBarberId ? "Nova Senha (deixe vazio p/ manter)" : "Senha de Acesso"} value={newBarber.password} onChange={e => setNewBarber({...newBarber, password: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '10px', borderRadius: '8px', border: editingBarberId ? '1px solid var(--brand-200)' : '1px solid var(--border-color)', outline: 'none' }} />
@@ -132,6 +185,70 @@ const Settings = () => {
                     <option value="Barbeiro">Barbeiro</option>
                     <option value="Gerente">Gerente</option>
                   </select>
+
+                  <div style={{ marginBottom: '1.5rem', padding: '1rem', background: 'rgba(0,0,0,0.02)', borderRadius: '12px' }}>
+                    <h4 style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: '10px', color: 'var(--text-primary)' }}>Expediente e Turnos</h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {[1, 2, 3, 4, 5, 6, 0].map(dia => {
+                        const labels = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+                        const dayShifts = (newBarber.shifts || []).filter(s => s.dia_semana === dia);
+                        
+                        return (
+                          <div key={dia} style={{ borderBottom: '1px solid rgba(0,0,0,0.05)', paddingBottom: '6px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                              <span style={{ fontSize: '0.75rem', fontWeight: 600, width: '40px' }}>{labels[dia]}</span>
+                              <button 
+                                onClick={() => {
+                                  const current = newBarber.shifts || [];
+                                  setNewBarber({ ...newBarber, shifts: [...current, { dia_semana: dia, hora_inicio: '09:00', hora_fim: '12:00', ativo: true }] });
+                                }}
+                                style={{ background: 'none', color: 'var(--brand-700)', fontSize: '0.65rem', padding: '2px 6px', fontWeight: 700 }}
+                              >
+                                + Turno
+                              </button>
+                            </div>
+                            {dayShifts.map((shift, sIdx) => {
+                              const globalIdx = (newBarber.shifts || []).indexOf(shift);
+                              return (
+                                <div key={sIdx} style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                                  <input 
+                                    type="time" 
+                                    value={shift.hora_inicio} 
+                                    onChange={e => {
+                                      const ns = [...newBarber.shifts];
+                                      ns[globalIdx].hora_inicio = e.target.value;
+                                      setNewBarber({ ...newBarber, shifts: ns });
+                                    }}
+                                    style={{ fontSize: '0.7rem', padding: '4px', borderRadius: '4px', border: '1px solid var(--border-color)' }}
+                                  />
+                                  <span style={{ fontSize: '0.7rem' }}>às</span>
+                                  <input 
+                                    type="time" 
+                                    value={shift.hora_fim} 
+                                    onChange={e => {
+                                      const ns = [...newBarber.shifts];
+                                      ns[globalIdx].hora_fim = e.target.value;
+                                      setNewBarber({ ...newBarber, shifts: ns });
+                                    }}
+                                    style={{ fontSize: '0.7rem', padding: '4px', borderRadius: '4px', border: '1px solid var(--border-color)' }}
+                                  />
+                                  <button 
+                                    onClick={() => {
+                                      setNewBarber({ ...newBarber, shifts: newBarber.shifts.filter((_, i) => i !== globalIdx) });
+                                    }}
+                                    style={{ background: 'none', color: '#ef4444', padding: '2px' }}
+                                  >
+                                    <Trash2 size={12} />
+                                  </button>
+                                </div>
+                              );
+                            })}
+                            {dayShifts.length === 0 && <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>Folga</span>}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                   
                   <div style={{ display: 'flex', gap: '10px' }}>
                     <button className="btn-primary" onClick={handleAddBarber} style={{ flex: 1, padding: '12px', display: 'flex', justifyContent: 'center', gap: '8px', background: editingBarberId ? 'var(--brand-600)' : 'var(--accent-color)' }}>
@@ -163,8 +280,12 @@ const Settings = () => {
                         }}
                       >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                           <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--accent-color)', color: 'var(--accent-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 600 }}>
-                              {b.name.charAt(0)}
+                           <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--accent-color)', color: 'var(--accent-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 600, overflow: 'hidden' }}>
+                              {b.foto_perfil ? (
+                                <img src={b.foto_perfil} alt={b.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              ) : (
+                                b.name.charAt(0)
+                              )}
                            </div>
                            <div>
                             <p style={{ fontWeight: 600 }}>{b.name} {editingBarberId === b.id && <span style={{ fontSize: '0.65rem', background: 'var(--brand-200)', color: '#1e40af', padding: '2px 6px', borderRadius: '4px', marginLeft: '8px' }}>Editando</span>}</p>

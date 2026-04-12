@@ -767,3 +767,13 @@ button {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* New Mini Calendar Styles */
+.dash-mini-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
+.dash-mini-cal-col { padding: 8px 0; border-radius: 12px; transition: all 0.2s; display: flex; flex-direction: column; gap: 6px; align-items: center; }
+.dash-mini-cal-day-label { font-size: 0.65rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+.dash-mini-cal-day-num { font-size: 0.85rem; font-weight: 600; color: var(--text-primary); }
+.dash-mini-cal-col.active { background: var(--accent-color); color: var(--bg-color); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.dash-mini-cal-col.active .dash-mini-cal-day-label, .dash-mini-cal-col.active .dash-mini-cal-day-num { color: var(--bg-color) !important; }
+

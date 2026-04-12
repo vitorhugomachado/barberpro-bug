@@ -59,7 +59,11 @@ export const AppProvider = ({ children }) => {
                  apiFetch(`${API_URL}/expenses`)
                ]);
 
-               if (apptsRes.ok) setAppointments(await apptsRes.json());
+               if (apptsRes.ok) {
+                 const data = await apptsRes.json();
+                 console.log('Fetched Appointments:', data);
+                 setAppointments(data);
+               }
                if (prodsRes.ok) setProducts(await prodsRes.json());
                if (salesRes.ok) setProductSales(await salesRes.json());
                if (expensesRes.ok) setExpenses(await expensesRes.json());
@@ -140,13 +144,24 @@ export const AppProvider = ({ children }) => {
   };
 
   const addBarber = async (newBarber) => {
-    const res = await apiFetch(`${API_URL}/barbers`, {
-      method: 'POST',
-      body: JSON.stringify({ ...newBarber, status: 'Ativo', permissions: ['scheduler', 'clients'] })
-    });
-    if (res.ok) {
-        const savedBarber = await res.json();
-        setBarbers([...barbers, savedBarber]);
+    try {
+      const res = await apiFetch(`${API_URL}/barbers`, {
+        method: 'POST',
+        body: JSON.stringify({ ...newBarber, status: 'Ativo', permissions: ['scheduler', 'clients'] })
+      });
+      if (res.ok) {
+          const savedBarber = await res.json();
+          setBarbers([...barbers, savedBarber]);
+          alert("Profissional cadastrado com sucesso!");
+          return true;
+      } else {
+          const errorData = await res.json();
+          alert(`Erro ao cadastrar profissional: ${errorData.message}`);
+          return false;
+      }
+    } catch (e) {
+      alert("Erro na conexão com o servidor ao cadastrar profissional.");
+      return false;
     }
   };
 

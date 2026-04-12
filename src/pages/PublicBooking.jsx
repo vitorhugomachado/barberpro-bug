@@ -120,8 +120,12 @@ const PublicBooking = () => {
                       setStep(3); 
                     }}
                   >
-                    <div style={{ width: '60px', height: '60px', background: 'var(--icon-bg)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 700 }}>
-                      {b.name.charAt(0)}
+                    <div style={{ width: '60px', height: '60px', background: 'var(--icon-bg)', borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 700, overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+                      {b.foto_perfil ? (
+                        <img src={b.foto_perfil} alt={b.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        b.name.charAt(0)
+                      )}
                     </div>
                     <div>
                       <h3 style={{ fontSize: '1.1rem', marginBottom: '4px' }}>{b.name}</h3>
@@ -137,8 +141,20 @@ const PublicBooking = () => {
         );
       case 3: {
         const baseTimeSlots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
-        const extendedTimeSlots = ['18:00', '19:00', '20:00', '21:00'];
+        const extendedTimeSlots = ['07:00', '08:00', '18:00', '19:00', '20:00', '21:00'];
         const allTimeSlots = showMoreSlots ? [...baseTimeSlots, ...extendedTimeSlots] : baseTimeSlots;
+        
+        // --- Shift Filtering Logic ---
+        const dayOfWeek = new Date(selectedDate + 'T12:00:00').getDay();
+        const barberShifts = (selectedBarber?.shifts || []).filter(s => s.dia_semana === dayOfWeek && s.ativo);
+        
+        const isWithinAnyShift = (time) => {
+          if (barberShifts.length === 0) return false;
+          return barberShifts.some(s => time >= s.hora_inicio && time < s.hora_fim);
+        };
+
+        const filteredTimeSlots = allTimeSlots.filter(t => isWithinAnyShift(t));
+        // -----------------------------
         
         const bookedTimes = appointments
           .filter(app => String(app.barberId) === String(selectedBarber?.id) && app.date === selectedDate && app.status !== 'Finalizado')
@@ -155,8 +171,12 @@ const PublicBooking = () => {
               
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{ width: '38px', height: '38px', background: 'url("https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=100&q=80") center/cover', borderRadius: '50%', backgroundColor: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                    {!selectedBarber?.avatar && <span style={{fontWeight: 'bold', fontSize: '14px', color: 'var(--text-secondary)'}}>{selectedBarber?.name?.charAt(0)}</span>}
+                  <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: 'var(--icon-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+                    {selectedBarber?.foto_perfil ? (
+                      <img src={selectedBarber.foto_perfil} alt={selectedBarber.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <span style={{fontWeight: 'bold', fontSize: '14px', color: 'var(--text-secondary)'}}>{selectedBarber?.name?.charAt(0)}</span>
+                    )}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--text-primary)' }}>{selectedBarber?.name}</span>
@@ -198,7 +218,7 @@ const PublicBooking = () => {
               </h5>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', gap: '8px' }}>
-                {allTimeSlots.map(t => {
+                {filteredTimeSlots.map(t => {
                   const isBooked = bookedTimes.includes(t);
                   return (
                     <button 
