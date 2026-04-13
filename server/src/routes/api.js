@@ -2,6 +2,7 @@ const express = require('express');
 const authMiddleware = require('../middlewares/authMiddleware');
 
 const authRoutes = require('./authRoutes');
+const customerAuthRoutes = require('./customerAuthRoutes');
 const barberRoutes = require('./barberRoutes');
 const { getServices, createService, updateService, deleteService } = require('../controllers/serviceController');
 const { getAppointments, createAppointment, updateAppointment } = require('../controllers/appointmentController');
@@ -13,6 +14,7 @@ const router = express.Router();
 
 // Public Routes
 router.use('/auth', authRoutes);
+router.use('/customer-auth', customerAuthRoutes);
 router.get('/services', getServices);
 router.get('/business', getBusinessInfo);
 router.post('/appointments', createAppointment); // Public booking

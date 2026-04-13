@@ -777,3 +777,8 @@ button {
 .dash-mini-cal-col.active { background: var(--accent-color); color: var(--bg-color); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
 .dash-mini-cal-col.active .dash-mini-cal-day-label, .dash-mini-cal-col.active .dash-mini-cal-day-num { color: var(--bg-color) !important; }
 
+
+.clean-date-input::-webkit-calendar-picker-indicator {
+  display: none !important;
+  -webkit-appearance: none;
+}

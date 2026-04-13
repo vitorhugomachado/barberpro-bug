@@ -14,18 +14,31 @@ export const AppProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(localStorage.getItem('barberpro_token'));
   const [currentUser, setCurrentUser] = useState(null);
+  
+  const [customerToken, setCustomerToken] = useState(localStorage.getItem('barberpro_customer_token'));
+  const [currentCustomer, setCurrentCustomer] = useState(null);
 
   const apiFetch = async (url, options = {}) => {
-    const headers = {
+    const headers = { 
       'Content-Type': 'application/json',
-      ...options.headers,
+      ...options.headers 
     };
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+    
+    // Choose token based on the route
+    const isCustomerRoute = url.includes('/customer-auth/') || url.includes('/appointments');
+    const activeToken = isCustomerRoute ? (customerToken || token) : (token || customerToken);
+
+    if (activeToken) {
+      headers['Authorization'] = `Bearer ${activeToken}`;
     }
+
     const res = await fetch(url, { ...options, headers });
-    if (res.status === 401) {
-      logout();
+    
+    if (res.status === 401 && !options.skipLogout) {
+      if (activeToken) {
+        if (isCustomerRoute && customerToken) customerLogout();
+        else if (token) logout();
+      }
     }
     return res;
   };
@@ -46,7 +59,8 @@ export const AppProvider = ({ children }) => {
         
         if (token) {
            try {
-             const userRes = await apiFetch(`${API_URL}/auth/me`);
+             // Explicitly skip logout on this fetch if it's the first attempt
+             const userRes = await apiFetch(`${API_URL}/auth/me`, { skipLogout: true });
              if (userRes.ok) {
                const user = await userRes.json();
                setCurrentUser(user);
@@ -73,6 +87,19 @@ export const AppProvider = ({ children }) => {
            } catch(e) {
              console.error("Auth error on reload:", e);
            }
+         }
+
+        if (customerToken) {
+          try {
+            const custRes = await apiFetch(`${API_URL}/customer-auth/me`);
+            if (custRes.ok) {
+              setCurrentCustomer(await custRes.json());
+            } else {
+              customerLogout();
+            }
+          } catch(e) {
+            console.error("Customer auth error:", e);
+          }
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -81,7 +108,7 @@ export const AppProvider = ({ children }) => {
       }
     };
     fetchData();
-  }, [token]);
+  }, [token, customerToken]);
 
   const login = async (email, password) => {
     const res = await fetch(`${API_URL}/auth/login`, {
@@ -100,6 +127,70 @@ export const AppProvider = ({ children }) => {
     setCurrentUser(user);
     localStorage.setItem('barberpro_token', newToken);
     return user;
+  };
+
+  const customerLogin = async (email, password) => {
+    const res = await fetch(`${API_URL}/customer-auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.message || 'Falha no login');
+    }
+
+    const { token: newToken, user } = await res.json();
+    localStorage.setItem('barberpro_customer_token', newToken);
+    setCustomerToken(newToken);
+    setCurrentCustomer(user);
+    return user;
+  };
+
+  const customerRegister = async (data) => {
+    const res = await fetch(`${API_URL}/customer-auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.message || 'Erro ao cadastrar');
+    }
+
+    const { token: newToken, user } = await res.json();
+    localStorage.setItem('barberpro_customer_token', newToken);
+    setCustomerToken(newToken);
+    setCurrentCustomer(user);
+    return user;
+  };
+
+  const getCustomerAppointments = async () => {
+    const res = await apiFetch(`${API_URL}/customer-auth/appointments`);
+    if (res.ok) return res.json();
+    throw new Error('Falha ao buscar histórico');
+  };
+
+  const updateCustomerProfile = async (data) => {
+    const res = await apiFetch(`${API_URL}/customer-auth/profile`, {
+      method: 'PATCH',
+      body: JSON.stringify(data)
+    });
+    if (res.ok) {
+      const updated = await res.json();
+      setCurrentCustomer(updated);
+      return updated;
+    }
+    const err = await res.json();
+    throw new Error(err.message || 'Falha ao atualizar perfil');
+  };
+
+  const customerLogout = () => {
+    localStorage.removeItem('barberpro_customer_token');
+    setCustomerToken(null);
+    setCurrentCustomer(null);
   };
 
   const logout = () => {
@@ -380,17 +471,21 @@ export const AppProvider = ({ children }) => {
 
   return (
     <AppContext.Provider value={{
-      barbers, appointments, services, businessInfo, addAppointment, updateAppointmentStatus,
-      cancelAppointment, addBarber, updateBarberPermissions, removeBarber, updateBarber, toggleBarberStatus,
-      addService, removeService, updateService, products, addProduct, removeProduct,
-      updateProduct, sellProduct, productSales, updateBusinessInfo, getFinancialStats,
-      getBarberRanking, login, logout, currentUser, token, loading,
-      expenses, addExpense, removeExpense, updateExpense
+      barbers, appointments, services, businessInfo, products, productSales, expenses,
+      addAppointment, updateAppointmentStatus, cancelAppointment, 
+      addBarber, updateBarberPermissions, removeBarber, updateBarber, toggleBarberStatus,
+      addService, removeService, updateService, 
+      addProduct, removeProduct, updateProduct, 
+      sellProduct, updateBusinessInfo, 
+      getFinancialStats, getBarberRanking, 
+      addExpense, removeExpense, updateExpense,
+      login, logout, currentUser, token, loading,
+      currentCustomer, isCustomerAuthenticated: !!currentCustomer, customerLogin, customerRegister, customerLogout,
+      getCustomerAppointments, updateCustomerProfile
     }}>
       {children}
     </AppContext.Provider>
   );
-
 };
 
 export const useApp = () => useContext(AppContext);

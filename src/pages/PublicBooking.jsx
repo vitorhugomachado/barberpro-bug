@@ -1,20 +1,27 @@
-import React, { useState, useRef } from 'react';
-import { Scissors, Calendar, Clock, Check, ChevronRight, User, Phone, X } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Scissors, Calendar, Clock, Check, ChevronRight, User, Phone, Bell, LogIn } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
-const PublicBooking = () => {
-  const { barbers, services, appointments, addAppointment, businessInfo } = useApp();
+const PublicBooking = ({ onOpenPortal }) => {
+  const { barbers, services, appointments, addAppointment, businessInfo, 
+    currentCustomer, customerLogin, customerRegister, customerLogout } = useApp();
   const [step, setStep] = useState(1);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedService, setSelectedService] = useState(null);
   const [selectedBarber, setSelectedBarber] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
   const [clientInfo, setClientInfo] = useState({ name: '', phone: '' });
+  const [showAccountMenu, setShowAccountMenu] = useState(false);
+  const [redirectAfterLogin, setRedirectAfterLogin] = useState(false);
 
-  const [showMoreSlots, setShowMoreSlots] = useState(false);
-  const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
-  const [waitlistInfo, setWaitlistInfo] = useState({ name: '', phone: '' });
-  const [waitlistSuccess, setWaitlistSuccess] = useState(false);
+  useEffect(() => {
+    console.log("PublicBooking Rendered. Step:", step, "Customer:", !!currentCustomer);
+  }, [step, currentCustomer]);
+
+  const [authMode, setAuthMode] = useState('login'); // 'login' or 'register'
+  const [authData, setAuthData] = useState({ email: '', password: '', name: '', phone: '' });
+  const [authError, setAuthError] = useState('');
+
   const dateInputRef = useRef(null);
 
   const renderProgressBar = () => (
@@ -32,17 +39,53 @@ const PublicBooking = () => {
   );
 
   const handleFinishBooking = () => {
-    addAppointment({
-      customer: clientInfo.name,
-      phone: clientInfo.phone,
+    const finalName = currentCustomer ? currentCustomer.name : clientInfo.name;
+    const finalPhone = currentCustomer ? currentCustomer.phone : clientInfo.phone;
+    
+    const payload = {
+      customer: finalName,
+      phone: finalPhone,
       service: selectedService.name,
       barberId: selectedBarber.id,
       date: selectedDate,
       time: selectedTime,
       status: 'Agendado',
-      price: selectedService.price
-    });
+      price: selectedService.price,
+      customerId: currentCustomer ? Number(currentCustomer.id) : null
+    };
+
+    console.log('PAYLOAD SENDING TO SERVER:', payload);
+    console.log('CURRENT CUSTOMER STATE:', currentCustomer);
+
+    addAppointment(payload);
     setStep(5);
+  };
+
+  const handleAuthSubmit = async (e) => {
+    e.preventDefault();
+    setAuthError('');
+    try {
+      if (authMode === 'login') {
+        const user = await customerLogin(authData.email, authData.password);
+        if (redirectAfterLogin) {
+          setRedirectAfterLogin(false);
+          onOpenPortal();
+        }
+      } else {
+        await customerRegister({
+          email: authData.email,
+          password: authData.password,
+          name: authData.name,
+          phone: authData.phone
+        });
+        if (redirectAfterLogin) {
+          setRedirectAfterLogin(false);
+          onOpenPortal();
+        }
+      }
+    } catch (err) {
+      setAuthError(err.message);
+    }
   };
 
   const renderStep = () => {
@@ -140,9 +183,12 @@ const PublicBooking = () => {
           </div>
         );
       case 3: {
-        const baseTimeSlots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
-        const extendedTimeSlots = ['07:00', '08:00', '18:00', '19:00', '20:00', '21:00'];
-        const allTimeSlots = showMoreSlots ? [...baseTimeSlots, ...extendedTimeSlots] : baseTimeSlots;
+        const allTimeSlots = [
+          '07:00', '07:30', '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', 
+          '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', 
+          '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', 
+          '19:00', '19:30', '20:00', '20:30', '21:00'
+        ];
         
         // --- Shift Filtering Logic ---
         const dayOfWeek = new Date(selectedDate + 'T12:00:00').getDay();
@@ -153,7 +199,12 @@ const PublicBooking = () => {
           return barberShifts.some(s => time >= s.hora_inicio && time < s.hora_fim);
         };
 
-        const filteredTimeSlots = allTimeSlots.filter(t => isWithinAnyShift(t));
+        const durationMinutes = parseInt(selectedService?.duration) || 0;
+        const baseFilteredSlots = durationMinutes > 30 
+          ? allTimeSlots.filter(t => t.endsWith(':00'))
+          : allTimeSlots;
+
+        const filteredTimeSlots = baseFilteredSlots.filter(t => isWithinAnyShift(t));
         // -----------------------------
         
         const bookedTimes = appointments
@@ -185,29 +236,61 @@ const PublicBooking = () => {
                     </button>
                   </div>
                 </div>
-                <button 
-                  style={{ background: 'none', border: 'none', color: 'var(--accent-color)', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}
-                  onClick={() => setIsWaitlistOpen(true)}
-                >
-                  + Fila de espera
-                </button>
               </div>
 
-              <div style={{ marginBottom: '2.5rem' }}>
+              <div style={{ marginBottom: '2rem' }}>
                 <div 
-                  style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '8px 14px', position: 'relative', cursor: 'pointer' }}
+                  style={{ 
+                    background: 'var(--panel-bg)', 
+                    border: '1px solid var(--border-color)', 
+                    borderRadius: '12px', 
+                    padding: '12px 18px', 
+                    position: 'relative', 
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+                  }}
                   onClick={() => dateInputRef.current && dateInputRef.current.showPicker()}
                 >
-                  <span style={{ position: 'absolute', top: '6px', left: '14px', fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Data</span>
-                  <input 
-                    ref={dateInputRef}
-                    type="date" 
-                    value={selectedDate} 
-                    onChange={e => setSelectedDate(e.target.value)} 
-                    onClick={e => e.stopPropagation()}
-                    style={{ width: '100%', border: 'none', background: 'transparent', outline: 'none', paddingTop: '16px', fontSize: '0.95rem', color: 'var(--accent-color)', cursor: 'pointer', fontFamily: 'inherit' }}
-                  />
-                  <Calendar size={16} style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', pointerEvents: 'none' }} />
+                  <div style={{ flex: 1 }}>
+                    <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '4px' }}>Data do Atendimento</span>
+                    <input 
+                      ref={dateInputRef}
+                      type="date" 
+                      value={selectedDate} 
+                      onChange={e => setSelectedDate(e.target.value)} 
+                      onClick={e => e.stopPropagation()}
+                      className="clean-date-input"
+                      style={{ 
+                        width: '100%', 
+                        border: 'none', 
+                        background: 'transparent', 
+                        outline: 'none', 
+                        fontSize: '1.1rem', 
+                        fontWeight: 700, 
+                        color: 'var(--accent-color)', 
+                        cursor: 'pointer', 
+                        fontFamily: 'inherit',
+                        padding: 0
+                      }}
+                    />
+                  </div>
+                  <div style={{ 
+                    width: '44px', 
+                    height: '44px', 
+                    borderRadius: '10px', 
+                    background: 'var(--icon-bg)', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    color: 'var(--accent-color)',
+                    border: '1px solid var(--border-color)'
+                  }}>
+                    <Calendar size={22} strokeWidth={2.5} />
+                  </div>
                 </div>
               </div>
               
@@ -250,14 +333,7 @@ const PublicBooking = () => {
                 })}
               </div>
               
-              <div style={{ textAlign: 'center', marginTop: '1.5rem', borderBottom: '1px dashed var(--border-color)', paddingBottom: '2rem', marginBottom: '1rem' }}>
-                <button 
-                  style={{ background: 'none', border: 'none', color: 'var(--accent-color)', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.5px' }}
-                  onClick={() => setShowMoreSlots(!showMoreSlots)}
-                >
-                  {showMoreSlots ? 'Ver Menos' : 'Ver Mais'}
-                </button>
-              </div>
+
 
             </div>
           </div>
@@ -266,57 +342,107 @@ const PublicBooking = () => {
       case 4:
         return (
           <div className="fade-in">
-            <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>Só mais um detalhe...</h2>
-            <div className="glass-card" style={{ padding: '2rem' }}>
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 600, display: 'block', marginBottom: '8px' }}>Seu Nome</label>
-                <div style={{ position: 'relative' }}>
-                  <User size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+            {!currentCustomer ? (
+              <div className="glass-card" style={{ padding: '2.5rem' }}>
+                <h2 style={{ fontSize: '1.4rem', marginBottom: '0.5rem', textAlign: 'center' }}>
+                  {authMode === 'login' ? 'Acesse sua conta' : 'Crie sua conta'}
+                </h2>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', textAlign: 'center', marginBottom: '2rem' }}>
+                  Para confirmar seu agendamento, precisamos te identificar.
+                </p>
+
+                <form onSubmit={handleAuthSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {authMode === 'register' && (
+                    <>
+                      <input 
+                        type="text" placeholder="Nome Completo" required
+                        value={authData.name} onChange={e => setAuthData({...authData, name: e.target.value})}
+                        style={{ padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', outline: 'none' }} 
+                      />
+                      <input 
+                        type="tel" placeholder="WhatsApp (DDD) 00000-0000" required
+                        value={authData.phone} onChange={e => setAuthData({...authData, phone: e.target.value})}
+                        style={{ padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', outline: 'none' }} 
+                      />
+                    </>
+                  )}
                   <input 
-                    type="text" 
-                    placeholder="Como podemos te chamar?"
-                    style={{
-                      width: '100%',
-                      padding: '12px 12px 12px 40px',
-                      borderRadius: '10px',
-                      border: '1px solid var(--border-color)',
-                      outline: 'none',
-                      fontSize: '0.9rem'
-                    }}
-                    value={clientInfo.name}
-                    onChange={(e) => setClientInfo({ ...clientInfo, name: e.target.value })}
+                    type="email" placeholder="Seu E-mail" required
+                    value={authData.email} onChange={e => setAuthData({...authData, email: e.target.value})}
+                    style={{ padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', outline: 'none' }} 
                   />
+                  <input 
+                    type="password" placeholder="Sua Senha" required
+                    value={authData.password} onChange={e => setAuthData({...authData, password: e.target.value})}
+                    style={{ padding: '12px', borderRadius: '10px', border: '1px solid var(--border-color)', outline: 'none' }} 
+                  />
+                  
+                  {authError && <p style={{ color: '#ef4444', fontSize: '0.85rem', textAlign: 'center' }}>{authError}</p>}
+                  
+                  <button type="submit" className="btn-primary" style={{ padding: '14px', marginTop: '0.5rem' }}>
+                    {authMode === 'login' ? 'Entrar e Continuar' : 'Cadastrar e Continuar'}
+                  </button>
+                </form>
+
+                <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+                  <button 
+                    onClick={() => { setAuthMode(authMode === 'login' ? 'register' : 'login'); setAuthError(''); }}
+                    style={{ background: 'none', border: 'none', color: 'var(--accent-color)', fontSize: '0.9rem', cursor: 'pointer', fontWeight: 600 }}
+                  >
+                    {authMode === 'login' ? 'Não tem conta? Cadastre-se' : 'Já tem conta? Faça login'}
+                  </button>
                 </div>
               </div>
-              <div style={{ marginBottom: '2rem' }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 600, display: 'block', marginBottom: '8px' }}>WhatsApp</label>
-                <div style={{ position: 'relative' }}>
-                  <Phone size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
-                  <input 
-                    type="tel" 
-                    placeholder="(00) 00000-0000"
-                    style={{
-                      width: '100%',
-                      padding: '12px 12px 12px 40px',
-                      borderRadius: '10px',
-                      border: '1px solid var(--border-color)',
-                      outline: 'none',
-                      fontSize: '0.9rem'
-                    }}
-                    value={clientInfo.phone}
-                    onChange={(e) => setClientInfo({ ...clientInfo, phone: e.target.value })}
-                  />
+            ) : (
+              <div className="glass-card" style={{ padding: '2.5rem' }}>
+                <h2 style={{ fontSize: '1.4rem', marginBottom: '1.5rem' }}>Confirmar Agendamento</h2>
+                
+                <div style={{ background: 'rgba(0,0,0,0.02)', padding: '1.5rem', borderRadius: '12px', marginBottom: '2rem', border: '1px solid var(--border-color)' }}>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>Logado como:</p>
+                  <p style={{ fontWeight: 700, fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <User size={18} /> {currentCustomer?.name || 'Cliente'}
+                  </p>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>{currentCustomer?.email || ''}</p>
+                  
+                  <button 
+                    onClick={customerLogout}
+                    style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '0.8rem', cursor: 'pointer', marginTop: '12px', padding: 0 }}
+                  >
+                    (Sair da conta)
+                  </button>
                 </div>
+
+                <div style={{ marginBottom: '2rem' }}>
+                  <h4 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Resumo da Reserva</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>Serviço:</span>
+                      <span style={{ fontWeight: 600 }}>{selectedService?.name}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>Barbeiro:</span>
+                      <span style={{ fontWeight: 600 }}>{selectedBarber?.name}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>Data/Hora:</span>
+                      <span style={{ fontWeight: 600 }}>{selectedDate?.split('-')?.reverse()?.join('/')} às {selectedTime}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', paddingTop: '8px', borderTop: '1px dashed var(--border-color)' }}>
+                      <span style={{ fontWeight: 700 }}>Total:</span>
+                      <span style={{ fontWeight: 700, color: 'var(--accent-color)' }}>R$ {selectedService?.price.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <button 
+                  className="btn-primary" 
+                  style={{ width: '100%', padding: '16px', fontSize: '1rem', fontWeight: 700 }}
+                  onClick={handleFinishBooking}
+                >
+                  Finalizar e Agendar
+                </button>
               </div>
-              <button 
-                className="btn-primary" 
-                style={{ width: '100%', padding: '14px' }}
-                disabled={!clientInfo.name || !clientInfo.phone}
-                onClick={handleFinishBooking}
-              >
-                Finalizar Agendamento
-              </button>
-            </div>
+            )}
             <button className="btn-secondary" style={{ marginTop: '2rem' }} onClick={() => setStep(3)}>Voltar</button>
           </div>
         );
@@ -326,7 +452,7 @@ const PublicBooking = () => {
             <div style={{ background: 'var(--brand-50)', color: 'var(--brand-600)', width: '80px', height: '80px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem' }}>
               <Check size={40} />
             </div>
-            <h2 style={{ fontSize: '1.8rem', marginBottom: '1rem' }}>Pronto, {clientInfo.name.split(' ')[0]}!</h2>
+            <h2 style={{ fontSize: '1.8rem', marginBottom: '1rem' }}>Pronto, {(currentCustomer?.name || clientInfo?.name || '').split(' ')[0]}!</h2>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '2.5rem' }}>Seu agendamento foi realizado com sucesso.</p>
             
             <div className="glass-card" style={{ display: 'inline-block', textAlign: 'left', minWidth: '320px', marginBottom: '2.5rem' }}>
@@ -369,13 +495,143 @@ const PublicBooking = () => {
     <div style={{ 
       minHeight: '100vh', 
       background: 'var(--bg-color)',
-      padding: '4rem 2rem'
+      paddingBottom: '4rem'
     }}>
-      <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-        <header style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-          <div style={{ background: 'var(--accent-color)', color: 'var(--accent-text)', padding: '12px', borderRadius: '14px', width: 'fit-content', margin: '0 auto 1.5rem' }}>
-            <Scissors size={24} />
+      {/* Top Navbar */}
+      <nav style={{ 
+        background: '#26A69A', 
+        padding: '0.75rem 2rem', 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        position: 'sticky',
+        top: 0,
+        zIndex: 100,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'white', fontWeight: 700, fontSize: '1.1rem' }}>
+          <Scissors size={20} />
+          <span>{businessInfo?.name || 'BarberPro'}</span>
+        </div>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', color: 'white' }}>
+          
+          <button 
+            onClick={() => {
+              if (currentCustomer) {
+                onOpenPortal();
+              } else {
+                setRedirectAfterLogin(true);
+                setStep(4);
+              }
+            }}
+            style={{ 
+              background: 'rgba(255,255,255,0.1)', 
+              color: 'white', 
+              border: '1px solid rgba(255,255,255,0.3)',
+              padding: '6px 14px',
+              borderRadius: '20px',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              transition: 'all 0.2s'
+            }}
+          >
+            <Calendar size={14} /> Minha Agenda
+          </button>
+
+          <div style={{ position: 'relative', cursor: 'pointer' }}>
+            <Bell size={24} />
           </div>
+          <div 
+            style={{ position: 'relative', cursor: 'pointer' }}
+            onClick={() => setShowAccountMenu(!showAccountMenu)}
+          >
+            <div style={{ 
+              width: '36px', 
+              height: '36px', 
+              borderRadius: '50%', 
+              background: 'rgba(255,255,255,0.2)', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center' 
+            }}>
+              <User size={22} />
+            </div>
+
+            {/* Account Dropdown Card */}
+            {showAccountMenu && (
+              <div 
+                className="glass-card fade-in"
+                style={{ 
+                  position: 'absolute', 
+                  top: '45px', 
+                  right: 0, 
+                  width: '200px', 
+                  padding: '1rem',
+                  background: 'white',
+                  borderRadius: '12px',
+                  boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
+                  color: 'var(--text-primary)',
+                  zIndex: 200
+                }}
+              >
+                {!currentCustomer ? (
+                  <button 
+                    onClick={() => { setStep(4); setShowAccountMenu(false); }}
+                    style={{ 
+                      width: '100%', 
+                      padding: '10px', 
+                      background: 'var(--brand-500)', 
+                      color: 'white', 
+                      border: 'none', 
+                      borderRadius: '8px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px'
+                    }}
+                  >
+                    <LogIn size={18} /> ENTRAR
+                  </button>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 600, paddingBottom: '8px', borderBottom: '1px solid var(--border-color)' }}>
+                      Olá, {currentCustomer?.name?.split(' ')[0] || 'Cliente'}
+                    </div>
+                    <button 
+                      onClick={() => { onOpenPortal(); setShowAccountMenu(false); }}
+                      style={{ 
+                        width: '100%', padding: '8px', background: 'var(--brand-50)', color: 'var(--brand-700)', 
+                        border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600
+                      }}
+                    >
+                      Minha Agenda
+                    </button>
+                    <button 
+                      onClick={() => { customerLogout(); setShowAccountMenu(false); }}
+                      style={{ 
+                        width: '100%', padding: '8px', background: 'none', color: 'var(--error-color, #ef4444)', 
+                        border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600
+                      }}
+                    >
+                      Sair
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </nav>
+
+      <div style={{ maxWidth: '600px', margin: '4rem auto 0', padding: '0 1rem' }}>
+        <header style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
           <h1 style={{ fontSize: '2.5rem', marginBottom: '8px' }}>{businessInfo?.name || 'BarberPro'}</h1>
           <p style={{ color: 'var(--text-secondary)' }}>Reserva de horários online - Simples e rápido.</p>
         </header>
@@ -383,38 +639,6 @@ const PublicBooking = () => {
         {step < 5 && renderProgressBar()}
 
         {renderStep()}
-        
-        {isWaitlistOpen && (
-          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-            <div className="glass-card fade-in" style={{ width: '90%', maxWidth: '400px', background: 'var(--surface-color)', padding: '2rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                <h2 style={{ fontSize: '1.2rem', marginBottom: 0 }}>Fila de Espera</h2>
-                <button style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }} onClick={() => {setIsWaitlistOpen(false); setWaitlistSuccess(false);}}><X size={20} /></button>
-              </div>
-              
-              {waitlistSuccess ? (
-                 <div style={{ textAlign: 'center', padding: '1rem 0' }}>
-                   <div style={{ background: 'var(--brand-50)', color: 'var(--brand-600)', width: '60px', height: '60px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
-                     <Check size={30} />
-                   </div>
-                   <h3 style={{ marginBottom: '1rem' }}>Sua vaga está garantida!</h3>
-                   <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Avisaremos imediatamente por WhatsApp caso um horário libere neste dia para você.</p>
-                   <button className="btn-secondary" style={{ width: '100%', padding: '12px' }} onClick={() => {setIsWaitlistOpen(false); setWaitlistSuccess(false);}}>Concluir e Fechar</button>
-                 </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Deseja ser notificado se houver desistências para {selectedBarber?.name} nesta data?</p>
-                  <input type="text" placeholder="Seu Nome Completo" value={waitlistInfo.name} onChange={e => setWaitlistInfo({...waitlistInfo, name: e.target.value})} style={{ padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', outline: 'none' }} />
-                  <input type="tel" placeholder="WhatsApp (DDD) 00000-0000" value={waitlistInfo.phone} onChange={e => setWaitlistInfo({...waitlistInfo, phone: e.target.value})} style={{ padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', outline: 'none' }} />
-                  <button className="btn-primary" style={{ marginTop: '1rem', padding: '12px' }} onClick={() => setWaitlistSuccess(true)} disabled={!waitlistInfo.name || !waitlistInfo.phone}>
-                    Entrar na Fila
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
       </div>
     </div>
   );

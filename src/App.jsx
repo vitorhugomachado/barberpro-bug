@@ -8,19 +8,27 @@ import PublicBooking from './pages/PublicBooking';
 import Finance from './pages/Finance';
 import Users from './pages/Users';
 import Settings from './pages/Settings';
+import CustomerPortal from './pages/CustomerPortal';
 
 import { useApp } from './context/AppContext';
 
 function App() {
   const { barbers, loading, login, logout, currentUser } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [viewMode, setViewMode] = useState('public');
+  const [viewMode, setViewMode] = useState(localStorage.getItem('barberpro_token') ? 'admin' : 'public');
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
 
   React.useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
   }, [theme]);
+
+  React.useEffect(() => {
+    if (currentUser && viewMode === 'login') {
+      setViewMode('admin');
+      if (currentUser.role === 'Barbeiro') setActiveTab('scheduler');
+    }
+  }, [currentUser, viewMode]);
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
@@ -65,7 +73,7 @@ function App() {
   if (viewMode === 'public') {
     return (
       <>
-        <PublicBooking />
+        <PublicBooking onOpenPortal={() => setViewMode('customer')} />
         <button 
           onClick={() => setViewMode('login')} 
           style={{ 
@@ -93,6 +101,10 @@ function App() {
     return <LoginPage onLogin={handleLogin} />;
   }
 
+  if (viewMode === 'customer') {
+    return <CustomerPortal onBack={() => setViewMode('public')} />;
+  }
+
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
@@ -113,6 +125,13 @@ function App() {
   };
 
   if (!currentUser) {
+    // If we were expecting an admin view but the user profile couldn't be loaded,
+    // we should probably fallback to login mode after a timeout or if loading finished.
+    if (!loading && viewMode === 'admin') {
+      setViewMode('login');
+      return null; // The second render will show the login page
+    }
+
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', flexDirection: 'column', gap: '20px' }}>
         <p>Carregando perfil do usuário...</p>

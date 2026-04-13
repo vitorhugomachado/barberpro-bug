@@ -35,22 +35,35 @@ model Service {
   duration String
 }
 
+model Customer {
+  id           Int           @id @default(autoincrement())
+  name         String
+  email        String        @unique
+  password     String
+  phone        String
+  appointments Appointment[]
+  createdAt    DateTime      @default(now())
+}
+
 model Appointment {
-  id       Int     @id @default(autoincrement())
-  customer String
-  phone    String?
-  service  String
-  barberId Int
-  barber   Barber  @relation(fields: [barberId], references: [id])
-  date     String
-  time     String
-  status   String  @default("Agendado")
-  price    Float
-  payments Json?
+  id         Int       @id @default(autoincrement())
+  customer   String
+  phone      String?
+  service    String
+  barberId   Int
+  barber     Barber    @relation(fields: [barberId], references: [id])
+  customerId Int?      @map("customer_id")
+  client     Customer? @relation(fields: [customerId], references: [id])
+  date       String
+  time       String
+  status     String    @default("Agendado")
+  price      Float
+  payments   Json?
 
   @@index([date])
   @@index([status])
   @@index([barberId])
+  @@index([customerId])
 }
 
 model Product {
@@ -113,7 +126,6 @@ model Holiday {
 }
 
 model WorkingShifts {
-  id          String  @id @default(uuid())
   id_barbeiro Int
   barber      Barber  @relation(fields: [id_barbeiro], references: [id], onDelete: Cascade)
   dia_semana  Int
@@ -121,6 +133,7 @@ model WorkingShifts {
   hora_fim    String
   ativo       Boolean @default(true)
 
-  @@unique([id_barbeiro, dia_semana, hora_inicio])
+  @@id([id_barbeiro, dia_semana, hora_inicio])
   @@map("horarios_trabalho")
-}
+} 
+

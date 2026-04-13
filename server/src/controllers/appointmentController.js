@@ -22,9 +22,15 @@ const getAppointments = async (req, res) => {
 
 const createAppointment = async (req, res) => {
   try {
-    const appointment = await prisma.appointment.create({ data: req.body });
+    console.log('CREATE APPOINTMENT BODY:', req.body);
+    const data = { ...req.body };
+    if (data.customerId) data.customerId = Number(data.customerId);
+    
+    const appointment = await prisma.appointment.create({ data });
+    console.log('CREATED APPOINTMENT IN DB:', appointment);
     res.json(appointment);
   } catch (error) {
+    console.error('Create appointment error:', error);
     res.status(500).json({ message: 'Erro ao criar agendamento' });
   }
 };
@@ -33,10 +39,14 @@ const updateAppointment = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Verify ownership: Barbers can only update their own appointments
+    // Verify ownership
     if (req.user.role !== 'Gerente') {
       const existing = await prisma.appointment.findUnique({ where: { id: Number(id) } });
-      if (!existing || existing.barberId !== req.user.id) {
+      
+      const isOwnerBarber = existing && existing.barberId === req.user.id;
+      const isOwnerCustomer = existing && existing.customerId === req.user.id;
+      
+      if (!existing || (!isOwnerBarber && !isOwnerCustomer)) {
         return res.status(403).json({ message: 'Sem permissão para alterar este agendamento' });
       }
     }

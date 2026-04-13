@@ -15,6 +15,7 @@ const Settings = () => {
   const defaultShifts = [1,2,3,4,5].map(d => ({ dia_semana: d, hora_inicio: '09:00', hora_fim: '18:00', ativo: true }));
   const [newBarber, setNewBarber] = useState({ name: '', role: 'Barbeiro', email: '', password: '', foto_perfil: '', shifts: defaultShifts });
   const [editingBarberId, setEditingBarberId] = useState(null);
+  const [editingServiceId, setEditingServiceId] = useState(null);
   
   const [newService, setNewService] = useState({ name: '', duration: '30 min', price: '' });
   const [newProduct, setNewProduct] = useState({ name: '', category: 'Cabelo', price: '', cost: '', stock: '' });
@@ -66,7 +67,29 @@ const Settings = () => {
 
   const handleAddService = () => {
     if (!newService.name || !newService.price) return;
-    addService({ ...newService, price: parseFloat(newService.price) });
+    
+    const serviceData = { ...newService, price: parseFloat(newService.price) };
+    
+    if (editingServiceId) {
+      updateService(editingServiceId, serviceData);
+      setEditingServiceId(null);
+    } else {
+      addService(serviceData);
+    }
+    setNewService({ name: '', duration: '30 min', price: '' });
+  };
+
+  const startEditService = (service) => {
+    setEditingServiceId(service.id);
+    setNewService({ 
+      name: service.name, 
+      duration: service.duration, 
+      price: service.price.toString() 
+    });
+  };
+
+  const cancelEditService = () => {
+    setEditingServiceId(null);
     setNewService({ name: '', duration: '30 min', price: '' });
   };
 
@@ -308,6 +331,83 @@ const Settings = () => {
                           >
                             <Trash2 size={18} />
                           </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {activeTab === 'services' && (
+            <div className="fade-in">
+              <h2 style={{ fontSize: '1.3rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}><Scissors size={20} /> Catálogo de Serviços</h2>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: 'minmax(250px, 300px) 1fr', gap: '2rem' }}>
+                <div>
+                  <h3 style={{ fontSize: '1rem', marginBottom: '1rem', color: editingServiceId ? 'var(--accent-color)' : 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {editingServiceId ? <><Edit2 size={18} /> Editando: {newService.name}</> : <><Plus size={18} /> Novo Serviço</>}
+                  </h3>
+                  <input type="text" placeholder="Nome do Serviço" value={newService.name} onChange={e => setNewService({...newService, name: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '10px', borderRadius: '8px', border: editingServiceId ? '1px solid var(--brand-200)' : '1px solid var(--border-color)', outline: 'none' }} />
+                  <select 
+                    value={newService.duration} 
+                    onChange={e => setNewService({...newService, duration: e.target.value})} 
+                    style={{ width: '100%', padding: '12px', marginBottom: '10px', borderRadius: '8px', border: editingServiceId ? '1px solid var(--brand-200)' : '1px solid var(--border-color)', outline: 'none', background: '#fff' }}
+                  >
+                    <option value="30 min">30 min</option>
+                    <option value="60 min">60 min (1h)</option>
+                    <option value="90 min">90 min (1h 30)</option>
+                    <option value="120 min">120 min (2h)</option>
+                    <option value="150 min">150 min (2h 30)</option>
+                    <option value="180 min">180 min (3h)</option>
+                    <option value="210 min">210 min (3h 30)</option>
+                    <option value="240 min">240 min (4h)</option>
+                  </select>
+                  <input type="number" placeholder="Preço (R$)" value={newService.price} onChange={e => setNewService({...newService, price: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '1rem', borderRadius: '8px', border: editingServiceId ? '1px solid var(--brand-200)' : '1px solid var(--border-color)', outline: 'none' }} />
+                  
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <button className="btn-primary" onClick={handleAddService} style={{ flex: 1, padding: '12px', display: 'flex', justifyContent: 'center', gap: '8px', background: editingServiceId ? 'var(--brand-600)' : 'var(--accent-color)' }}>
+                      {editingServiceId ? <Save size={18} /> : <Plus size={18} />} 
+                      {editingServiceId ? 'Atualizar Dados' : 'Cadastrar Serviço'}
+                    </button>
+                    {editingServiceId && (
+                      <button onClick={cancelEditService} style={{ padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: '#fff', cursor: 'pointer' }}>
+                        Cancelar
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 style={{ fontSize: '1rem', marginBottom: '1rem', color: 'var(--text-secondary)' }}>Serviços Ativos ({services.length})</h3>
+                  <div style={{ display: 'grid', gap: '12px' }}>
+                    {services.map(s => (
+                      <div 
+                        key={s.id} 
+                        onClick={() => startEditService(s)}
+                        style={{ 
+                          display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', 
+                          background: editingServiceId === s.id ? 'var(--brand-50)' : 'rgba(0,0,0,0.02)', 
+                          borderRadius: '8px', border: editingServiceId === s.id ? '1px solid var(--brand-200)' : '1px solid var(--border-color)',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        <div>
+                          <p style={{ fontWeight: 600 }}>{s.name} {editingServiceId === s.id && <span style={{ fontSize: '0.65rem', background: 'var(--brand-200)', color: '#1e40af', padding: '2px 6px', borderRadius: '4px', marginLeft: '8px' }}>Editando</span>}</p>
+                          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Duração: {s.duration}</p>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                          <span style={{ fontWeight: 700, color: 'var(--brand-600)' }}>R$ {s.price}</span>
+                          <div style={{ display: 'flex', gap: '4px' }}>
+                            <button style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '4px' }}>
+                              <Edit2 size={16} />
+                            </button>
+                            <button style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px' }} onClick={(e) => { e.stopPropagation(); removeService(s.id); }}>
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}

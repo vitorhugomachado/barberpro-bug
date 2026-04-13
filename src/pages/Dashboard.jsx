@@ -206,6 +206,19 @@ const Dashboard = () => {
   };
 
   const handleAddSplit = () => setPaymentSplits([...paymentSplits, { method: 'Pix', amount: 0 }]);
+  
+  const handleChangeService = async (newServiceId) => {
+    const s = services.find(sv => String(sv.id) === String(newServiceId));
+    if (!s) return;
+    await updateAppointmentStatus(actionModal.app.id, actionModal.app.status, {
+      service: s.name,
+      price: s.price
+    });
+    setActionModal({
+      ...actionModal,
+      app: { ...actionModal.app, service: s.name, price: s.price }
+    });
+  };
   const handleSplitChange = (index, field, value) => {
     const newSplits = [...paymentSplits];
     newSplits[index][field] = value;
@@ -498,6 +511,27 @@ const Dashboard = () => {
                 </span>
               </div>
             </div>
+
+            {/* Change Service Section */}
+            {actionModal.step === 'choose' && (
+              <div style={{ marginBottom: '1.5rem', padding: '1rem', background: 'rgba(0,0,0,0.02)', borderRadius: '12px', border: '1px dashed var(--border-color)' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '8px', color: 'var(--text-secondary)' }}>Trocar Serviço</label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <select 
+                    style={{ flex: 1, padding: '8px', borderRadius: '8px', border: '1px solid var(--border-color)', outline: 'none', fontSize: '0.85rem' }}
+                    onChange={(e) => {
+                      if (e.target.value) handleChangeService(e.target.value);
+                    }}
+                    value=""
+                  >
+                    <option value="">Selecione para trocar...</option>
+                    {services.map(s => (
+                      <option key={s.id} value={s.id}>{s.name} - R$ {s.price}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
 
             {/* Step: Choose Action */}
             {actionModal.step === 'choose' && (
