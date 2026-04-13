@@ -3,7 +3,7 @@ import { User, Calendar, History, Settings, LogOut, ChevronRight, Clock, MapPin,
 import { useApp } from '../context/AppContext';
 
 const CustomerPortal = ({ onBack }) => {
-  const { currentCustomer, customerLogout, getCustomerAppointments, updateCustomerProfile, cancelAppointment } = useApp();
+  const { currentCustomer, customerLogout, getCustomerAppointments, updateCustomerProfile, cancelAppointment, businessInfo } = useApp();
   const [activeTab, setActiveTab] = useState('overview');
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -71,7 +71,7 @@ const CustomerPortal = ({ onBack }) => {
   const renderOverview = () => (
     <div className="fade-in">
       <div className="glass-card" style={{ padding: '2rem', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-        <div style={{ background: 'var(--brand-500)', color: 'white', width: '64px', height: '64px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 700 }}>
+        <div style={{ background: 'var(--brand-500)', color: 'white', width: '64px', height: '64px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 700, overflow: 'hidden' }}>
           {currentCustomer?.name?.charAt(0).toUpperCase()}
         </div>
         <div>
@@ -254,13 +254,17 @@ const CustomerPortal = ({ onBack }) => {
         
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
-          <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
             <button 
               onClick={onBack}
               style={{ background: 'none', border: 'none', color: 'var(--brand-600)', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
             >
-              ← Voltar para Agendamento
+              ← Voltar
             </button>
+            {businessInfo?.logo_url && (
+              <img src={businessInfo.logo_url} alt="Logo" style={{ height: '40px', borderRadius: '8px', objectFit: 'contain' }} />
+            )}
+            <h1 style={{ fontSize: '1.25rem', margin: 0, color: 'var(--text-primary)' }}>{businessInfo?.name || 'Customer Portal'}</h1>
           </div>
           <button 
             onClick={handleLogout}

@@ -509,8 +509,12 @@ const PublicBooking = ({ onOpenPortal }) => {
         zIndex: 100,
         boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'white', fontWeight: 700, fontSize: '1.1rem' }}>
-          <Scissors size={20} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'white', fontWeight: 700, fontSize: '1.1rem' }}>
+          {businessInfo?.logo_url ? (
+            <img src={businessInfo.logo_url} alt="Logo" style={{ height: '32px', width: '32px', borderRadius: '6px', objectFit: 'contain', background: 'white' }} />
+          ) : (
+            <Scissors size={20} />
+          )}
           <span>{businessInfo?.name || 'BarberPro'}</span>
         </div>
         
@@ -631,7 +635,10 @@ const PublicBooking = ({ onOpenPortal }) => {
       </nav>
 
       <div style={{ maxWidth: '600px', margin: '4rem auto 0', padding: '0 1rem' }}>
-        <header style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+        <header style={{ textAlign: 'center', marginBottom: '3rem' }}>
+          {businessInfo?.logo_url ? (
+            <img src={businessInfo.logo_url} alt="Logo" style={{ maxHeight: '100px', maxWidth: '200px', marginBottom: '1.5rem', borderRadius: '12px' }} />
+          ) : null}
           <h1 style={{ fontSize: '2.5rem', marginBottom: '8px' }}>{businessInfo?.name || 'BarberPro'}</h1>
           <p style={{ color: 'var(--text-secondary)' }}>Reserva de horários online - Simples e rápido.</p>
         </header>

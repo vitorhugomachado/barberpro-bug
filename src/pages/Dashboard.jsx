@@ -1,26 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { TrendingUp, Users, Calendar, Banknote, Clock, Scissors, X, ShoppingBag, Plus, ChevronLeft, ChevronRight, ChevronDown, LayoutGrid, ArrowUpRight, BarChart3, Sparkles, Star, CheckCircle, XCircle, Play } from 'lucide-react';
+import { TrendingUp, Users, Calendar, Banknote, Clock, Scissors, X, ShoppingBag, Plus, ChevronLeft, ChevronRight, ChevronDown, LayoutGrid, ArrowUpRight, BarChart3, Sparkles, Star } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-
-// Custom SVG "Arts" for maximum visibility and intuition
-const QPlay = ({ size = 22, color = "#669900" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <circle cx="12" cy="12" r="11" fill={color} />
-    <path d="M10 8l6 4-6 4V8z" fill="white" />
-  </svg>
-);
-const QCheck = ({ size = 22, color = "#669900" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <circle cx="12" cy="12" r="11" fill={color} />
-    <path d="M8 12l3 3 5-5" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-const QCancel = ({ size = 22, color = "#ef4444" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <circle cx="12" cy="12" r="11" fill={color} />
-    <path d="M15 9l-6 6M9 9l6 6" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
 
 /* ─────────── KPI Card ─────────── */
 const KpiCard = ({ label, value, trend, trendLabel, iconEl, iconClass, stagger }) => (
@@ -382,35 +362,6 @@ const Dashboard = () => {
                             <h4>{cfg.label}</h4>
                             <p>{app.customer} — {app.service}{!isBarber ? ` (${barberName})` : ''}</p>
                           </div>
-                          
-                          {isActionable && (
-                            <div style={{ display: 'flex', gap: '8px' }}>
-                              <button 
-                                onClick={async (e) => { e.stopPropagation(); await updateAppointmentStatus(app.id, 'Em progresso'); }}
-                                style={{ background: 'rgba(102, 153, 0, 0.05)', color: '#669900', border: '2px solid rgba(102, 153, 0, 0.2)', borderRadius: '12px', width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s', opacity: app.status === 'Em progresso' ? 0.4 : 1 }}
-                                title="Iniciar Atendimento"
-                                disabled={app.status === 'Em progresso'}
-                              >
-                                <QPlay size={20} />
-                              </button>
-                              
-                              <button 
-                                onClick={(e) => { e.stopPropagation(); setActionModal({ open: true, app, step: 'payment' }); setPaymentSplits([{ method: 'Pix', amount: app.price }]); }}
-                                style={{ background: 'rgba(102, 153, 0, 0.05)', color: '#669900', border: '2px solid rgba(102, 153, 0, 0.2)', borderRadius: '12px', width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' }}
-                                title="Finalizar e Pagar"
-                              >
-                                <QCheck size={20} />
-                              </button>
-
-                              <button 
-                                onClick={(e) => { e.stopPropagation(); setActionModal({ open: true, app, step: 'confirm-cancel' }); }}
-                                style={{ background: 'rgba(239, 68, 68, 0.05)', color: '#ef4444', border: '2px solid rgba(239, 68, 68, 0.2)', borderRadius: '12px', width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' }}
-                                title="Cancelar"
-                              >
-                                <QCancel size={20} />
-                              </button>
-                            </div>
-                          )}
                         </div>
                       </div>
                     </div>
@@ -440,36 +391,9 @@ const Dashboard = () => {
                 return (
                   <div key={app.id} className="dash-upcoming-item" onClick={() => openActionModal(app)} style={{ cursor: 'pointer' }}>
                     <div className={`dash-upcoming-icon ${ic.cls}`}>{ic.icon}</div>
-                    <div className="dash-upcoming-info" style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div>
-                        <h4>{app.customer}</h4>
-                        <p>{app.time}{!isBarber ? ` — ${barberName}` : ''}</p>
-                      </div>
-                      
-                      <div style={{ display: 'flex', gap: '6px' }}>
-                        <button 
-                          onClick={async (e) => { e.stopPropagation(); await updateAppointmentStatus(app.id, 'Em progresso'); }}
-                          style={{ background: 'rgba(102, 153, 0, 0.05)', color: '#669900', border: '1.5px solid rgba(102, 153, 0, 0.2)', borderRadius: '10px', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s', opacity: app.status === 'Em progresso' ? 0.4 : 1 }}
-                          title="Iniciar"
-                          disabled={app.status === 'Em progresso'}
-                        >
-                          <QPlay size={16} />
-                        </button>
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); setActionModal({ open: true, app, step: 'payment' }); setPaymentSplits([{ method: 'Pix', amount: app.price }]); }}
-                          style={{ background: 'rgba(102, 153, 0, 0.05)', color: '#669900', border: '1.5px solid rgba(102, 153, 0, 0.2)', borderRadius: '10px', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' }}
-                          title="Pagar"
-                        >
-                          <QCheck size={16} />
-                        </button>
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); setActionModal({ open: true, app, step: 'confirm-cancel' }); }}
-                          style={{ background: 'rgba(239, 68, 68, 0.05)', color: '#ef4444', border: '1.5px solid rgba(239, 68, 68, 0.2)', borderRadius: '10px', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' }}
-                          title="Cancelar"
-                        >
-                          <QCancel size={16} />
-                        </button>
-                      </div>
+                    <div className="dash-upcoming-info" style={{ flex: 1 }}>
+                      <h4>{app.customer}</h4>
+                      <p>{app.time}{!isBarber ? ` — ${barberName}` : ''}</p>
                     </div>
                   </div>
                 );
@@ -481,8 +405,8 @@ const Dashboard = () => {
 
       {/* ═══════ ACTION MODAL (Pago / Cancelar / Em Progresso) ═══════ */}
       {actionModal.open && actionModal.app && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="glass-card fade-in" style={{ width: '480px', background: 'var(--surface-color)', padding: '2rem' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div className="fade-in" style={{ width: '480px', background: 'var(--bg-color)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--border-color)', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             
             {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
@@ -626,8 +550,8 @@ const Dashboard = () => {
 
       {/* ═══════ VENDA MODAL ═══════ */}
       {isSaleModalOpen && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="glass-card fade-in" style={{ width: '420px', background: 'var(--surface-color)', padding: '2rem' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div className="fade-in" style={{ width: '420px', background: 'var(--bg-color)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--border-color)', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.2rem', marginBottom: 0 }}>Venda Direta (PDV)</h2>
               <button style={{ background: 'none' }} onClick={() => setIsSaleModalOpen(false)}><X size={20} /></button>
@@ -655,8 +579,8 @@ const Dashboard = () => {
 
       {/* ═══════ AGENDAMENTO MODAL ═══════ */}
       {isModalOpen && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="glass-card fade-in" style={{ width: '420px', background: 'var(--surface-color)', padding: '2rem' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div className="fade-in" style={{ width: '420px', background: 'var(--bg-color)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--border-color)', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.2rem', margin: 0 }}>Reservar Horário</h2>
               <button style={{ background: 'none' }} onClick={() => setIsModalOpen(false)}><X size={20} /></button>

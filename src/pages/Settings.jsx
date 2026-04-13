@@ -20,6 +20,14 @@ const Settings = () => {
   const [newService, setNewService] = useState({ name: '', duration: '30 min', price: '' });
   const [newProduct, setNewProduct] = useState({ name: '', category: 'Cabelo', price: '', cost: '', stock: '' });
   const [bInfo, setBInfo] = useState(businessInfo);
+  const [saving, setSaving] = useState(false);
+
+  // Sync state when businessInfo loads or changes in context
+  React.useEffect(() => {
+    if (businessInfo && Object.keys(businessInfo).length > 0) {
+      setBInfo(businessInfo);
+    }
+  }, [businessInfo]);
 
   const handleAddBarber = async () => {
     if (!newBarber.name) {
@@ -104,9 +112,16 @@ const Settings = () => {
     setNewProduct({ name: '', category: 'Cabelo', price: '', cost: '', stock: '' });
   };
 
-  const handleSaveBusinessInfo = () => {
-    updateBusinessInfo(bInfo);
-    alert('Informações salvas com sucesso!');
+  const handleSaveBusinessInfo = async () => {
+    try {
+      setSaving(true);
+      await updateBusinessInfo(bInfo);
+      alert('Informações salvas com sucesso!');
+    } catch (error) {
+      alert('Erro ao salvar informações: ' + error.message);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -477,6 +492,46 @@ const Settings = () => {
                 <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '2rem' }}>
                   Essas informações aparecerão tela pública de finalização para os seus clientes. Mantenha os dados atualizados.
                 </p>
+
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2.5rem', gap: '12px', border: '1px dashed var(--border-color)', padding: '20px', borderRadius: '12px', background: 'rgba(0,0,0,0.01)' }}>
+                  <div 
+                    onClick={() => document.getElementById('logoInput').click()}
+                    style={{ 
+                      width: '120px', height: '120px', borderRadius: '12px', background: 'var(--panel-bg)', 
+                      border: '2px dashed var(--brand-400)', display: 'flex', alignItems: 'center', 
+                      justifyContent: 'center', overflow: 'hidden', position: 'relative', cursor: 'pointer',
+                      transition: 'all 0.2s', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)'
+                    }}
+                  >
+                    {bInfo.logo_url ? (
+                      <img src={bInfo.logo_url} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                    ) : (
+                      <div style={{ textAlign: 'center', color: 'var(--brand-700)' }}>
+                        <Plus size={32} style={{ margin: '0 auto' }} />
+                        <p style={{ fontSize: '0.7rem', fontWeight: 700, marginTop: '4px' }}>UPLOAD LOGO</p>
+                      </div>
+                    )}
+                  </div>
+                  <input 
+                    id="logoInput"
+                    type="file" 
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setBInfo({...bInfo, logo_url: reader.result});
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                    style={{ display: 'none' }} 
+                  />
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textAlign: 'center', fontWeight: 500 }}>
+                    Logo da Barbearia (Login/Agenda)
+                  </p>
+                </div>
 
                 <div style={{ marginBottom: '1rem' }}>
                   <label style={{ fontSize: '0.85rem', fontWeight: 600, display: 'block', marginBottom: '8px' }}>Nome da Barbearia</label>

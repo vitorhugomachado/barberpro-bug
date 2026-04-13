@@ -200,11 +200,22 @@ export const AppProvider = ({ children }) => {
   };
 
   const updateBusinessInfo = async (newData) => {
-    const res = await apiFetch(`${API_URL}/business`, {
-      method: 'PUT',
-      body: JSON.stringify(newData)
-    });
-    if (res.ok) setBusinessInfo(await res.json());
+    try {
+      const res = await apiFetch(`${API_URL}/business`, {
+        method: 'PUT',
+        body: JSON.stringify(newData)
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setBusinessInfo(updated);
+        return updated;
+      }
+      const err = await res.json();
+      throw new Error(err.message || 'Falha ao atualizar informações do negócio');
+    } catch (error) {
+      console.error("Error updating business info:", error);
+      throw error;
+    }
   };
 
   const addAppointment = async (newApp) => {

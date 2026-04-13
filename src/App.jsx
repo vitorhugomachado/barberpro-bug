@@ -30,6 +30,13 @@ function App() {
     }
   }, [currentUser, viewMode]);
 
+  // If token exists but user couldn't be loaded after loading is done, go back to login
+  React.useEffect(() => {
+    if (!loading && !currentUser && viewMode === 'admin') {
+      setViewMode('login');
+    }
+  }, [loading, currentUser, viewMode]);
+
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
@@ -125,13 +132,6 @@ function App() {
   };
 
   if (!currentUser) {
-    // If we were expecting an admin view but the user profile couldn't be loaded,
-    // we should probably fallback to login mode after a timeout or if loading finished.
-    if (!loading && viewMode === 'admin') {
-      setViewMode('login');
-      return null; // The second render will show the login page
-    }
-
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', flexDirection: 'column', gap: '20px' }}>
         <p>Carregando perfil do usuário...</p>
