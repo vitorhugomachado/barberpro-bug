@@ -88,8 +88,8 @@ const Clients = () => {
                     borderRadius: '20px', 
                     fontSize: '0.75rem', 
                     fontWeight: 600,
-                    background: client.status === 'Ativo' ? 'var(--brand-50)' : client.status === 'Inativo' ? '#fef2f2' : 'var(--panel-bg)',
-                    color: client.status === 'Ativo' ? 'var(--brand-700)' : client.status === 'Inativo' ? '#dc2626' : 'var(--text-secondary)'
+                    background: client.status === 'Ativo' ? 'var(--brand-950)' : client.status === 'Inativo' ? 'var(--brand-300)' : 'var(--panel-bg)',
+                    color: client.status === 'Ativo' ? 'var(--accent-text)' : 'var(--text-primary)'
                   }}>
                     {client.status}
                   </span>

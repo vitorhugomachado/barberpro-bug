@@ -3,22 +3,22 @@ import { ChevronLeft, ChevronRight, Plus, Clock, User, Scissors, X, Calendar as 
 import { useApp } from '../context/AppContext';
 
 // Custom SVG "Arts" for maximum visibility and intuition
-const QPlay = ({ size = 18, color = "#669900" }) => (
+const QPlay = ({ size = 18, color = "#000000" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <circle cx="12" cy="12" r="11" fill={color} />
-    <path d="M10 8l6 4-6 4V8z" fill="white" />
+    <path d="M10 8l6 4-6 4V8z" fill="#FFFDF2" />
   </svg>
 );
-const QCheck = ({ size = 18, color = "#669900" }) => (
+const QCheck = ({ size = 18, color = "#000000" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <circle cx="12" cy="12" r="11" fill={color} />
-    <path d="M8 12l3 3 5-5" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M8 12l3 3 5-5" stroke="#FFFDF2" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 const QCancel = ({ size = 18, color = "#ef4444" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <circle cx="12" cy="12" r="11" fill={color} />
-    <path d="M15 9l-6 6M9 9l6 6" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M15 9l-6 6M9 9l6 6" stroke="#FFFDF2" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
@@ -170,8 +170,8 @@ const Scheduler = () => {
   // Status color helper
   const getStatusStyle = (status) => {
     switch (status) {
-      case 'Finalizado': return { bg: 'var(--brand-50)', border: 'var(--brand-200)', badge: 'var(--brand-600)', label: 'Pago' };
-      case 'Em progresso': return { bg: 'var(--brand-100)', border: 'var(--brand-300)', badge: 'var(--brand-700)', label: 'Atd.' };
+      case 'Finalizado': return { bg: 'var(--brand-50)', border: 'var(--brand-200)', badge: 'var(--brand-950)', label: 'Pago' };
+      case 'Em progresso': return { bg: 'rgba(59, 130, 246, 0.05)', border: 'rgba(59, 130, 246, 0.2)', badge: '#2563eb', label: 'Atd.' };
       case 'Cancelado': return { bg: '#fef2f2', border: '#fecaca', badge: '#ef4444', label: 'Canc.' };
       default: return { bg: 'var(--panel-bg)', border: 'var(--border-color)', badge: 'var(--brand-200)', label: 'Ag' };
     }
@@ -253,7 +253,7 @@ const Scheduler = () => {
       <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '80px 1fr', gap: '1rem', minHeight: 0 }}>
         
         {/* Time Column */}
-        <div className="hide-scrollbar glass-card" style={{ padding: '0', display: 'flex', flexDirection: 'column', overflowY: 'auto', paddingTop: '64px', background: 'rgba(255,255,255,0.4)', borderRight: '1px solid var(--border-color)' }}>
+        <div className="hide-scrollbar glass-card" style={{ padding: '0', display: 'flex', flexDirection: 'column', overflowY: 'auto', paddingTop: '64px', background: 'rgba(0,0,0,0.02)', borderRight: '1px solid var(--border-color)' }}>
           {timeSlots.map(time => (
             <div key={time} style={{ height: selectedBarberId === 'all' ? '60px' : '90px', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '10px', transition: 'height 0.3s ease' }}>
               <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>{time}</span>
@@ -366,40 +366,12 @@ const Scheduler = () => {
                             <div style={{ overflow: 'hidden' }}>
                               <div style={{ fontWeight: 700, whiteSpace: 'nowrap', textOverflow: 'ellipsis', textDecoration: app.status === 'Cancelado' ? 'line-through' : 'none' }}>{app.customer}</div>
                               <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{app.service}</div>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '2px' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '2px' }}>
                                 <span style={{ fontWeight: 600, fontSize: '0.75rem', color: 'var(--accent-color)' }}>R$ {app.price}</span>
-                               <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                                  {isActionable && (
-                                    <div style={{ display: 'flex', gap: '4px' }}>
-                                      <button 
-                                        onClick={async (e) => { e.stopPropagation(); await updateAppointmentStatus(app.id, 'Em progresso'); }}
-                                        style={{ background: 'rgba(102, 153, 0, 0.05)', color: '#669900', border: '1.2px solid rgba(102, 153, 0, 0.2)', borderRadius: '6px', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s', opacity: app.status === 'Em progresso' ? 0.4 : 1 }}
-                                        title="Iniciar"
-                                        disabled={app.status === 'Em progresso'}
-                                      >
-                                        <QPlay size={14} />
-                                      </button>
-                                      <button 
-                                        onClick={(e) => { e.stopPropagation(); setActionModal({ open: true, app, step: 'payment' }); }}
-                                        style={{ background: 'rgba(102, 153, 0, 0.05)', color: '#669900', border: '1.2px solid rgba(102, 153, 0, 0.2)', borderRadius: '6px', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' }}
-                                        title="Pagar"
-                                      >
-                                        <QCheck size={14} />
-                                      </button>
-                                      <button 
-                                        onClick={(e) => { e.stopPropagation(); setActionModal({ open: true, app, step: 'confirm-cancel' }); }}
-                                        style={{ background: 'rgba(239, 68, 68, 0.05)', color: '#ef4444', border: '1.2px solid rgba(239, 68, 68, 0.2)', borderRadius: '6px', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' }}
-                                        title="Cancelar"
-                                      >
-                                        <QCancel size={14} />
-                                      </button>
-                                    </div>
-                                  )}
-                                  <div style={{ background: ss.badge, color: app.status === 'Agendado' ? 'var(--text-secondary)' : '#fff', padding: '2px 6px', borderRadius: '4px', fontSize: '0.55rem', fontWeight: 700, textTransform: 'uppercase' }}>
-                                    {ss.label}
-                                  </div>
+                                <div style={{ background: ss.badge, color: app.status === 'Agendado' ? 'var(--text-secondary)' : '#fff', padding: '2px 6px', borderRadius: '4px', fontSize: '0.55rem', fontWeight: 700, textTransform: 'uppercase' }}>
+                                  {ss.label}
                                 </div>
+                              </div>
                             </div>
                           </div>
                       )

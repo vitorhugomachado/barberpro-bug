@@ -1,37 +1,47 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
 
 :root {
-  --brand-50: #F6FFE5;
-  --brand-100: #EEFFCC;
-  --brand-200: #DDFF99;
-  --brand-300: #CCFF66;
-  --brand-400: #BBFF33;
-  --brand-500: #AAFF00;
-  --brand-600: #88CC00;
-  --brand-700: #669900;
-  --brand-800: #446600;
-  --brand-900: #223300;
-  --brand-950: #182400;
+  /* Grayscale Brand Palette */
+  --brand-50: #f5f5f5;
+  --brand-100: #e5e5e5;
+  --brand-200: #d4d4d4;
+  --brand-300: #a3a3a3;
+  --brand-400: #737373;
+  --brand-500: #525252;
+  --brand-600: #404040;
+  --brand-700: #262626;
+  --brand-800: #171717;
+  --brand-900: #0a0a0a;
+  --brand-950: #000000;
 
-  --bg-color: #fcfcfc;
-  --surface-color: rgba(255, 255, 255, 0.8);
-  --border-color: rgba(0, 0, 0, 0.05);
-  --text-primary: #1a1a1a;
-  --text-secondary: #6c757d;
-  --accent-color: var(--brand-700);
-  --accent-hover: var(--brand-800);
-  --accent-text: #ffffff;
-  --success-color: #4CAF50;
-  --shadow-sm: 0 2px 4px rgba(0,0,0,0.02);
-  --shadow-md: 0 4px 6px rgba(0,0,0,0.04);
-  --shadow-lg: 0 10px 15px rgba(0,0,0,0.06);
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.3);
-  --glass-blur: blur(10px);
-  --panel-bg: #f5f3ef;
-  --hover-bg: rgba(0,0,0,0.03);
-  --icon-bg: rgba(0,0,0,0.04);
-  --icon-hover: rgba(0,0,0,0.08);
+  --bg-color: #FFFDF2;
+  --surface-color: rgba(255, 253, 242, 0.95);
+  --border-color: rgba(0, 0, 0, 0.08);
+  --text-primary: #000000;
+  --text-secondary: #4b5563;
+  --accent-color: #000000;
+  --accent-hover: #1a1a1a;
+  --accent-text: #FFFDF2;
+  --success-color: #059669;
+
+  /* KPI Accent Colors */
+  --kpi-revenue: #D4AF37;
+  --kpi-profit: #2563EB;
+  --kpi-commission: #DB2777;
+  --kpi-ticket: #7C3AED;
+  --kpi-sales: #4F46E5;
+  --kpi-margin: #059669;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --glass-bg: rgba(255, 253, 242, 0.7);
+  --glass-border: rgba(0, 0, 0, 0.05);
+  --glass-blur: blur(12px);
+  --panel-bg: #f5f2e6;
+  --hover-bg: rgba(0,0,0,0.04);
+  --icon-bg: rgba(0,0,0,0.05);
+  --icon-hover: rgba(0,0,0,0.1);
   --line-color: rgba(0,0,0,0.08);
 }
 
@@ -155,9 +165,14 @@ button {
   transition: all 0.2s ease;
 }
 
-.nav-item:hover, .nav-item.active {
+.nav-item:hover {
   background-color: var(--hover-bg);
   color: var(--text-primary);
+}
+
+.nav-item.active {
+  background-color: var(--accent-color);
+  color: var(--accent-text);
 }
 
 .nav-item svg {

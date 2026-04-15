@@ -19,6 +19,11 @@ const getBarbers = async (req, res) => {
 const createBarber = async (req, res) => {
   try {
     const { password, shifts, ...data } = req.body;
+    
+    // Garantir tipos e remover campos proibidos
+    delete data.id;
+    if (data.commission) data.commission = parseFloat(data.commission);
+
     const hashedPassword = await hashPassword(password || '123');
     
     const barber = await prisma.barber.create({
@@ -30,6 +35,8 @@ const createBarber = async (req, res) => {
             dia_semana: s.dia_semana,
             hora_inicio: s.hora_inicio,
             hora_fim: s.hora_fim,
+            almoco_inicio: s.almoco_inicio,
+            almoco_fim: s.almoco_fim,
             ativo: s.ativo !== undefined ? s.ativo : true
           }))
         } : undefined
@@ -53,6 +60,10 @@ const updateBarber = async (req, res) => {
     const { id } = req.params;
     const { password, shifts, ...data } = req.body;
     
+    // Garantir tipos e remover campos proibidos
+    delete data.id;
+    if (data.commission) data.commission = parseFloat(data.commission);
+    
     if (password) {
       data.password = await hashPassword(password);
     }
@@ -68,6 +79,8 @@ const updateBarber = async (req, res) => {
               dia_semana: s.dia_semana,
               hora_inicio: s.hora_inicio,
               hora_fim: s.hora_fim,
+              almoco_inicio: s.almoco_inicio,
+              almoco_fim: s.almoco_fim,
               ativo: s.ativo !== undefined ? s.ativo : true
             }))
           });

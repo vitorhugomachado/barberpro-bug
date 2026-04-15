@@ -24,8 +24,21 @@ const createAppointment = async (req, res) => {
   try {
     console.log('CREATE APPOINTMENT BODY:', req.body);
     const data = { ...req.body };
-    if (data.customerId) data.customerId = Number(data.customerId);
     
+    // Sanatize and Map fields
+    delete data.id; // Ensure we don't try to manually insert an ID
+
+    // Map camelCase customerId to snake_case customer_id
+    if (data.customerId !== undefined) {
+      data.customer_id = data.customerId ? Number(data.customerId) : null;
+      delete data.customerId;
+    }
+
+    // Ensure numeric types
+    if (data.barberId) data.barberId = Number(data.barberId);
+    if (data.price) data.price = parseFloat(data.price);
+    
+    console.log('FINAL DATA FOR PRISMA:', data);
     const appointment = await prisma.appointment.create({ data });
     console.log('CREATED APPOINTMENT IN DB:', appointment);
     res.json(appointment);

@@ -71,7 +71,7 @@ const CustomerPortal = ({ onBack }) => {
   const renderOverview = () => (
     <div className="fade-in">
       <div className="glass-card" style={{ padding: '2rem', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-        <div style={{ background: 'var(--brand-500)', color: 'white', width: '64px', height: '64px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 700, overflow: 'hidden' }}>
+        <div style={{ background: 'var(--accent-color)', color: 'var(--accent-text)', width: '64px', height: '64px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 700, overflow: 'hidden' }}>
           {currentCustomer?.name?.charAt(0).toUpperCase()}
         </div>
         <div>
@@ -83,7 +83,7 @@ const CustomerPortal = ({ onBack }) => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
         <div className="glass-card" style={{ padding: '1.5rem' }}>
           <h3 style={{ fontSize: '1.1rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Calendar size={18} style={{ color: 'var(--brand-500)' }} /> Próximo Agendamento
+            <Calendar size={18} style={{ color: 'var(--accent-color)' }} /> Próximo Agendamento
           </h3>
           {upcoming ? (
             <div style={{ background: 'var(--brand-50)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--brand-100)' }}>
@@ -105,15 +105,15 @@ const CustomerPortal = ({ onBack }) => {
 
         <div className="glass-card" style={{ padding: '1.5rem' }}>
           <h3 style={{ fontSize: '1.1rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <History size={18} style={{ color: 'var(--brand-500)' }} /> Resumo
+            <History size={18} style={{ color: 'var(--accent-color)' }} /> Resumo
           </h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div style={{ textAlign: 'center', padding: '1rem', background: 'var(--surface-color)', borderRadius: '12px' }}>
-              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--brand-600)' }}>{appointments.length}</div>
+              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary)' }}>{appointments.length}</div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total</div>
             </div>
             <div style={{ textAlign: 'center', padding: '1rem', background: 'var(--surface-color)', borderRadius: '12px' }}>
-              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--brand-600)' }}>{history.length}</div>
+              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary)' }}>{history.length}</div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Finalizados</div>
             </div>
           </div>
@@ -161,7 +161,7 @@ const CustomerPortal = ({ onBack }) => {
                   fontWeight: 700, 
                   textTransform: 'uppercase',
                   marginTop: '4px',
-                  color: a.status === 'Agendado' ? 'var(--brand-600)' : (a.status === 'Finalizado' ? 'var(--success-color, #10b981)' : 'var(--error-color, #ef4444)')
+                  color: a.status === 'Agendado' ? 'var(--text-primary)' : (a.status === 'Finalizado' ? 'var(--success-color, #10b981)' : 'var(--error-color, #ef4444)')
                 }}>
                   {a.status}
                 </div>
@@ -257,7 +257,7 @@ const CustomerPortal = ({ onBack }) => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
             <button 
               onClick={onBack}
-              style={{ background: 'none', border: 'none', color: 'var(--brand-600)', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+              style={{ background: 'none', border: 'none', color: 'var(--text-primary)', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
             >
               ← Voltar
             </button>
@@ -284,8 +284,8 @@ const CustomerPortal = ({ onBack }) => {
                   display: 'flex', alignItems: 'center', gap: '10px', 
                   width: '100%', padding: '12px 15px', borderRadius: '10px', 
                   border: 'none', textAlign: 'left', cursor: 'pointer',
-                  background: activeTab === 'overview' ? 'var(--brand-50)' : 'transparent',
-                  color: activeTab === 'overview' ? 'var(--brand-700)' : 'var(--text-secondary)',
+                  background: activeTab === 'overview' ? 'var(--accent-color)' : 'transparent',
+                  color: activeTab === 'overview' ? 'var(--accent-text)' : 'var(--text-secondary)',
                   fontWeight: activeTab === 'overview' ? 700 : 500,
                   transition: 'all 0.2s'
                 }}
@@ -298,8 +298,8 @@ const CustomerPortal = ({ onBack }) => {
                   display: 'flex', alignItems: 'center', gap: '10px', 
                   width: '100%', padding: '12px 15px', borderRadius: '10px', 
                   border: 'none', textAlign: 'left', cursor: 'pointer',
-                  background: activeTab === 'history' ? 'var(--brand-50)' : 'transparent',
-                  color: activeTab === 'history' ? 'var(--brand-700)' : 'var(--text-secondary)',
+                  background: activeTab === 'history' ? 'var(--accent-color)' : 'transparent',
+                  color: activeTab === 'history' ? 'var(--accent-text)' : 'var(--text-secondary)',
                   fontWeight: activeTab === 'history' ? 700 : 500,
                   transition: 'all 0.2s'
                 }}
@@ -312,8 +312,8 @@ const CustomerPortal = ({ onBack }) => {
                   display: 'flex', alignItems: 'center', gap: '10px', 
                   width: '100%', padding: '12px 15px', borderRadius: '10px', 
                   border: 'none', textAlign: 'left', cursor: 'pointer',
-                  background: activeTab === 'profile' ? 'var(--brand-50)' : 'transparent',
-                  color: activeTab === 'profile' ? 'var(--brand-700)' : 'var(--text-secondary)',
+                  background: activeTab === 'profile' ? 'var(--accent-color)' : 'transparent',
+                  color: activeTab === 'profile' ? 'var(--accent-text)' : 'var(--text-secondary)',
                   fontWeight: activeTab === 'profile' ? 700 : 500,
                   transition: 'all 0.2s'
                 }}

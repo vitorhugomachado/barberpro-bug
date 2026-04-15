@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -12,18 +9,24 @@ datasource db {
 }
 
 model Barber {
-  id           Int           @id @default(autoincrement())
-  name         String
-  email        String        @unique
-  password     String
-  role         String
-  status       String        @default("Ativo")
-  permissions  Json
-  foto_perfil  String?
-  appointments Appointment[]
-  productSales ProductSale[]
-  shifts       WorkingShifts[]
-  deletedAt    DateTime?
+  id            Int             @id @default(autoincrement())
+  name          String
+  email         String          @unique
+  password      String
+  role          String
+  status        String          @default("Ativo")
+  permissions   Json
+  foto_perfil   String?
+  deletedAt     DateTime?
+  bio           String?
+  whatsapp      String?
+  specialties   Json?
+  commission    Float?          @default(50.0)
+  chave_pix     String?
+  data_admissao String?
+  Appointment   Appointment[]
+  ProductSale   ProductSale[]
+  shifts        WorkingShifts[]
 
   @@index([deletedAt])
 }
@@ -41,29 +44,29 @@ model Customer {
   email        String        @unique
   password     String
   phone        String
-  appointments Appointment[]
   createdAt    DateTime      @default(now())
+  Appointment  Appointment[]
 }
 
 model Appointment {
-  id         Int       @id @default(autoincrement())
-  customer   String
-  phone      String?
-  service    String
-  barberId   Int
-  barber     Barber    @relation(fields: [barberId], references: [id])
-  customerId Int?      @map("customer_id")
-  client     Customer? @relation(fields: [customerId], references: [id])
-  date       String
-  time       String
-  status     String    @default("Agendado")
-  price      Float
-  payments   Json?
+  id          Int       @id @default(autoincrement())
+  customer    String
+  phone       String?
+  service     String
+  barberId    Int
+  date        String
+  time        String
+  status      String    @default("Agendado")
+  price       Float
+  payments    Json?
+  customer_id Int?
+  Barber      Barber    @relation(fields: [barberId], references: [id])
+  Customer    Customer? @relation(fields: [customer_id], references: [id])
 
+  @@index([barberId])
+  @@index([customer_id])
   @@index([date])
   @@index([status])
-  @@index([barberId])
-  @@index([customerId])
 }
 
 model Product {
@@ -84,10 +87,10 @@ model ProductSale {
   quantity    Int
   date        String
   barberId    Int?
-  barber      Barber? @relation(fields: [barberId], references: [id])
+  Barber      Barber? @relation(fields: [barberId], references: [id])
 
-  @@index([date])
   @@index([barberId])
+  @@index([date])
 }
 
 model BusinessInfo {
@@ -127,14 +130,28 @@ model Holiday {
 }
 
 model WorkingShifts {
-  id_barbeiro Int
-  barber      Barber  @relation(fields: [id_barbeiro], references: [id], onDelete: Cascade)
-  dia_semana  Int
-  hora_inicio String
-  hora_fim    String
-  ativo       Boolean @default(true)
+  id_barbeiro   Int
+  dia_semana    Int
+  hora_inicio   String
+  hora_fim      String
+  ativo         Boolean @default(true)
+  almoco_fim    String?
+  almoco_inicio String?
+  barber        Barber  @relation(fields: [id_barbeiro], references: [id], onDelete: Cascade)
 
   @@id([id_barbeiro, dia_semana, hora_inicio])
   @@map("horarios_trabalho")
-} 
+}
 
+// Keep agendamentos to satisfy views, but don't use it in the app logic for now
+model agendamentos {
+  id                    BigInt    @id @default(autoincrement())
+  id_cliente            String?   @db.Uuid
+  id_barbeiro           BigInt
+  id_servico            BigInt
+  data_hora_agendamento DateTime  @db.Timestamptz(6)
+  status                String?   @default("agendado")
+  valor                 Decimal   @db.Decimal(10, 2)
+  created_at            DateTime? @default(now()) @db.Timestamptz(6)
+  deleted_at            DateTime? @db.Timestamptz(6)
+}

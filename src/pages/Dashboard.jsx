@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { TrendingUp, Users, Calendar, Banknote, Clock, Scissors, X, ShoppingBag, Plus, ChevronLeft, ChevronRight, ChevronDown, LayoutGrid, ArrowUpRight, BarChart3, Sparkles, Star } from 'lucide-react';
+import { TrendingUp, Users, Calendar, Banknote, Clock, Scissors, X, ShoppingBag, Plus, ChevronLeft, ChevronRight, ChevronDown, LayoutGrid, ArrowUpRight, BarChart3, Sparkles, Star, Play, CheckCircle, XCircle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 /* ─────────── KPI Card ─────────── */
@@ -213,12 +213,12 @@ const Dashboard = () => {
 
   const timeSlots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
   const periodLabel = statPeriod === 'hoje' ? 'Hoje' : statPeriod === 'semana' ? 'Últimos 7 dias' : 'Últimos 30 dias';
-  const barberColors = ['var(--brand-700)', 'var(--brand-600)', 'var(--brand-500)', 'var(--brand-400)', 'var(--brand-300)'];
+  const barberColors = ['var(--brand-950)', 'var(--brand-800)', 'var(--brand-700)', 'var(--brand-600)', 'var(--brand-500)'];
   const maxRevenue = ranking.length > 0 ? Math.max(...ranking.map(b => b.revenue), 1) : 1;
 
   const getStatusConfig = (status) => {
     switch (status) {
-      case 'Finalizado': return { dot: 'green', label: 'Pago' };
+      case 'Finalizado': return { dot: 'black', label: 'Pago' };
       case 'Em progresso': return { dot: 'blue', label: 'Em atendimento' };
       case 'Agendado': return { dot: 'amber', label: 'Agendado' };
       case 'Cancelado': return { dot: 'red', label: 'Cancelado' };

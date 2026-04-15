@@ -499,7 +499,7 @@ const PublicBooking = ({ onOpenPortal }) => {
     }}>
       {/* Top Navbar */}
       <nav style={{ 
-        background: '#26A69A', 
+        background: '#000000', 
         padding: '0.75rem 2rem', 
         display: 'flex', 
         justifyContent: 'space-between', 
@@ -509,16 +509,16 @@ const PublicBooking = ({ onOpenPortal }) => {
         zIndex: 100,
         boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'white', fontWeight: 700, fontSize: '1.1rem' }}>
-          {businessInfo?.logo_url ? (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#FFFDF2', fontWeight: 700, fontSize: '1.1rem' }}>
+          {businessInfo && businessInfo.logo_url ? (
             <img src={businessInfo.logo_url} alt="Logo" style={{ height: '32px', width: '32px', borderRadius: '6px', objectFit: 'contain', background: 'white' }} />
           ) : (
             <Scissors size={20} />
           )}
-          <span>{businessInfo?.name || 'BarberPro'}</span>
+          <span>{(businessInfo && businessInfo.name) || 'BarberPro'}</span>
         </div>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', color: 'white' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', color: '#FFFDF2' }}>
           
           <button 
             onClick={() => {
@@ -531,7 +531,7 @@ const PublicBooking = ({ onOpenPortal }) => {
             }}
             style={{ 
               background: 'rgba(255,255,255,0.1)', 
-              color: 'white', 
+              color: '#FFFDF2', 
               border: '1px solid rgba(255,255,255,0.3)',
               padding: '6px 14px',
               borderRadius: '20px',
@@ -589,8 +589,8 @@ const PublicBooking = ({ onOpenPortal }) => {
                     style={{ 
                       width: '100%', 
                       padding: '10px', 
-                      background: 'var(--brand-500)', 
-                      color: 'white', 
+                      background: 'var(--accent-color)', 
+                      color: 'var(--accent-text)', 
                       border: 'none', 
                       borderRadius: '8px',
                       fontWeight: 700,
@@ -636,10 +636,10 @@ const PublicBooking = ({ onOpenPortal }) => {
 
       <div style={{ maxWidth: '600px', margin: '4rem auto 0', padding: '0 1rem' }}>
         <header style={{ textAlign: 'center', marginBottom: '3rem' }}>
-          {businessInfo?.logo_url ? (
+          {businessInfo && businessInfo.logo_url ? (
             <img src={businessInfo.logo_url} alt="Logo" style={{ maxHeight: '100px', maxWidth: '200px', marginBottom: '1.5rem', borderRadius: '12px' }} />
           ) : null}
-          <h1 style={{ fontSize: '2.5rem', marginBottom: '8px' }}>{businessInfo?.name || 'BarberPro'}</h1>
+          <h1 style={{ fontSize: '2.5rem', marginBottom: '8px' }}>{(businessInfo && businessInfo.name) || 'BarberPro'}</h1>
           <p style={{ color: 'var(--text-secondary)' }}>Reserva de horários online - Simples e rápido.</p>
         </header>
 
