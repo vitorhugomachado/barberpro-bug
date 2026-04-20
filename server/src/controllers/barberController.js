@@ -24,8 +24,24 @@ const createBarber = async (req, res) => {
     delete data.id;
     if (data.commission) data.commission = parseFloat(data.commission);
 
-    const hashedPassword = await hashPassword(password || '123');
-    
+    // Regra: Limpar e-mail antigo de barbeiro removido (Soft delete legacy fix)
+    if (data.email) {
+      const existingBarber = await prisma.barber.findUnique({ where: { email: data.email } });
+      if (existingBarber) {
+        if (existingBarber.deletedAt) {
+          // O e-mail pertence a um barbeiro excluído cuja conta não teve o e-mail liberado
+          await prisma.barber.update({
+            where: { id: existingBarber.id },
+            data: { email: `${existingBarber.email}_deleted_legacy_${Date.now()}` }
+          });
+        } else {
+          // Barbeiro está ativo, barrar cadastro
+          return res.status(400).json({ message: 'E-mail já cadastrado' });
+        }
+      }
+    }
+
+    const hashedPassword = await hashPassword(password || '123');    
     const barber = await prisma.barber.create({
       data: { 
         ...data, 
