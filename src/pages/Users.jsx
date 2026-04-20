@@ -30,17 +30,17 @@ const Users = () => {
 
   return (
     <div className="fade-in">
-      <header style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <header style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h1 style={{ fontSize: '1.8rem', marginBottom: '8px' }}>Controle de Acesso</h1>
           <p style={{ color: 'var(--text-secondary)' }}>Gerencie sua equipe e defina o que cada um pode visualizar.</p>
         </div>
       </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
         {/* User List */}
-        <div className="glass-card" style={{ padding: '0', overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div className="glass-card table-responsive" style={{ padding: '0', overflow: 'hidden' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
             <thead style={{ background: 'rgba(0,0,0,0.01)' }}>
               <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>
                 <th style={{ padding: '16px 1.5rem', fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>USUÁRIO</th>

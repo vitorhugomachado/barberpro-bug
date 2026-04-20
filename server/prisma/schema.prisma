@@ -9,26 +9,26 @@ datasource db {
 }
 
 model Barber {
-  id            Int             @id @default(autoincrement())
+  id            Int           @id @default(autoincrement())
   name          String
-  email         String          @unique
+  email         String        @unique
   password      String
   role          String
-  status        String          @default("Ativo")
-  permissions   Json
+  status        String        @default("Ativo")
   foto_perfil   String?
   deletedAt     DateTime?
-  bio           String?
+  permissions   Json
   whatsapp      String?
+  bio           String?
   specialties   Json?
-  commission    Float?          @default(50.0)
+  commission    Float?        @default(50)
   chave_pix     String?
   data_admissao String?
   Appointment   Appointment[]
   ProductSale   ProductSale[]
   shifts        WorkingShifts[]
 
-  @@index([deletedAt])
+  @@index([deletedAt], map: "idx_barber_deleted")
 }
 
 model Service {
@@ -39,34 +39,31 @@ model Service {
 }
 
 model Customer {
-  id           Int           @id @default(autoincrement())
-  name         String
-  email        String        @unique
-  password     String
-  phone        String
-  createdAt    DateTime      @default(now())
-  Appointment  Appointment[]
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  phone     String
+  createdAt DateTime @default(now())
 }
 
 model Appointment {
-  id          Int       @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   customer    String
   phone       String?
   service     String
   barberId    Int
   date        String
   time        String
-  status      String    @default("Agendado")
+  status      String  @default("Agendado")
   price       Float
   payments    Json?
   customer_id Int?
-  Barber      Barber    @relation(fields: [barberId], references: [id])
-  Customer    Customer? @relation(fields: [customer_id], references: [id])
+  Barber      Barber  @relation(fields: [barberId], references: [id])
 
-  @@index([barberId])
-  @@index([customer_id])
-  @@index([date])
-  @@index([status])
+  @@index([barberId], map: "idx_appointment_barber")
+  @@index([date], map: "idx_appointment_date")
+  @@index([status], map: "idx_appointment_status")
 }
 
 model Product {
@@ -89,8 +86,7 @@ model ProductSale {
   barberId    Int?
   Barber      Barber? @relation(fields: [barberId], references: [id])
 
-  @@index([barberId])
-  @@index([date])
+  @@index([date], map: "idx_productsale_date")
 }
 
 model BusinessInfo {
@@ -111,20 +107,20 @@ model Expense {
 }
 
 model WorkingHours {
-  dia_semana      Int     @id
-  is_aberto       Boolean @default(true)
-  hora_abertura   String
-  hora_fechamento String
-  almoco_inicio   String?
-  almoco_fim      String?
+  dia_semana      Int       @id
+  is_aberto       Boolean?  @default(true)
+  hora_abertura   DateTime  @db.Time(6)
+  hora_fechamento DateTime  @db.Time(6)
+  almoco_inicio   DateTime? @db.Time(6)
+  almoco_fim      DateTime? @db.Time(6)
 
   @@map("horarios_funcionamento")
 }
 
 model Holiday {
-  id        Int    @id @default(autoincrement())
-  data      String @unique
-  descricao String
+  id        BigInt   @id @default(autoincrement())
+  data      DateTime @unique @db.Date
+  descricao String?
 
   @@map("feriados")
 }
@@ -134,24 +130,31 @@ model WorkingShifts {
   dia_semana    Int
   hora_inicio   String
   hora_fim      String
-  ativo         Boolean @default(true)
-  almoco_fim    String?
+  ativo         Boolean? @default(true)
   almoco_inicio String?
-  barber        Barber  @relation(fields: [id_barbeiro], references: [id], onDelete: Cascade)
+  almoco_fim    String?
+  barber        Barber   @relation(fields: [id_barbeiro], references: [id], onDelete: Cascade)
 
   @@id([id_barbeiro, dia_semana, hora_inicio])
   @@map("horarios_trabalho")
 }
 
-// Keep agendamentos to satisfy views, but don't use it in the app logic for now
 model agendamentos {
-  id                    BigInt    @id @default(autoincrement())
-  id_cliente            String?   @db.Uuid
+  id                    BigInt          @id @default(autoincrement())
+  id_cliente            String?         @db.Uuid
   id_barbeiro           BigInt
   id_servico            BigInt
-  data_hora_agendamento DateTime  @db.Timestamptz(6)
-  status                String?   @default("agendado")
-  valor                 Decimal   @db.Decimal(10, 2)
-  created_at            DateTime? @default(now()) @db.Timestamptz(6)
-  deleted_at            DateTime? @db.Timestamptz(6)
+  data_hora_agendamento DateTime        @db.Timestamptz(6)
+  status                booking_status? @default(Pendente)
+  valor                 Decimal         @db.Decimal(10, 2)
+  created_at            DateTime?       @default(now()) @db.Timestamptz(6)
+  deleted_at            DateTime?       @db.Timestamptz(6)
+}
+
+enum booking_status {
+  Pendente
+  Confirmado
+  Concluido
+  Cancelado
+  No_Show    @map("No-Show")
 }

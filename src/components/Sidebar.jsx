@@ -1,6 +1,6 @@
-import { LayoutDashboard, Calendar, Users, Settings, LogOut, Scissors, DollarSign, Shield } from 'lucide-react';
+import { LayoutDashboard, Calendar, Users, Settings, LogOut, Scissors, DollarSign, Shield, Menu, X } from 'lucide-react';
 
-const Sidebar = ({ activeTab, setActiveTab, user }) => {
+const Sidebar = ({ activeTab, setActiveTab, user, isCollapsed, setIsCollapsed }) => {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard /> },
     { id: 'scheduler', label: 'Agendamentos', icon: <Calendar /> },
@@ -11,12 +11,24 @@ const Sidebar = ({ activeTab, setActiveTab, user }) => {
   ];
 
   return (
-    <div className="sidebar">
-      <div className="brand" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '3rem' }}>
-        <div style={{ background: 'var(--accent-color)', color: 'var(--accent-text)', padding: '8px', borderRadius: '12px' }}>
-          <Scissors size={24} />
+    <div className={`sidebar ${isCollapsed ? 'collapsed active' : ''}`}>
+      <div className="brand" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ background: 'var(--accent-color)', color: 'var(--accent-text)', padding: '8px', borderRadius: '12px', flexShrink: 0 }}>
+            <Scissors size={24} />
+          </div>
+          <h2 className="brand-font brand-name" style={{ fontSize: '1.25rem', letterSpacing: '-0.5px' }}>BARBERPRO</h2>
         </div>
-        <h2 className="brand-font" style={{ fontSize: '1.25rem', letterSpacing: '-0.5px' }}>BARBERPRO</h2>
+        
+        {/* Toggle Controls */}
+        <div style={{ display: 'flex', gap: '4px' }}>
+          <button className="hamburger-btn desktop-only" onClick={() => setIsCollapsed(!isCollapsed)} title={isCollapsed ? "Expandir" : "Recolher"}>
+            <Menu size={20} />
+          </button>
+          <button className="hamburger-btn mobile-only" onClick={() => setIsCollapsed(false)} style={{ display: 'none' }}>
+            <X size={20} />
+          </button>
+        </div>
       </div>
 
       <nav style={{ flex: 1 }}>
@@ -30,10 +42,11 @@ const Sidebar = ({ activeTab, setActiveTab, user }) => {
             onClick={(e) => {
               e.preventDefault();
               setActiveTab(item.id);
+              if (window.innerWidth <= 768) setIsCollapsed(false);
             }}
           >
             {item.icon}
-            <span style={{ fontWeight: 500 }}>{item.label}</span>
+            <span className="nav-item-label" style={{ fontWeight: 500 }}>{item.label}</span>
           </a>
         ))}
       </nav>
@@ -47,14 +60,14 @@ const Sidebar = ({ activeTab, setActiveTab, user }) => {
               <span style={{ fontWeight: 700, fontSize: '0.75rem' }}>{user?.name?.charAt(0).toUpperCase()}</span>
             )}
           </div>
-          <div style={{ minWidth: 0 }}>
+          <div className="sidebar-footer-detail" style={{ minWidth: 0 }}>
             <p style={{ fontSize: '0.85rem', fontWeight: 600, margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.name}</p>
             <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', margin: 0 }}>{user?.role}</p>
           </div>
         </div>
         <a href="#logout" className="nav-item" style={{ marginBottom: 0 }}>
           <LogOut />
-          <span style={{ fontWeight: 500 }}>Sair</span>
+          <span className="nav-item-label" style={{ fontWeight: 500 }}>Sair</span>
         </a>
       </div>
     </div>

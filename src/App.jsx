@@ -11,12 +11,14 @@ import Settings from './pages/Settings';
 import CustomerPortal from './pages/CustomerPortal';
 
 import { useApp } from './context/AppContext';
+import { Menu, Scissors } from 'lucide-react';
 
 function App() {
   const { barbers, loading, login, logout, currentUser } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [viewMode, setViewMode] = useState(localStorage.getItem('barberpro_token') ? 'admin' : 'public');
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   React.useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -142,9 +144,33 @@ function App() {
 
   return (
     <div className="layout">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} user={currentUser} />
-      <main className="main-content">
-        <header style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '20px', marginBottom: '1rem' }}>
+      {/* Mobile Header */}
+      <div className="mobile-header">
+        <button onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} style={{ background: 'none', padding: 0 }}>
+          <Menu size={24} />
+        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Scissors size={20} color="var(--accent-color)" />
+          <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>BARBERPRO</span>
+        </div>
+        <div style={{ width: '24px' }}></div> {/* Spacer */}
+      </div>
+
+      {/* Sidebar Overlay */}
+      <div 
+        className={`sidebar-overlay ${isSidebarCollapsed ? 'active' : ''}`} 
+        onClick={() => setIsSidebarCollapsed(false)}
+      ></div>
+
+      <Sidebar 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        user={currentUser} 
+        isCollapsed={isSidebarCollapsed}
+        setIsCollapsed={setIsSidebarCollapsed}
+      />
+      <main className={`main-content ${isSidebarCollapsed ? 'expanded' : ''}`}>
+        <header className="desktop-only" style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '20px', marginBottom: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{ width: '32px', height: '32px', background: 'var(--accent-color)', color: 'var(--accent-text, #fff)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 600 }}>
               {currentUser?.name?.charAt(0).toUpperCase()}

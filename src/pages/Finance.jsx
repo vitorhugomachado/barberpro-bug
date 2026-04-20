@@ -83,7 +83,7 @@ const VisaoGeralTab = ({ stats, startDate, endDate, netProfit, commissionValue, 
         </ResponsiveContainer>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '2rem' }}>
         <div className="glass-card" style={{ padding: '2rem' }}>
           <SectionHeader title="Mix de Receita" subTitle="Detalhamento por categorias" />
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -394,8 +394,8 @@ const ExtratoTab = ({ stats }) => {
          </button>
       </div>
 
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <div className="table-responsive">
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '900px' }}>
           <thead>
             <tr style={{ borderBottom: '2px solid var(--border-color)', fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
               {['DATA', 'TIPO', 'DESCRIÇÃO', 'CLIENTE', 'BARBEIRO', 'TOTAL', 'COMISSÃO', 'CASA'].map(h => (
@@ -511,8 +511,8 @@ const Finance = () => {
       
       {/* EXPENSE MODAL */}
       {isExpenseModalOpen && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="glass-card fade-in" style={{ width: '400px', background: 'var(--surface-color)', padding: '2rem' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+          <div className="glass-card fade-in" style={{ width: '95%', maxWidth: '400px', background: 'var(--surface-color)', padding: '2rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.2rem', margin: 0 }}>{editingExpenseId ? 'Editar Despesa' : 'Nova Despesa'}</h2>
               <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }} onClick={() => setIsExpenseModalOpen(false)}><X size={20} /></button>
@@ -551,12 +551,12 @@ const Finance = () => {
       </div>
 
       {/* NAVIGATION TABS */}
-      <div style={{ display: 'flex', gap: '2px', borderBottom: '1px solid var(--border-color)', marginBottom: '2.5rem', paddingBottom: '2px' }}>
+      <div style={{ display: 'flex', gap: '2px', borderBottom: '1px solid var(--border-color)', marginBottom: '2.5rem', paddingBottom: '2px', overflowX: 'auto', whiteSpace: 'nowrap' }} className="hide-scrollbar">
         {['Visão Geral', 'DRE', 'Comparativo', 'Ranking', 'Despesas', 'Extrato'].map(tab => (
           <button 
             key={tab} onClick={() => setActiveTab(tab)}
             style={{ 
-              padding: '12px 24px', position: 'relative', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.85rem', fontWeight: activeTab === tab ? 700 : 500, color: activeTab === tab ? 'var(--text-primary)' : 'var(--text-secondary)'
+              padding: '12px 24px', position: 'relative', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.85rem', fontWeight: activeTab === tab ? 700 : 500, color: activeTab === tab ? 'var(--text-primary)' : 'var(--text-secondary)', flexShrink: 0
             }}
           >
             {tab}

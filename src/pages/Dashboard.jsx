@@ -405,8 +405,8 @@ const Dashboard = () => {
 
       {/* ═══════ ACTION MODAL (Pago / Cancelar / Em Progresso) ═══════ */}
       {actionModal.open && actionModal.app && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="fade-in" style={{ width: '480px', background: 'var(--bg-color)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--border-color)', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+          <div className="fade-in" style={{ width: '95%', maxWidth: '480px', background: 'var(--bg-color)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--border-color)', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             
             {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
@@ -550,8 +550,8 @@ const Dashboard = () => {
 
       {/* ═══════ VENDA MODAL ═══════ */}
       {isSaleModalOpen && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="fade-in" style={{ width: '420px', background: 'var(--bg-color)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--border-color)', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+          <div className="fade-in" style={{ width: '95%', maxWidth: '420px', background: 'var(--bg-color)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--border-color)', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.2rem', marginBottom: 0 }}>Venda Direta (PDV)</h2>
               <button style={{ background: 'none' }} onClick={() => setIsSaleModalOpen(false)}><X size={20} /></button>
@@ -577,10 +577,8 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* ═══════ AGENDAMENTO MODAL ═══════ */}
-      {isModalOpen && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="fade-in" style={{ width: '420px', background: 'var(--bg-color)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--border-color)', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+          <div className="fade-in" style={{ width: '95%', maxWidth: '420px', background: 'var(--bg-color)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--border-color)', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.2rem', margin: 0 }}>Reservar Horário</h2>
               <button style={{ background: 'none' }} onClick={() => setIsModalOpen(false)}><X size={20} /></button>

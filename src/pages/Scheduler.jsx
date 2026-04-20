@@ -211,7 +211,7 @@ const Scheduler = () => {
 
         {/* Barber Filters — only visible for managers */}
         {!isBarber && (
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', overflowX: 'auto', paddingBottom: '5px' }} className="hide-scrollbar">
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', overflowX: 'auto', paddingBottom: '5px', flexWrap: 'wrap' }} className="hide-scrollbar">
              <button 
                onClick={() => setSelectedBarberId('all')}
                style={{ 
@@ -386,8 +386,8 @@ const Scheduler = () => {
 
       {/* ═══════ ACTION MODAL ═══════ */}
       {actionModal.open && actionModal.app && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="glass-card fade-in" style={{ width: '480px', background: 'var(--surface-color)', padding: '2rem' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+          <div className="glass-card fade-in" style={{ width: '95%', maxWidth: '480px', background: 'var(--surface-color)', padding: '2rem' }}>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.2rem', margin: 0 }}>
@@ -530,8 +530,8 @@ const Scheduler = () => {
 
       {/* ═══════ AGENDAMENTO MODAL ═══════ */}
       {isModalOpen && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="glass-card fade-in" style={{ width: '420px', background: 'var(--surface-color)', padding: '2rem' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+          <div className="glass-card fade-in" style={{ width: '95%', maxWidth: '420px', background: 'var(--surface-color)', padding: '2rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.2rem', margin: 0 }}>Reservar Horário</h2>
               <button style={{ background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => setIsModalOpen(false)}><X size={20} /></button>
