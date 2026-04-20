@@ -71,7 +71,7 @@ const getMe = async (req, res) => {
 const getMyAppointments = async (req, res) => {
   try {
     const appointments = await prisma.appointment.findMany({
-      where: { customerId: req.user.id },
+      where: { customer_id: req.user.id },
       include: { barber: { select: { name: true } } },
       orderBy: { date: 'desc' }
     });

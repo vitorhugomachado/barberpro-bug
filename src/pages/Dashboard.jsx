@@ -166,13 +166,13 @@ const Dashboard = () => {
   };
 
   const handleMarkInProgress = async () => {
-    await updateAppointmentStatus(actionModal.app.id, 'Em progresso');
-    closeActionModal();
+    const success = await updateAppointmentStatus(actionModal.app.id, 'Em progresso');
+    if (success) closeActionModal();
   };
 
   const handleCancelAppointment = async () => {
-    await cancelAppointment(actionModal.app.id);
-    closeActionModal();
+    const success = await cancelAppointment(actionModal.app.id);
+    if (success) closeActionModal();
   };
 
   const handleFinalizePayment = async () => {
@@ -181,8 +181,8 @@ const Dashboard = () => {
       alert(`O valor total pago (R$ ${totalPaid.toFixed(2)}) deve ser igual ao valor do serviço (R$ ${actionModal.app.price.toFixed(2)})`);
       return;
     }
-    await updateAppointmentStatus(actionModal.app.id, 'Finalizado', { payments: paymentSplits });
-    closeActionModal();
+    const success = await updateAppointmentStatus(actionModal.app.id, 'Finalizado', { payments: paymentSplits });
+    if (success) closeActionModal();
   };
 
   const handleAddSplit = () => setPaymentSplits([...paymentSplits, { method: 'Pix', amount: 0 }]);
@@ -577,6 +577,7 @@ const Dashboard = () => {
         </div>
       )}
 
+      {isModalOpen && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
           <div className="fade-in" style={{ width: '95%', maxWidth: '420px', background: 'var(--bg-color)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--border-color)', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>

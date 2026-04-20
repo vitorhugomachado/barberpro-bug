@@ -231,13 +231,23 @@ export const AppProvider = ({ children }) => {
   };
 
   const updateAppointmentStatus = async (id, status, extraData = {}) => {
-    const res = await apiFetch(`${API_URL}/appointments/${id}`, {
-      method: 'PATCH',
-      body: JSON.stringify({ status, ...extraData })
-    });
-    if (res.ok) {
-        const updatedApp = await res.json();
-        setAppointments(appointments.map(app => app.id === id ? updatedApp : app));
+    try {
+      const res = await apiFetch(`${API_URL}/appointments/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status, ...extraData })
+      });
+      if (res.ok) {
+          const updatedApp = await res.json();
+          setAppointments(appointments.map(app => app.id === id ? updatedApp : app));
+          return true;
+      } else {
+          const err = await res.json();
+          alert(`Erro ao atualizar agendamento: ${err.message}`);
+          return false;
+      }
+    } catch (error) {
+      alert("Erro de conexão ao atualizar agendamento.");
+      return false;
     }
   };
 

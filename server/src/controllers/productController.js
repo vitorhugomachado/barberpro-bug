@@ -51,7 +51,7 @@ const getSales = async (req, res) => {
     const sales = await prisma.productSale.findMany({
       where: Object.keys(where).length > 0 ? where : undefined,
       include: {
-        barber: { select: { id: true, name: true } }
+        Barber: { select: { id: true, name: true } }
       },
       orderBy: { date: 'desc' }
     });
@@ -70,7 +70,7 @@ const createSale = async (req, res) => {
     };
     const sale = await prisma.productSale.create({
       data,
-      include: { barber: { select: { id: true, name: true } } }
+      include: { Barber: { select: { id: true, name: true } } }
     });
     res.json(sale);
   } catch (error) {

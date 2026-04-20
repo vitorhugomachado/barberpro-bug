@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 const apiRoutes = require('./routes/api');
 
@@ -15,6 +16,17 @@ app.use('/api', apiRoutes);
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+
+// Serve static files from the React app in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../../dist')));
+  
+  app.get('*', (req, res, next) => {
+    // If it's an API route that reached here, let it fall through to 404
+    if (req.url.startsWith('/api')) return next();
+    res.sendFile(path.resolve(__dirname, '../../', 'dist', 'index.html'));
+  });
+}
 
 // 404 Handler - MUST be after routes
 app.use((req, res) => {
