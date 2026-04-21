@@ -219,14 +219,44 @@ export const AppProvider = ({ children }) => {
   };
 
   const addAppointment = async (newApp) => {
-    const res = await fetch(`${API_URL}/appointments`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newApp)
-    });
-    if (res.ok) {
+    try {
+      // Usamos fetch direto para o POST pois a rota é pública no backend
+      // No entanto, apiFetch também funcionaria (apenas adiciona o token se houver)
+      const res = await fetch(`${API_URL}/appointments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newApp)
+      });
+
+      if (res.ok) {
         const savedApp = await res.json();
-        setAppointments([...appointments, savedApp]);
+        
+        // 1. Atualização Funcional Imediata: garante que o agendamento apareça no grid NA HORA
+        // sem depender do tempo de resposta de um novo GET. Isso resolve o problema de
+        // agendamentos sumindo em sequência.
+        setAppointments(prev => [...prev, savedApp]);
+        
+        // 2. Sincronização em Background: busca a lista completa do servidor para garantir
+        // que relacionamentos (como o nome do barbeiro) estejam 100% corretos.
+        apiFetch(`${API_URL}/appointments`)
+          .then(async r => {
+            if (r.ok) {
+              const data = await r.json();
+              if (Array.isArray(data)) setAppointments(data);
+            }
+          })
+          .catch(err => console.error("Erro ao sincronizar agendamentos:", err));
+
+        return true;
+      } else {
+        const err = await res.json();
+        alert(`Erro ao salvar agendamento: ${err.message || 'Erro desconhecido'}`);
+        return false;
+      }
+    } catch (error) {
+      console.error("Add appointment error:", error);
+      alert("Falha de conexão ao tentar salvar o agendamento.");
+      return false;
     }
   };
 
@@ -238,7 +268,7 @@ export const AppProvider = ({ children }) => {
       });
       if (res.ok) {
           const updatedApp = await res.json();
-          setAppointments(appointments.map(app => app.id === id ? updatedApp : app));
+          setAppointments(prev => prev.map(app => app.id === id ? updatedApp : app));
           return true;
       } else {
           const err = await res.json();
@@ -263,7 +293,7 @@ export const AppProvider = ({ children }) => {
       });
       if (res.ok) {
           const savedBarber = await res.json();
-          setBarbers([...barbers, savedBarber]);
+          setBarbers(prev => [...prev, savedBarber]);
           alert("Profissional cadastrado com sucesso!");
           return true;
       } else {
@@ -284,13 +314,13 @@ export const AppProvider = ({ children }) => {
     });
     if (res.ok) {
         const updatedBarber = await res.json();
-        setBarbers(barbers.map(b => b.id === id ? updatedBarber : b));
+        setBarbers(prev => prev.map(b => b.id === id ? updatedBarber : b));
     }
   };
 
   const removeBarber = async (id) => {
     const res = await apiFetch(`${API_URL}/barbers/${id}`, { method: 'DELETE' });
-    if (res.ok) setBarbers(barbers.filter(b => b.id !== id));
+    if (res.ok) setBarbers(prev => prev.filter(b => b.id !== id));
   };
 
   const updateBarber = async (id, data) => {
@@ -300,7 +330,7 @@ export const AppProvider = ({ children }) => {
     });
     if (res.ok) {
         const updatedBarber = await res.json();
-        setBarbers(barbers.map(b => b.id === id ? updatedBarber : b));
+        setBarbers(prev => prev.map(b => b.id === id ? updatedBarber : b));
     }
   };
   
@@ -313,7 +343,7 @@ export const AppProvider = ({ children }) => {
     });
     if (res.ok) {
         const updatedBarber = await res.json();
-        setBarbers(barbers.map(b => b.id === id ? updatedBarber : b));
+        setBarbers(prev => prev.map(b => b.id === id ? updatedBarber : b));
     }
   };
 
@@ -322,12 +352,15 @@ export const AppProvider = ({ children }) => {
       method: 'POST',
       body: JSON.stringify(newService)
     });
-    if (res.ok) setServices([...services, await res.json()]);
+    if (res.ok) {
+        const savedService = await res.json();
+        setServices(prev => [...prev, savedService]);
+    }
   };
 
   const removeService = async (id) => {
     const res = await apiFetch(`${API_URL}/services/${id}`, { method: 'DELETE' });
-    if (res.ok) setServices(services.filter(s => s.id !== id));
+    if (res.ok) setServices(prev => prev.filter(s => s.id !== id));
   };
 
   const updateService = async (id, data) => {
@@ -337,7 +370,7 @@ export const AppProvider = ({ children }) => {
     });
     if (res.ok) {
         const updated = await res.json();
-        setServices(services.map(s => s.id === id ? updated : s));
+        setServices(prev => prev.map(s => s.id === id ? updated : s));
     }
   };
 
@@ -346,12 +379,15 @@ export const AppProvider = ({ children }) => {
       method: 'POST',
       body: JSON.stringify(newProduct)
     });
-    if (res.ok) setProducts([...products, await res.json()]);
+    if (res.ok) {
+        const savedProduct = await res.json();
+        setProducts(prev => [...prev, savedProduct]);
+    }
   };
 
   const removeProduct = async (id) => {
     const res = await apiFetch(`${API_URL}/products/${id}`, { method: 'DELETE' });
-    if (res.ok) setProducts(products.filter(p => p.id !== id));
+    if (res.ok) setProducts(prev => prev.filter(p => p.id !== id));
   };
 
   const updateProduct = async (id, data) => {
@@ -361,7 +397,7 @@ export const AppProvider = ({ children }) => {
     });
     if (res.ok) {
         const updated = await res.json();
-        setProducts(products.map(p => p.id === id ? updated : p));
+        setProducts(prev => prev.map(p => p.id === id ? updated : p));
     }
   };
   
@@ -389,7 +425,7 @@ export const AppProvider = ({ children }) => {
     
     if (saleRes.ok) {
         const savedSale = await saleRes.json();
-        setProducts(products.map(p => p.id === productId ? { ...p, stock: p.stock - quantity } : p));
+        setProducts(prev => prev.map(p => p.id === productId ? { ...p, stock: p.stock - quantity } : p));
         setProductSales(prev => [...prev, savedSale]);
         return true;
     }
@@ -401,12 +437,15 @@ export const AppProvider = ({ children }) => {
       method: 'POST',
       body: JSON.stringify(newExpense)
     });
-    if (res.ok) setExpenses([...expenses, await res.json()]);
+    if (res.ok) {
+        const savedExpense = await res.json();
+        setExpenses(prev => [...prev, savedExpense]);
+    }
   };
 
   const removeExpense = async (id) => {
     const res = await apiFetch(`${API_URL}/expenses/${id}`, { method: 'DELETE' });
-    if (res.ok) setExpenses(expenses.filter(e => e.id !== id));
+    if (res.ok) setExpenses(prev => prev.filter(e => e.id !== id));
   };
 
   const updateExpense = async (id, data) => {
@@ -416,7 +455,7 @@ export const AppProvider = ({ children }) => {
     });
     if (res.ok) {
         const updated = await res.json();
-        setExpenses(expenses.map(e => e.id === id ? updated : e));
+        setExpenses(prev => prev.map(e => e.id === id ? updated : e));
     }
   };
 

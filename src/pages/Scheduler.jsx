@@ -170,10 +170,30 @@ const Scheduler = () => {
   // Status color helper
   const getStatusStyle = (status) => {
     switch (status) {
-      case 'Finalizado': return { bg: 'var(--brand-50)', border: 'var(--brand-200)', badge: 'var(--brand-950)', label: 'Pago' };
-      case 'Em progresso': return { bg: 'rgba(59, 130, 246, 0.05)', border: 'rgba(59, 130, 246, 0.2)', badge: '#2563eb', label: 'Atd.' };
-      case 'Cancelado': return { bg: '#fef2f2', border: '#fecaca', badge: '#ef4444', label: 'Canc.' };
-      default: return { bg: 'var(--panel-bg)', border: 'var(--border-color)', badge: 'var(--brand-200)', label: 'Ag' };
+      case 'Finalizado': return { 
+        bg: 'rgba(5, 150, 105, 0.1)', 
+        border: 'rgba(5, 150, 105, 0.3)', 
+        badge: '#059669', 
+        label: 'Pago' 
+      };
+      case 'Em progresso': return { 
+        bg: 'rgba(37, 99, 235, 0.1)', 
+        border: 'rgba(37, 99, 235, 0.3)', 
+        badge: '#2563eb', 
+        label: 'Atd.' 
+      };
+      case 'Cancelado': return { 
+        bg: 'rgba(239, 68, 68, 0.08)', 
+        border: 'rgba(239, 68, 68, 0.3)', 
+        badge: '#ef4444', 
+        label: 'Canc.' 
+      };
+      default: return { 
+        bg: 'var(--panel-bg)', 
+        border: 'var(--border-color)', 
+        badge: 'var(--brand-400)', 
+        label: 'Ag' 
+      };
     }
   };
 
@@ -407,9 +427,10 @@ const Scheduler = () => {
               </div>
               <div style={{ marginTop: '6px' }}>
                 <span style={{
-                  display: 'inline-block', padding: '2px 8px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase',
-                  background: actionModal.app.status === 'Em progresso' ? 'var(--brand-100)' : 'rgba(0,0,0,0.05)',
-                  color: actionModal.app.status === 'Em progresso' ? '#2563eb' : 'var(--text-secondary)'
+                  display: 'inline-block', padding: '2px 10px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase',
+                  background: getStatusStyle(actionModal.app.status).bg,
+                  color: actionModal.app.status === 'Agendado' ? 'var(--text-secondary)' : getStatusStyle(actionModal.app.status).badge,
+                  border: `1px solid ${getStatusStyle(actionModal.app.status).border}`
                 }}>
                   {actionModal.app.status}
                 </span>
@@ -443,7 +464,7 @@ const Scheduler = () => {
                 {actionModal.app.status === 'Agendado' && (
                   <button onClick={handleMarkInProgress} style={{
                     display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 18px', borderRadius: '12px',
-                    background: 'var(--brand-50)', border: '1px solid var(--brand-200)', color: 'var(--brand-700)',
+                    background: 'rgba(37, 99, 235, 0.08)', border: '1px solid rgba(37, 99, 235, 0.2)', color: '#2563eb',
                     fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer'
                   }}>
                     <Play size={18} /> Iniciar Atendimento
@@ -451,14 +472,14 @@ const Scheduler = () => {
                 )}
                 <button onClick={() => setActionModal({ ...actionModal, step: 'payment' })} style={{
                   display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 18px', borderRadius: '12px',
-                  background: 'var(--brand-50)', border: '1px solid var(--brand-200)', color: 'var(--brand-600)',
+                  background: 'rgba(5, 150, 105, 0.08)', border: '1px solid rgba(5, 150, 105, 0.2)', color: '#059669',
                   fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer'
                 }}>
                   <CheckCircle size={18} /> Marcar como Pago
                 </button>
                 <button onClick={() => setActionModal({ ...actionModal, step: 'confirm-cancel' })} style={{
                   display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 18px', borderRadius: '12px',
-                  background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', color: '#ef4444',
+                  background: 'rgba(239, 68, 68, 0.06)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#ef4444',
                   fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer'
                 }}>
                   <XCircle size={18} /> Cancelar Agendamento

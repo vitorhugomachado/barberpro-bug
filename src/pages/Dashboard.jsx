@@ -218,11 +218,11 @@ const Dashboard = () => {
 
   const getStatusConfig = (status) => {
     switch (status) {
-      case 'Finalizado': return { dot: 'black', label: 'Pago' };
-      case 'Em progresso': return { dot: 'blue', label: 'Em atendimento' };
-      case 'Agendado': return { dot: 'amber', label: 'Agendado' };
-      case 'Cancelado': return { dot: 'red', label: 'Cancelado' };
-      default: return { dot: '', label: status };
+      case 'Finalizado': return { color: '#059669', label: 'Pago' };
+      case 'Em progresso': return { color: '#2563eb', label: 'Em atendimento' };
+      case 'Agendado': return { color: 'var(--brand-400)', label: 'Agendado' };
+      case 'Cancelado': return { color: '#ef4444', label: 'Cancelado' };
+      default: return { color: 'var(--text-secondary)', label: status };
     }
   };
 
@@ -353,13 +353,13 @@ const Dashboard = () => {
                     <div key={app.id} className="dash-timeline-item" onClick={() => isActionable && openActionModal(app)} style={{ cursor: isActionable ? 'pointer' : 'default' }}>
                       <div className="dash-timeline-time">{dateStr}</div>
                       <div className="dash-timeline-dot-col">
-                        <div className={`dash-timeline-dot ${cfg.dot}`} />
+                        <div className="dash-timeline-dot" style={{ background: cfg.color }} />
                         {idx < recentActivity.length - 1 && <div className="dash-timeline-line" />}
                       </div>
                       <div className="dash-timeline-content" style={{ flex: 1 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <div style={{ flex: 1 }}>
-                            <h4>{cfg.label}</h4>
+                            <h4 style={{ color: cfg.color }}>{cfg.label}</h4>
                             <p>{app.customer} — {app.service}{!isBarber ? ` (${barberName})` : ''}</p>
                           </div>
                         </div>

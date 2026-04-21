@@ -18,7 +18,7 @@ function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [viewMode, setViewMode] = useState(localStorage.getItem('barberpro_token') ? 'admin' : 'public');
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
 
   React.useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
