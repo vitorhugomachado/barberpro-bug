@@ -512,10 +512,8 @@ const PublicBooking = ({ onOpenPortal }) => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#FFFDF2', fontWeight: 700, fontSize: '1.1rem' }}>
           {businessInfo && businessInfo.logo_url ? (
             <img src={businessInfo.logo_url} alt="Logo" style={{ height: '32px', width: '32px', borderRadius: '6px', objectFit: 'contain', background: 'white' }} />
-          ) : (
-            <Scissors size={20} />
-          )}
-          <span>{(businessInfo && businessInfo.name) || 'BarberPro'}</span>
+          ) : null}
+          <span className="sloot-logo-text" style={{ fontSize: '1.2rem', color: '#FFFDF2', paddingTop: '2px' }}>{(businessInfo && businessInfo.name) || 'SLOOT'}</span>
         </div>
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', color: '#FFFDF2' }}>
@@ -638,8 +636,14 @@ const PublicBooking = ({ onOpenPortal }) => {
         <header style={{ textAlign: 'center', marginBottom: '3rem' }}>
           {businessInfo && businessInfo.logo_url ? (
             <img src={businessInfo.logo_url} alt="Logo" style={{ maxHeight: '100px', maxWidth: '200px', marginBottom: '1.5rem', borderRadius: '12px' }} />
-          ) : null}
-          <h1 style={{ fontSize: '2.5rem', marginBottom: '8px' }}>{(businessInfo && businessInfo.name) || 'BarberPro'}</h1>
+          ) : (
+            <div style={{ marginBottom: '1.5rem' }}>
+              <span className="sloot-logo-text" style={{ fontSize: '4rem' }}>SLOOT</span>
+            </div>
+          )}
+          {businessInfo && businessInfo.name && businessInfo.name !== 'Sloot' && (
+             <h1 style={{ fontSize: '1.5rem', marginBottom: '8px' }}>{businessInfo.name}</h1>
+          )}
           <p style={{ color: 'var(--text-secondary)' }}>Reserva de horários online - Simples e rápido.</p>
         </header>
 

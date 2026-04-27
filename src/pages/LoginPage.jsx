@@ -26,11 +26,11 @@ const LoginPage = ({ onLogin }) => {
           {businessInfo && businessInfo.logo_url ? (
             <img src={businessInfo.logo_url} alt="Logo" style={{ maxHeight: '80px', maxWidth: '100%', marginBottom: '1.5rem', borderRadius: '12px' }} />
           ) : (
-            <div style={{ background: 'var(--accent-color)', color: 'var(--accent-text)', padding: '12px', borderRadius: '14px', width: 'fit-content', margin: '0 auto 1.5rem' }}>
-              <Scissors size={24} />
+            <div style={{ marginBottom: '1.5rem' }}>
+              <span className="sloot-logo-text" style={{ fontSize: '3.5rem' }}>SLOOT</span>
             </div>
           )}
-          <h1 style={{ fontSize: '1.8rem', marginBottom: '8px' }}>{(businessInfo && businessInfo.name) || 'BarberPro'}</h1>
+          <h1 style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', fontWeight: 500, marginBottom: '8px' }}>{(businessInfo && businessInfo.name) || 'Acesso Administrativo'}</h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Acesse sua conta para gerenciar seu negócio.</p>
         </div>
 

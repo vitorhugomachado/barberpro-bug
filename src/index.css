@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=Montserrat:wght@900&display=swap');
 
 :root {
   /* Grayscale Brand Palette */
@@ -84,6 +84,16 @@ body {
 h1, h2, h3, h4, .brand-font {
   font-family: 'Outfit', sans-serif;
   font-weight: 600;
+}
+
+.sloot-logo-text {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -2px;
+  line-height: 1;
+  color: var(--text-primary);
+  display: inline-block;
 }
 
 .glass-card {

@@ -3,7 +3,7 @@ import { User, Calendar, History, Settings, LogOut, ChevronRight, Clock, MapPin,
 import { useApp } from '../context/AppContext';
 
 const CustomerPortal = ({ onBack }) => {
-  const { currentCustomer, customerLogout, getCustomerAppointments, updateCustomerProfile, cancelAppointment, businessInfo } = useApp();
+  const { currentCustomer, customerLogout, getCustomerAppointments, updateCustomerProfile, cancelAppointment, updateAppointmentStatus, businessInfo } = useApp();
   const [activeTab, setActiveTab] = useState('overview');
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,9 +43,19 @@ const CustomerPortal = ({ onBack }) => {
       try {
         await cancelAppointment(id);
         loadAppointments(); // Refresh list
+        loadAppointments(); // Refresh list
       } catch (error) {
         alert('Erro ao cancelar agendamento: ' + error.message);
       }
+    }
+  };
+
+  const handleConfirm = async (id) => {
+    try {
+      await updateAppointmentStatus(id, 'Confirmado');
+      loadAppointments(); // Refresh list
+    } catch (error) {
+      alert('Erro ao confirmar agendamento: ' + error.message);
     }
   };
 
@@ -93,7 +103,7 @@ const CustomerPortal = ({ onBack }) => {
                 <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Clock size={14} /> {upcoming.time}</span>
               </div>
               <div style={{ marginTop: '8px', fontSize: '0.9rem' }}>
-                Profissional: <span style={{ fontWeight: 600 }}>{upcoming.barber?.name}</span>
+                Profissional: <span style={{ fontWeight: 600 }}>{upcoming.Barber?.name || upcoming.barber?.name}</span>
               </div>
             </div>
           ) : (
@@ -151,7 +161,7 @@ const CustomerPortal = ({ onBack }) => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
                    <span>{a.date?.split('-').reverse().join('/') || a.date} às {a.time}</span>
                    <span>•</span>
-                   <span>Profissional: {a.barber?.name || 'Não informado'}</span>
+                   <span>Profissional: {a.Barber?.name || a.barber?.name || 'Não informado'}</span>
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>
@@ -165,23 +175,39 @@ const CustomerPortal = ({ onBack }) => {
                 }}>
                   {a.status}
                 </div>
-                {a.status === 'Agendado' && (
-                  <button 
-                    onClick={() => handleCancel(a.id)}
-                    style={{ 
-                      marginTop: '8px',
-                      background: 'none',
-                      border: 'none',
-                      color: 'var(--error-color, #ef4444)',
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      padding: '4px 0',
-                      textDecoration: 'underline'
-                    }}
-                  >
-                    Desistir / Cancelar
-                  </button>
+                {['Agendado', 'Pendente'].includes(a.status) && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '12px' }}>
+                    <button 
+                      onClick={() => handleConfirm(a.id)}
+                      style={{ 
+                        background: 'var(--success-color, #10b981)',
+                        border: 'none',
+                        color: '#fff',
+                        borderRadius: '6px',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        padding: '6px 0',
+                      }}
+                    >
+                      Confirmar Presença
+                    </button>
+                    <button 
+                      onClick={() => handleCancel(a.id)}
+                      style={{ 
+                        background: 'none',
+                        border: 'none',
+                        color: 'var(--error-color, #ef4444)',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        padding: '4px 0',
+                        textDecoration: 'underline'
+                      }}
+                    >
+                      Desistir / Cancelar
+                    </button>
+                  </div>
                 )}
               </div>
             </div>

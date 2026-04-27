@@ -18,10 +18,9 @@ const Sidebar = ({ activeTab, setActiveTab, user, isCollapsed, setIsCollapsed })
     >
       <div className="brand" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ background: 'var(--accent-color)', color: 'var(--accent-text)', padding: '8px', borderRadius: '12px', flexShrink: 0 }}>
-            <Scissors size={24} />
-          </div>
-          <h2 className="brand-font brand-name" style={{ fontSize: '1.25rem', letterSpacing: '-0.5px' }}>BARBERPRO</h2>
+          <span className="sloot-logo-text" style={{ fontSize: '1.8rem', paddingTop: '4px' }}>
+            {isCollapsed ? 'S' : 'SLOOT'}
+          </span>
         </div>
         
         {/* Toggle Controls */}

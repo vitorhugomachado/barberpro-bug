@@ -71,7 +71,7 @@ function App() {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', flexDirection: 'column', gap: '20px' }}>
         <div className="spinner" style={{ width: '40px', height: '40px', border: '4px solid rgba(0,0,0,0.1)', borderTop: '4px solid var(--accent-color)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-        <p style={{ fontWeight: 500 }}>Carregando BarberPro...</p>
+        <p style={{ fontWeight: 500 }}>Carregando Sloot...</p>
         <style>{`
           @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         `}</style>
@@ -150,8 +150,7 @@ function App() {
           <Menu size={24} />
         </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Scissors size={20} color="var(--accent-color)" />
-          <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>BARBERPRO</span>
+          <span className="sloot-logo-text" style={{ fontSize: '1.2rem', paddingTop: '2px' }}>SLOOT</span>
         </div>
         <div style={{ width: '24px' }}></div> {/* Spacer */}
       </div>
