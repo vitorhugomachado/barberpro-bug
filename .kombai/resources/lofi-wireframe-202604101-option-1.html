@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BarberPro – Opção 1: Refinamento Clássico</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Comic Sans MS', 'Chalkboard SE', cursive; background: #e0e0e0; min-height: 100vh; }
+  .wf-header { background: #333; color: #fff; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; }
+  .wf-header h1 { font-size: 13px; }
+  .wf-badge { background: #555; padding: 3px 10px; border-radius: 4px; font-size: 11px; }
+  .option-label { background: #555; color: #fff; text-align: center; padding: 6px; font-size: 12px; font-weight: bold; }
+  .option-desc { background: #f0f0f0; padding: 8px 20px; font-size: 11px; color: #555; border-bottom: 2px solid #ccc; font-style: italic; }
+  .page-tabs { background: #ddd; border-bottom: 2px solid #999; display: flex; gap: 2px; padding: 8px 8px 0; overflow-x: auto; flex-shrink: 0; }
+  .page-tab { padding: 7px 14px; cursor: pointer; background: #ccc; border: 2px solid #999; border-bottom: none; border-radius: 4px 4px 0 0; font-family: inherit; font-size: 11px; white-space: nowrap; }
+  .page-tab.active { background: #fff; font-weight: bold; border-bottom: 2px solid #fff; margin-bottom: -2px; }
+  .page { display: none; background: #fff; min-height: 580px; }
+  .page.active { display: flex; }
+  .sidebar-layout { display: flex; width: 100%; min-height: 580px; }
+  .wf-sidebar { width: 210px; background: #f7f7f7; border-right: 2px solid #ccc; padding: 16px 12px; flex-shrink: 0; display: flex; flex-direction: column; }
+  .wf-main { flex: 1; padding: 20px 24px; overflow: auto; }
+  .wf-box { border: 2px solid #bbb; border-radius: 4px; background: #fff; margin-bottom: 12px; }
+  .wf-box-header { padding: 9px 14px; border-bottom: 2px solid #ddd; background: #f5f5f5; font-size: 12px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+  .wf-placeholder { background: #d8d8d8; border: 2px dashed #aaa; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #777; font-size: 11px; }
+  .wf-btn-primary { background: #333; color: #fff; border: 2px solid #333; border-radius: 4px; padding: 6px 14px; font-family: inherit; font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+  .wf-btn-secondary { background: #fff; color: #333; border: 2px solid #aaa; border-radius: 4px; padding: 6px 12px; font-family: inherit; font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+  .wf-input { border: 2px solid #bbb; border-radius: 4px; padding: 7px 10px; font-family: inherit; font-size: 11px; width: 100%; background: #fff; }
+  .wf-select { border: 2px solid #bbb; border-radius: 4px; padding: 7px 10px; font-family: inherit; font-size: 11px; background: #fff; }
+  .wf-grid { display: grid; gap: 12px; }
+  .wf-nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 4px; font-size: 12px; margin-bottom: 3px; cursor: pointer; border: 2px solid transparent; color: #555; }
+  .wf-nav-item.active { background: #e5e5e5; border-color: #bbb; font-weight: bold; color: #222; }
+  .wf-nav-icon { width: 14px; height: 14px; background: #999; border-radius: 2px; display: inline-block; flex-shrink: 0; }
+  .wf-stat { border: 2px solid #ccc; border-radius: 4px; padding: 14px; background: #fff; position: relative; overflow: hidden; }
+  .wf-stat-value { font-size: 20px; font-weight: bold; margin-top: 4px; }
+  .wf-stat-label { font-size: 10px; color: #777; text-transform: uppercase; letter-spacing: 0.5px; }
+  .component-wrapper { position: relative; }
+  .badge-reuse { position: absolute; top: -8px; right: -2px; background: #4CAF50; color: white; padding: 2px 5px; border-radius: 3px; font-size: 9px; font-family: Arial, sans-serif; font-weight: bold; z-index: 10; white-space: nowrap; pointer-events: none; }
+  .badge-new { position: absolute; top: -8px; right: -2px; background: #FF9800; color: white; padding: 2px 5px; border-radius: 3px; font-size: 9px; font-family: Arial, sans-serif; font-weight: bold; z-index: 10; white-space: nowrap; pointer-events: none; }
+  .wf-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .wf-table th { padding: 8px 12px; text-align: left; background: #f5f5f5; border: 1px solid #ddd; font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 0.4px; }
+  .wf-table td { padding: 9px 12px; border-bottom: 1px solid #eee; }
+  .wf-progress-bg { height: 5px; background: #eee; border-radius: 3px; overflow: hidden; margin-top: 4px; }
+  .wf-progress-fill { height: 100%; background: #666; border-radius: 3px; }
+  .wf-status { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: bold; border: 1px solid #bbb; background: #f5f5f5; }
+  .wf-tag { display: inline-block; border: 1px solid #bbb; border-radius: 20px; padding: 4px 12px; font-size: 11px; cursor: pointer; }
+  .wf-tag.active { background: #333; color: #fff; border-color: #333; }
+  .wf-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .wf-divider { border: none; border-top: 1px solid #ddd; margin: 10px 0; }
+  .wf-swimlane-header { padding: 8px; background: #f0f0f0; border-bottom: 1px solid #ddd; text-align: center; font-size: 11px; font-weight: bold; }
+  .wf-swimlane-cell { height: 76px; border-bottom: 1px dashed #e5e5e5; padding: 5px; }
+  .wf-app-card { background: #f5f5f5; border: 1px solid #ccc; border-radius: 4px; padding: 6px; font-size: 10px; height: 100%; }
+  .legend { display: flex; gap: 16px; padding: 8px 16px; background: #fafafa; border-top: 1px solid #eee; font-size: 10px; font-family: Arial, sans-serif; }
+  .legend-item { display: flex; align-items: center; gap: 4px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="wf-header">
+  <h1>🪒 BarberPro — Wireframe · Opção 1: Refinamento Clássico</h1>
+  <span class="wf-badge">Lo-Fi Balsamiq</span>
+</div>
+<div class="option-label">Opção 1 — Sidebar Fixa + Polimento Visual</div>
+<div class="option-desc">Abordagem conservadora: mantém a sidebar lateral existente com melhorias significativas de hierarquia visual, tipografia e consistência. Máximo reaproveitamento de componentes existentes.</div>
+
+<div class="page-tabs">
+  <div class="page-tab active" onclick="showPage('public',this)">🌐 Agend. Público</div>
+  <div class="page-tab" onclick="showPage('login',this)">🔐 Login</div>
+  <div class="page-tab" onclick="showPage('dashboard',this)">📊 Dashboard</div>
+  <div class="page-tab" onclick="showPage('scheduler',this)">📅 Agenda Semanal</div>
+  <div class="page-tab" onclick="showPage('clients',this)">👥 Clientes</div>
+  <div class="page-tab" onclick="showPage('finance',this)">💰 Financeiro</div>
+  <div class="page-tab" onclick="showPage('users',this)">🛡️ Usuários</div>
+  <div class="page-tab" onclick="showPage('settings',this)">⚙️ Configurações</div>
+</div>
+
+<!-- ===================== PUBLIC BOOKING ===================== -->
+<div class="page active" id="page-public" style="background:#f5f5f5; justify-content:center; padding:30px 16px;">
+  <div style="width:100%;max-width:560px;">
+    <div style="text-align:center;margin-bottom:24px;">
+      <div class="wf-placeholder" style="width:50px;height:50px;border-radius:10px;margin:0 auto 10px;font-size:22px;">✂️</div>
+      <div style="font-size:20px;font-weight:bold;">BarbeariaNome</div>
+      <div style="font-size:11px;color:#777;margin-top:4px;">Reserva de horários online — Simples e rápido.</div>
+    </div>
+    <!-- REUSABLE: ProgressBar from PublicBooking.jsx -->
+    <div class="component-wrapper" style="margin-bottom:20px;">
+      <span class="badge-reuse">[REUSE] ProgressBar</span>
+      <div style="display:flex;gap:8px;justify-content:center;">
+        <div style="width:40px;height:4px;background:#333;border-radius:2px;"></div>
+        <div style="width:40px;height:4px;background:#ccc;border-radius:2px;"></div>
+        <div style="width:40px;height:4px;background:#ccc;border-radius:2px;"></div>
+        <div style="width:40px;height:4px;background:#ccc;border-radius:2px;"></div>
+        <div style="width:40px;height:4px;background:#ccc;border-radius:2px;"></div>
+      </div>
+    </div>
+    <div class="wf-box">
+      <div class="wf-box-header">Etapa 1 — Selecione o Serviço</div>
+      <div style="padding:14px;display:flex;flex-direction:column;gap:10px;">
+        <!-- REUSABLE: service card (glass-card variant) from PublicBooking.jsx -->
+        <div class="component-wrapper">
+          <span class="badge-reuse">[REUSE] ServiceCard</span>
+          <div style="border:2px solid #333;border-radius:6px;padding:14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+            <div><div style="font-weight:bold;font-size:13px;">Corte Social</div><div style="font-size:11px;color:#777;">30–40 min</div></div>
+            <div style="font-weight:bold;font-size:14px;">R$ 35,00</div>
+          </div>
+        </div>
+        <div style="border:1px solid #ccc;border-radius:6px;padding:14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+          <div><div style="font-weight:bold;font-size:13px;">Corte + Barba</div><div style="font-size:11px;color:#777;">50–60 min</div></div>
+          <div style="font-weight:bold;font-size:14px;">R$ 55,00</div>
+        </div>
+        <div style="border:1px solid #ccc;border-radius:6px;padding:14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+          <div><div style="font-weight:bold;font-size:13px;">Barba Completa</div><div style="font-size:11px;color:#777;">20–30 min</div></div>
+          <div style="font-weight:bold;font-size:14px;">R$ 30,00</div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:12px;">
+      <button class="wf-btn-secondary" style="font-size:11px;border-radius:20px;">🔐 Área do Profissional</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== LOGIN ===================== -->
+<div class="page" id="page-login" style="background:#f5f5f5;align-items:center;justify-content:center;">
+  <div style="width:100%;max-width:360px;padding:20px;">
+    <!-- REUSABLE: LoginPage from src/pages/LoginPage.jsx -->
+    <div class="component-wrapper">
+      <span class="badge-reuse">[REUSE] LoginPage</span>
+      <div class="wf-box" style="padding:28px;">
+        <div style="text-align:center;margin-bottom:22px;">
+          <div class="wf-placeholder" style="width:48px;height:48px;border-radius:10px;margin:0 auto 10px;font-size:20px;">✂️</div>
+          <div style="font-size:18px;font-weight:bold;">BarberPro</div>
+          <div style="font-size:11px;color:#777;margin-top:4px;">Acesse sua conta para gerenciar seu negócio.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div>
+            <label style="font-size:11px;font-weight:bold;display:block;margin-bottom:5px;">E-mail</label>
+            <div style="position:relative;"><span style="position:absolute;left:10px;top:8px;font-size:12px;">✉️</span><input class="wf-input" style="padding-left:30px;" placeholder="seu@email.com"/></div>
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:bold;display:block;margin-bottom:5px;">Senha</label>
+            <div style="position:relative;"><span style="position:absolute;left:10px;top:8px;font-size:12px;">🔒</span><input class="wf-input" style="padding-left:30px;" placeholder="••••••••" type="password"/></div>
+          </div>
+          <button class="wf-btn-primary" style="width:100%;justify-content:center;padding:12px;margin-top:4px;">Entrar →</button>
+          <div style="text-align:center;font-size:11px;color:#777;">Esqueceu a senha? <u style="cursor:pointer;">Recuperar</u></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== DASHBOARD ===================== -->
+<div class="page" id="page-dashboard">
+  <div class="sidebar-layout">
+    <!-- REUSABLE: Sidebar from src/components/Sidebar.jsx -->
+    <div class="component-wrapper">
+      <span class="badge-reuse">[REUSE] Sidebar</span>
+      <div class="wf-sidebar">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid #ddd;">
+          <div class="wf-placeholder" style="width:30px;height:30px;border-radius:8px;font-size:14px;">✂️</div>
+          <div style="font-size:13px;font-weight:bold;letter-spacing:1px;">BARBERPRO</div>
+        </div>
+        <div class="wf-nav-item active"><span class="wf-nav-icon"></span>Dashboard</div>
+        <div class="wf-nav-item"><span class="wf-nav-icon"></span>Agendamentos</div>
+        <div class="wf-nav-item"><span class="wf-nav-icon"></span>Clientes</div>
+        <div class="wf-nav-item"><span class="wf-nav-icon"></span>Financeiro</div>
+        <div class="wf-nav-item"><span class="wf-nav-icon"></span>Usuários</div>
+        <div class="wf-nav-item"><span class="wf-nav-icon"></span>Configurações</div>
+        <div style="flex:1;"></div>
+        <hr class="wf-divider"/>
+        <div class="wf-nav-item" style="color:#888;"><span class="wf-nav-icon"></span>Sair</div>
+      </div>
+    </div>
+    <div class="wf-main">
+      <!-- Top bar -->
+      <div style="display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #eee;">
+        <!-- NEW: NotificationBell -->
+        <div class="component-wrapper">
+          <span class="badge-new">[NEW] NotificationBell</span>
+          <div class="wf-placeholder" style="width:34px;height:34px;border-radius:50%;font-size:15px;">🔔</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="wf-placeholder" style="width:30px;height:30px;border-radius:50%;font-size:11px;font-weight:bold;">JB</div>
+          <span style="font-size:11px;font-weight:bold;">João Boss (Gerente)</span>
+        </div>
+        <button class="wf-btn-secondary" style="font-size:10px;padding:5px 10px;">Sair</button>
+      </div>
+      <!-- Header -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px;">
+        <div>
+          <h2 style="font-size:18px;margin-bottom:4px;">Workspace</h2>
+          <div style="display:flex;gap:3px;">
+            <button class="wf-btn-primary" style="font-size:10px;padding:4px 10px;">Hoje</button>
+            <button class="wf-btn-secondary" style="font-size:10px;padding:4px 10px;">7 Dias</button>
+            <button class="wf-btn-secondary" style="font-size:10px;padding:4px 10px;">30 Dias</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="wf-btn-secondary">🛒 Venda Rápida</button>
+          <button class="wf-btn-primary">+ Agendamento</button>
+        </div>
+      </div>
+      <!-- KPI Row - REUSABLE: StatCard from Dashboard.jsx -->
+      <div class="component-wrapper">
+        <span class="badge-reuse" style="top:-6px;">[REUSE] StatCard ×4</span>
+        <div class="wf-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px;">
+          <div class="wf-stat"><div class="wf-stat-label">Total Clientes</div><div class="wf-stat-value">1.284</div><div style="font-size:10px;background:#eee;display:inline-block;padding:1px 6px;border-radius:3px;margin-top:3px;">+12%</div></div>
+          <div class="wf-stat"><div class="wf-stat-label">Ocupação</div><div class="wf-stat-value">78%</div><div style="font-size:10px;background:#eee;display:inline-block;padding:1px 6px;border-radius:3px;margin-top:3px;">+8%</div></div>
+          <div class="wf-stat"><div class="wf-stat-label">Ticket Médio</div><div class="wf-stat-value">R$48,50</div><div style="font-size:10px;background:#eee;display:inline-block;padding:1px 6px;border-radius:3px;margin-top:3px;">-2%</div></div>
+          <div class="wf-stat" style="border-top:3px solid #333;"><div class="wf-stat-label">Receita (Período)</div><div class="wf-stat-value" style="font-size:17px;">R$3.250,00</div></div>
+        </div>
+      </div>
+      <!-- Daily Swimlane Agenda - REUSABLE from Dashboard.jsx -->
+      <div class="component-wrapper">
+        <span class="badge-reuse">[REUSE] DailySwimLane</span>
+        <div class="wf-box" style="overflow:hidden;">
+          <div class="wf-box-header">
+            Agenda Diária
+            <div style="display:flex;align-items:center;gap:6px;">
+              <button class="wf-btn-secondary" style="padding:3px 7px;font-size:11px;">‹</button>
+              <input class="wf-input" type="date" style="width:130px;padding:3px 8px;font-size:11px;"/>
+              <button class="wf-btn-secondary" style="padding:3px 7px;font-size:11px;">›</button>
+            </div>
+          </div>
+          <div style="display:flex;overflow:auto;">
+            <div style="width:65px;flex-shrink:0;border-right:1px solid #eee;background:#fafafa;">
+              <div style="height:50px;border-bottom:1px solid #eee;"></div>
+              <div style="height:76px;display:flex;align-items:flex-start;justify-content:center;padding:6px;font-size:10px;color:#aaa;border-bottom:1px dashed #eee;">09:00</div>
+              <div style="height:76px;display:flex;align-items:flex-start;justify-content:center;padding:6px;font-size:10px;color:#aaa;border-bottom:1px dashed #eee;">10:00</div>
+              <div style="height:76px;display:flex;align-items:flex-start;justify-content:center;padding:6px;font-size:10px;color:#aaa;">11:00</div>
+            </div>
+            <div style="flex:1;min-width:160px;border-right:1px solid #eee;">
+              <div class="wf-swimlane-header">Carlos S.</div>
+              <div class="wf-swimlane-cell"><div class="wf-app-card" style="background:#eee;"><div style="font-weight:bold;">Rafael C.</div><div style="color:#777;">✂️ Corte</div><div style="font-weight:bold;margin-top:3px;">R$35,00</div></div></div>
+              <div class="wf-swimlane-cell"><div style="height:100%;border:1px dashed #ccc;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#bbb;">+ Reservar</div></div>
+              <div class="wf-swimlane-cell"><div class="wf-app-card"><div style="font-weight:bold;">André L.</div><div style="color:#777;">✂️ Corte+Barba</div><div style="font-weight:bold;margin-top:3px;">R$55,00</div></div></div>
+            </div>
+            <div style="flex:1;min-width:160px;">
+              <div class="wf-swimlane-header">Marcos T.</div>
+              <div class="wf-swimlane-cell"><div style="height:100%;border:1px dashed #ccc;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#bbb;">+ Reservar</div></div>
+              <div class="wf-swimlane-cell"><div class="wf-app-card"><div style="font-weight:bold;">Vitor M.</div><div style="color:#777;">✂️ Barba</div><div style="font-weight:bold;margin-top:3px;">R$30,00</div></div></div>
+              <div class="wf-swimlane-cell"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== SCHEDULER ===================== -->
+<div class="page" id="page-scheduler">
+  <div class="sidebar-layout">
+    <div class="wf-sidebar">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid #ddd;">
+        <div class="wf-placeholder" style="width:30px;height:30px;border-radius:8px;font-size:14px;">✂️</div>
+        <div style="font-size:13px;font-weight:bold;">BARBERPRO</div>
+      </div>
+      <div class="wf-nav-item"><span class="wf-nav-icon"></span>Dashboard</div>
+      <div class="wf-nav-item active"><span class="wf-nav-icon"></span>Agendamentos</div>
+      <div class="wf-nav-item"><span class="wf-nav-icon"></span>Clientes</div>
+      <div class="wf-nav-item"><span class="wf-nav-icon"></span>Financeiro</div>
+      <div class="wf-nav-item"><span class="wf-nav-icon"></span>Usuários</div>
+      <div class="wf-nav-item"><span class="wf-nav-icon"></span>Configurações</div>
+    </div>
+    <div class="wf-main">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px;">
+        <div><h2 style="font-size:18px;margin-bottom:3px;">Agenda Semanal</h2><p style="font-size:11px;color:#777;">Controle avançado de capacidade profissional.</p></div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <div class="wf-box" style="margin:0;padding:5px 12px;display:flex;align-items:center;gap:8px;">
+            <button class="wf-btn-secondary" style="padding:2px 7px;">‹</button>
+            📅 <input class="wf-input" type="date" style="width:110px;border:none;font-size:11px;padding:2px;"/>
+            <button class="wf-btn-secondary" style="padding:2px 7px;">›</button>
+          </div>
+          <button class="wf-btn-primary">+ Agendar</button>
+        </div>
+      </div>
+      <div class="wf-tags" style="margin-bottom:12px;">
+        <div class="wf-tag active">👥 Todos</div><div class="wf-tag">Carlos S.</div><div class="wf-tag">Marcos T.</div><div class="wf-tag">Pedro A.</div>
+      </div>
+      <!-- REUSABLE: Scheduler weekly grid from src/pages/Scheduler.jsx -->
+      <div class="component-wrapper">
+        <span class="badge-reuse">[REUSE] WeeklyGrid</span>
+        <div class="wf-box" style="overflow:auto;">
+          <div style="display:flex;">
+            <div style="width:60px;flex-shrink:0;padding-top:46px;background:#fafafa;border-right:1px solid #eee;">
+              <div style="height:52px;display:flex;align-items:flex-start;justify-content:center;padding:6px;font-size:10px;color:#aaa;border-bottom:1px dashed #eee;">09:00</div>
+              <div style="height:52px;display:flex;align-items:flex-start;justify-content:center;padding:6px;font-size:10px;color:#aaa;border-bottom:1px dashed #eee;">10:00</div>
+              <div style="height:52px;display:flex;align-items:flex-start;justify-content:center;padding:6px;font-size:10px;color:#aaa;">11:00</div>
+            </div>
+            <div style="flex:1;display:grid;grid-template-columns:repeat(7,minmax(90px,1fr));">
+              <div style="padding:8px;background:#f5f5f5;border:1px solid #eee;text-align:center;"><div style="font-size:9px;color:#777;font-weight:bold;text-transform:uppercase;">Seg</div><div style="font-size:14px;font-weight:bold;">7</div></div>
+              <div style="padding:8px;background:#f5f5f5;border:1px solid #eee;text-align:center;"><div style="font-size:9px;color:#777;text-transform:uppercase;">Ter</div><div style="font-size:14px;font-weight:bold;">8</div></div>
+              <div style="padding:8px;background:#e8e8e8;border:2px solid #aaa;text-align:center;"><div style="font-size:9px;color:#333;font-weight:bold;text-transform:uppercase;">Qua ★</div><div style="font-size:14px;font-weight:bold;">9</div></div>
+              <div style="padding:8px;background:#f5f5f5;border:1px solid #eee;text-align:center;"><div style="font-size:9px;color:#777;text-transform:uppercase;">Qui</div><div style="font-size:14px;font-weight:bold;">10</div></div>
+              <div style="padding:8px;background:#f5f5f5;border:1px solid #eee;text-align:center;"><div style="font-size:9px;color:#777;text-transform:uppercase;">Sex</div><div style="font-size:14px;font-weight:bold;">11</div></div>
+              <div style="padding:8px;background:#f5f5f5;border:1px solid #eee;text-align:center;"><div style="font-size:9px;color:#777;text-transform:uppercase;">Sáb</div><div style="font-size:14px;font-weight:bold;">12</div></div>
+              <div style="padding:8px;background:#f5f5f5;border:1px solid #eee;text-align:center;"><div style="font-size:9px;color:#777;text-transform:uppercase;">Dom</div><div style="font-size:14px;font-weight:bold;">13</div></div>
+              <div style="height:52px;border:1px solid #eee;padding:3px;"><div class="wf-app-card"><div style="font-size:9px;font-weight:bold;">Rafael</div><div style="font-size:8px;color:#777;">Corte</div></div></div>
+              <div style="height:52px;border:1px solid #eee;padding:3px;"></div>
+              <div style="height:52px;border:1px solid #eee;padding:3px;background:#f0f0f0;"><div class="wf-app-card"><div style="font-size:9px;font-weight:bold;">André</div><div style="font-size:8px;color:#777;">C+Barba</div></div></div>
+              <div style="height:52px;border:1px solid #eee;padding:3px;"></div>
+              <div style="height:52px;border:1px solid #eee;padding:3px;"><div class="wf-app-card"><div style="font-size:9px;font-weight:bold;">Carlos</div><div style="font-size:8px;color:#777;">Barba</div></div></div>
+              <div style="height:52px;border:1px solid #eee;padding:3px;"><div class="wf-app-card"><div style="font-size:9px;font-weight:bold;">Vitor</div><div style="font-size:8px;color:#777;">Corte</div></div></div>
+              <div style="height:52px;border:1px solid #eee;padding:3px;background:#f8f8f8;display:flex;align-items:center;justify-content:center;font-size:9px;color:#bbb;">Fechado</div>
+              <div style="height:52px;border:1px solid #eee;padding:3px;"></div>
+              <div style="height:52px;border:1px solid #eee;padding:3px;"><div class="wf-app-card"><div style="font-size:9px;font-weight:bold;">Marcelo</div><div style="font-size:8px;color:#777;">Corte</div></div></div>
+              <div style="height:52px;border:1px solid #eee;padding:3px;background:#f0f0f0;"></div>
+              <div style="height:52px;border:1px solid #eee;padding:3px;"></div>
+              <div style="height:52px;border:1px solid #eee;padding:3px;"></div>
+              <div style="height:52px;border:1px solid #eee;padding:3px;"></div>
+              <div style="height:52px;border:1px solid #eee;padding:3px;background:#f8f8f8;display:flex;align-items:center;justify-content:center;font-size:9px;color:#bbb;">Fechado</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== CLIENTS ===================== -->
+<div class="page" id="page-clients">
+  <div class="sidebar-layout">
+    <div class="wf-sidebar">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid #ddd;">
+        <div class="wf-placeholder" style="width:30px;height:30px;border-radius:8px;font-size:14px;">✂️</div>
+        <div style="font-size:13px;font-weight:bold;">BARBERPRO</div>
+      </div>
+      <div class="wf-nav-item"><span class="wf-nav-icon"></span>Dashboard</div>
+      <div class="wf-nav-item"><span class="wf-nav-icon"></span>Agendamentos</div>
+      <div class="wf-nav-item active"><span class="wf-nav-icon"></span>Clientes</div>
+      <div class="wf-nav-item"><span class="wf-nav-icon"></span>Financeiro</div>
+      <div class="wf-nav-item"><span class="wf-nav-icon"></span>Usuários</div>
+      <div class="wf-nav-item"><span class="wf-nav-icon"></span>Configurações</div>
+    </div>
+    <div class="wf-main">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+        <div><h2 style="font-size:18px;margin-bottom:3px;">CRM — Gestão de Clientes</h2><p style="font-size:11px;color:#777;">Histórico, frequência e gastos dos seus clientes.</p></div>
+        <button class="wf-btn-primary">+ Novo Cliente</button>
+      </div>
+      <!-- REUSABLE: Clients table + search from src/pages/Clients.jsx -->
+      <div class="component-wrapper">
+        <span class="badge-reuse">[REUSE] ClientsTable</span>
+        <div class="wf-box">
+          <div style="padding:12px;border-bottom:1px solid #eee;display:flex;gap:8px;">
+            <div style="flex:1;position:relative;"><span style="position:absolute;left:9px;top:8px;font-size:11px;">🔍</span><input class="wf-input" style="padding-left:28px;" placeholder="Buscar por nome ou telefone..."/></div>
+            <button class="wf-btn-secondary">⚙ Filtrar</button>
+            <!-- NEW: StatusFilter dropdown -->
+            <div class="component-wrapper">
+              <span class="badge-new">[NEW] StatusFilter</span>
+              <select class="wf-select" style="width:130px;"><option>Todos Status</option><option>Ativo</option><option>Inativo</option></select>
+            </div>
+          </div>
+          <table class="wf-table">
+            <thead><tr><th>Cliente</th><th>Contato</th><th>Última Visita</th><th>Total Gasto</th><th>Status</th><th style="text-align:right;">Ações</th></tr></thead>
+            <tbody>
+              <tr><td><div style="display:flex;align-items:center;gap:8px;"><div class="wf-placeholder" style="width:30px;height:30px;border-radius:50%;font-size:11px;">CS</div>Carlos Santos</div></td><td>📞 (11) 98765-4321</td><td>📅 25/03/2024</td><td style="font-weight:bold;">R$850,00</td><td><span class="wf-status">Ativo</span></td><td style="text-align:right;"><button class="wf-btn-secondary" style="font-size:10px;padding:3px 8px;">Ver Perfil</button></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px;"><div class="wf-placeholder" style="width:30px;height:30px;border-radius:50%;font-size:11px;">AL</div>André Lima</div></td><td>📞 (11) 91234-5678</td><td>📅 10/03/2024</td><td style="font-weight:bold;">R$420,00</td><td><span class="wf-status">Inativo</span></td><td style="text-align:right;"><button class="wf-btn-secondary" style="font-size:10px;padding:3px 8px;">Ver Perfil</button></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:8px;"><div class="wf-placeholder" style="width:30px;height:30px;border-radius:50%;font-size:11px;">RC</div>Rafael Costa</div></td><td>📞 (11) 99887-7665</td><td>📅 31/03/2024</td><td style="font-weight:bold;">R$1.100,00</td><td><span class="wf-status">Ativo</span></td><td style="text-align:right;"><button class="wf-btn-secondary" style="font-size:10px;padding:3px 8px;">Ver Perfil</button></td></tr>
+            </tbody>
+          </table>
+          <div style="padding:12px;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#777;border-top:1px solid #eee;">
+            <span>Mostrando 3 de 1.284 clientes</span>
+            <div style="display:flex;gap:5px;"><button class="wf-btn-secondary" style="font-size:10px;padding:3px 8px;" disabled>Anterior</button><button class="wf-btn-secondary" style="font-size:10px;padding:3px 8px;">Próxima</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== FINANCE ===================== -->
+<div class="page" id="page-finance">
+  <div class="sidebar-layout">
+    <div class="wf-sidebar">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid #ddd;">
+        <div class="wf-placeholder" style="width:30px;height:30px;border-radius:8px;font-size:14px;">✂️</div>
+        <div style="font-size:13px;font-weight:bold;">BARBERPRO</div>
+      </div>
+      <div class="wf-nav-item"><span class="wf-nav-icon"></span>Dashboard</div>
+      <div class="wf-nav-item"><span class="wf-nav-icon"></span>Agendamentos</div>
+      <div class="wf-nav-item"><span class="wf-nav-icon"></span>Clientes</div>
+      <div class="wf-nav-item active"><span class="wf-nav-icon"></span>Financeiro</div>
+      <div class="wf-nav-item"><span class="wf-nav-icon"></span>Usuários</div>
+      <div class="wf-nav-item"><span class="wf-nav-icon"></span>Configurações</div>
+    </div>
+    <div class="wf-main">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <h2 style="font-size:18px;">Gestão Financeira</h2>
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;border:2px solid #ccc;border-radius:4px;padding:5px 12px;background:#fff;">
+          De: <input type="date" style="border:none;font-family:inherit;font-size:11px;font-weight:bold;"/>&nbsp; Até: <input type="date" style="border:none;font-family:inherit;font-size:11px;font-weight:bold;"/>
+        </div>
+      </div>
+      <!-- REUSABLE: ViewTabs from Finance.jsx -->
+      <div class="component-wrapper">
+        <span class="badge-reuse">[REUSE] ViewTabs</span>
+        <div class="wf-tags" style="margin-bottom:14px;">
+          <div class="wf-tag active">📈 Geral</div><div class="wf-tag">🏪 Barbearia</div><div class="wf-tag">Carlos S.</div><div class="wf-tag">Marcos T.</div>
+        </div>
+      </div>
+      <!-- KPIs - REUSABLE: KPI cards from Finance.jsx -->
+      <div class="component-wrapper">
+        <span class="badge-reuse">[REUSE] KPICards</span>
+        <div class="wf-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px;">
+          <div class="wf-stat" style="border-left:3px solid #333;"><div class="wf-stat-label">Faturamento Bruto</div><div class="wf-stat-value" style="font-size:17px;">R$12.480</div><div style="font-size:10px;color:#777;">Serviços + Produtos</div></div>
+          <div class="wf-stat" style="border-left:3px solid #666;"><div class="wf-stat-label">Serviços</div><div class="wf-stat-value" style="font-size:17px;">R$9.850</div><div style="font-size:10px;color:#777;">142 atendimentos</div></div>
+          <div class="wf-stat" style="border-left:3px solid #888;"><div class="wf-stat-label">Produtos</div><div class="wf-stat-value" style="font-size:17px;">R$2.630</div><div style="font-size:10px;color:#777;">38 vendas</div></div>
+          <div class="wf-stat" style="border-left:3px solid #444;background:#fafafa;"><div class="wf-stat-label">Lucro Líquido</div><div class="wf-stat-value" style="font-size:17px;">R$8.950</div><div style="font-size:10px;color:#777;">Ticket: R$65,42</div></div>
+        </div>
+      </div>
+      <div class="wf-grid" style="grid-template-columns:1fr 1fr;gap:12px;">
+        <!-- REUSABLE: Ranking from Finance.jsx -->
+        <div class="component-wrapper">
+          <span class="badge-reuse">[REUSE] BarberRanking</span>
+          <div class="wf-box">
+            <div class="wf-box-header">🏆 Ranking de Barbeiros</div>
+            <div style="padding:12px;display:flex;flex-direction:column;gap:10px;">
+              <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;"><span>🥇 Carlos Santos</span><span style="font-weight:bold;">R$4.820</span></div><div class="wf-progress-bg"><div class="wf-progress-fill" style="width:100%;background:#333;"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;"><span>🥈 Marcos Torres</span><span style="font-weight:bold;">R$3.240</span></div><div class="wf-progress-bg"><div class="wf-progress-fill" style="width:67%;"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;"><span>🥉 Pedro Alves</span><span style="font-weight:bold;">R$1.790</span></div><div class="wf-progress-bg"><div class="wf-progress-fill" style="width:37%;background:#bbb;"></div></div></div>
+            </div>
+          </div>
+        </div>
+        <!-- REUSABLE: ServiceMix from Finance.jsx -->
+        <div class="component-wrapper">
+          <span class="badge-reuse">[REUSE] ServiceMixBI</span>
+          <div class="wf-box">
+            <div class="wf-box-header">📊 Mix de Serviços</div>
+            <div style="padding:12px;display:flex;flex-direction:column;gap:10px;">
+              <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;"><span>Corte Social</span><span>R$4.200</span></div><div class="wf-progress-bg"><div class="wf-progress-fill" style="width:85%;"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;"><span>Corte + Barba</span><span>R$3.850</span></div><div class="wf-progress-bg"><div class="wf-progress-fill" style="width:77%;"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;"><span>Barba Completa</span><span>R$1.800</span></div><div class="wf-progress-bg"><div class="wf-progress-fill" style="width:36%;background:#bbb;"></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== USERS ===================== -->
+<div class="page" id="page-users">
+  <div class="sidebar-layout">
+    <div class="wf-sidebar">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid #ddd;">
+        <div class="wf-placeholder" style="width:30px;height:30px;border-radius:8px;font-size:14px;">✂️</div>
+        <div style="font-size:13px;font-weight:bold;">BARBERPRO</div>
+      </div>
+      <div class="wf-nav-item"><span class="wf-nav-icon"></span>Dashboard</div>
+      <div class="wf-nav-item"><span class="wf-nav-icon"></span>Agendamentos</div>
+      <div class="wf-nav-item"><span class="wf-nav-icon"></span>Clientes</div>
+      <div class="wf-nav-item"><span class="wf-nav-icon"></span>Financeiro</div>
+      <div class="wf-nav-item active"><span class="wf-nav-icon"></span>Usuários</div>
+      <div class="wf-nav-item"><span class="wf-nav-icon"></span>Configurações</div>
+    </div>
+    <div class="wf-main">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+        <div><h2 style="font-size:18px;margin-bottom:3px;">Gestão de Usuários</h2><p style="font-size:11px;color:#777;">Controle de acesso, permissões e equipe.</p></div>
+        <button class="wf-btn-primary">+ Novo Usuário</button>
+      </div>
+      <div class="wf-grid" style="grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;">
+        <div class="wf-stat" style="display:flex;align-items:center;gap:10px;"><div class="wf-placeholder" style="width:42px;height:42px;border-radius:50%;font-size:14px;">JB</div><div><div style="font-weight:bold;font-size:12px;">João Boss</div><div style="font-size:10px;color:#777;">Gerente</div><span class="wf-status">Ativo</span></div></div>
+        <div class="wf-stat" style="display:flex;align-items:center;gap:10px;"><div class="wf-placeholder" style="width:42px;height:42px;border-radius:50%;font-size:14px;">CS</div><div><div style="font-weight:bold;font-size:12px;">Carlos Santos</div><div style="font-size:10px;color:#777;">Barbeiro</div><span class="wf-status">Ativo</span></div></div>
+        <div class="wf-stat" style="display:flex;align-items:center;gap:10px;"><div class="wf-placeholder" style="width:42px;height:42px;border-radius:50%;font-size:14px;">MT</div><div><div style="font-weight:bold;font-size:12px;">Marcos Torres</div><div style="font-size:10px;color:#777;">Barbeiro</div><span class="wf-status">Ativo</span></div></div>
+      </div>
+      <!-- NEW: PermissionsMatrix -->
+      <div class="component-wrapper">
+        <span class="badge-new">[NEW] PermissionsMatrix</span>
+        <div class="wf-box">
+          <div class="wf-box-header">🛡️ Matriz de Permissões</div>
+          <div style="padding:12px;overflow:auto;">
+            <table class="wf-table">
+              <thead><tr><th>Função</th><th>Dashboard</th><th>Agenda</th><th>Clientes</th><th>Financeiro</th><th>Usuários</th><th>Config.</th></tr></thead>
+              <tbody>
+                <tr><td style="font-weight:bold;">Gerente</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                <tr><td style="font-weight:bold;">Barbeiro</td><td>✅</td><td>✅ (próprio)</td><td>❌</td><td>⚠️ Próprio</td><td>❌</td><td>❌</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== SETTINGS ===================== -->
+<div class="page" id="page-settings">
+  <div class="sidebar-layout">
+    <div class="wf-sidebar">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid #ddd;">
+        <div class="wf-placeholder" style="width:30px;height:30px;border-radius:8px;font-size:14px;">✂️</div>
+        <div style="font-size:13px;font-weight:bold;">BARBERPRO</div>
+      </div>
+      <div class="wf-nav-item"><span class="wf-nav-icon"></span>Dashboard</div>
+      <div class="wf-nav-item"><span class="wf-nav-icon"></span>Agendamentos</div>
+      <div class="wf-nav-item"><span class="wf-nav-icon"></span>Clientes</div>
+      <div class="wf-nav-item"><span class="wf-nav-icon"></span>Financeiro</div>
+      <div class="wf-nav-item"><span class="wf-nav-icon"></span>Usuários</div>
+      <div class="wf-nav-item active"><span class="wf-nav-icon"></span>Configurações</div>
+    </div>
+    <div class="wf-main">
+      <h2 style="font-size:18px;margin-bottom:18px;">⚙️ Configurações do Sistema</h2>
+      <div class="wf-grid" style="grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="wf-box">
+          <div class="wf-box-header">🏪 Informações da Barbearia</div>
+          <div style="padding:12px;display:flex;flex-direction:column;gap:10px;">
+            <div><label style="font-size:10px;font-weight:bold;display:block;margin-bottom:4px;">Nome da Barbearia</label><input class="wf-input" value="BarbeariaNome"/></div>
+            <div><label style="font-size:10px;font-weight:bold;display:block;margin-bottom:4px;">WhatsApp</label><input class="wf-input" placeholder="(11) 99999-0000"/></div>
+            <div><label style="font-size:10px;font-weight:bold;display:block;margin-bottom:4px;">Endereço</label><input class="wf-input" placeholder="Rua, Número, Bairro"/></div>
+            <button class="wf-btn-primary" style="margin-top:4px;">Salvar Alterações</button>
+          </div>
+        </div>
+        <div class="wf-box">
+          <div class="wf-box-header">✂️ Serviços <button class="wf-btn-primary" style="font-size:10px;padding:2px 8px;">+ Adicionar</button></div>
+          <div style="padding:12px;display:flex;flex-direction:column;gap:7px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:#f5f5f5;border-radius:4px;font-size:11px;"><span>Corte Social — R$35,00 — 30min</span><button class="wf-btn-secondary" style="font-size:10px;padding:2px 7px;">Editar</button></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:#f5f5f5;border-radius:4px;font-size:11px;"><span>Corte + Barba — R$55,00 — 50min</span><button class="wf-btn-secondary" style="font-size:10px;padding:2px 7px;">Editar</button></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:#f5f5f5;border-radius:4px;font-size:11px;"><span>Barba Completa — R$30,00 — 20min</span><button class="wf-btn-secondary" style="font-size:10px;padding:2px 7px;">Editar</button></div>
+          </div>
+        </div>
+        <div class="wf-box">
+          <div class="wf-box-header">🛒 Estoque <button class="wf-btn-primary" style="font-size:10px;padding:2px 8px;">+ Adicionar</button></div>
+          <div style="padding:12px;">
+            <table class="wf-table">
+              <thead><tr><th>Produto</th><th>Estoque</th><th>Preço</th><th></th></tr></thead>
+              <tbody>
+                <tr><td>Pomada Matte</td><td>8 un.</td><td>R$45,00</td><td><button class="wf-btn-secondary" style="font-size:10px;padding:2px 6px;">Editar</button></td></tr>
+                <tr><td>Óleo de Barba</td><td>3 un.</td><td>R$35,00</td><td><button class="wf-btn-secondary" style="font-size:10px;padding:2px 6px;">Editar</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!-- NEW: HoursEditor component -->
+        <div class="component-wrapper">
+          <span class="badge-new">[NEW] HoursEditor</span>
+          <div class="wf-box">
+            <div class="wf-box-header">🕐 Horário de Funcionamento</div>
+            <div style="padding:12px;display:flex;flex-direction:column;gap:8px;font-size:11px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:6px;background:#f5f5f5;border-radius:4px;"><span>Segunda – Sexta</span><span style="font-weight:bold;">08:00 – 20:00</span><button class="wf-btn-secondary" style="font-size:10px;padding:2px 7px;">Editar</button></div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:6px;background:#f5f5f5;border-radius:4px;"><span>Sábado</span><span style="font-weight:bold;">08:00 – 18:00</span><button class="wf-btn-secondary" style="font-size:10px;padding:2px 7px;">Editar</button></div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:6px;background:#f5f5f5;border-radius:4px;"><span>Domingo</span><span style="color:#bbb;">Fechado</span><button class="wf-btn-secondary" style="font-size:10px;padding:2px 7px;">Editar</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#4CAF50;"></div><span>REUSE = componente existente reutilizável</span></div>
+  <div class="legend-item"><div class="legend-dot" style="background:#FF9800;"></div><span>NEW = novo componente a criar</span></div>
+</div>
+
+<script>
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>

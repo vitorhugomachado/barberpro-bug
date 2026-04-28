@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BarberPro – Opção 2: SaaS Top Nav Moderno</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Comic Sans MS', 'Chalkboard SE', cursive; background: #e0e0e0; min-height: 100vh; }
+  .wf-header { background: #222; color: #fff; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; }
+  .wf-header h1 { font-size: 13px; }
+  .wf-badge { background: #555; padding: 3px 10px; border-radius: 4px; font-size: 11px; }
+  .option-label { background: #444; color: #fff; text-align: center; padding: 6px; font-size: 12px; font-weight: bold; }
+  .option-desc { background: #f0f0f0; padding: 8px 20px; font-size: 11px; color: #555; border-bottom: 2px solid #ccc; font-style: italic; }
+  .page-tabs { background: #ddd; border-bottom: 2px solid #999; display: flex; gap: 2px; padding: 8px 8px 0; overflow-x: auto; flex-shrink: 0; }
+  .page-tab { padding: 7px 14px; cursor: pointer; background: #ccc; border: 2px solid #999; border-bottom: none; border-radius: 4px 4px 0 0; font-family: inherit; font-size: 11px; white-space: nowrap; }
+  .page-tab.active { background: #fff; font-weight: bold; border-bottom: 2px solid #fff; margin-bottom: -2px; }
+  .page { display: none; background: #fff; min-height: 580px; flex-direction: column; }
+  .page.active { display: flex; }
+  /* TOP NAV */
+  .top-nav { background: #fff; border-bottom: 2px solid #ddd; padding: 0 24px; display: flex; align-items: center; gap: 0; height: 52px; flex-shrink: 0; }
+  .top-nav-brand { display: flex; align-items: center; gap: 8px; margin-right: 32px; }
+  .top-nav-item { padding: 0 16px; height: 52px; display: flex; align-items: center; font-size: 12px; color: #777; cursor: pointer; border-bottom: 3px solid transparent; }
+  .top-nav-item.active { color: #111; font-weight: bold; border-bottom-color: #222; }
+  .top-nav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .wf-main { flex: 1; padding: 22px 28px; overflow: auto; }
+  .wf-box { border: 2px solid #bbb; border-radius: 4px; background: #fff; margin-bottom: 12px; }
+  .wf-box-header { padding: 9px 14px; border-bottom: 2px solid #ddd; background: #f5f5f5; font-size: 12px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+  .wf-placeholder { background: #d8d8d8; border: 2px dashed #aaa; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #777; font-size: 11px; }
+  .wf-btn-primary { background: #222; color: #fff; border: 2px solid #222; border-radius: 4px; padding: 6px 14px; font-family: inherit; font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+  .wf-btn-secondary { background: #fff; color: #333; border: 2px solid #aaa; border-radius: 4px; padding: 6px 12px; font-family: inherit; font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+  .wf-input { border: 2px solid #bbb; border-radius: 4px; padding: 7px 10px; font-family: inherit; font-size: 11px; width: 100%; background: #fff; }
+  .wf-select { border: 2px solid #bbb; border-radius: 4px; padding: 7px 10px; font-family: inherit; font-size: 11px; background: #fff; }
+  .wf-grid { display: grid; gap: 12px; }
+  .wf-stat { border: 2px solid #ccc; border-radius: 6px; padding: 16px; background: #fff; }
+  .wf-stat-value { font-size: 22px; font-weight: bold; margin-top: 5px; }
+  .wf-stat-label { font-size: 10px; color: #777; text-transform: uppercase; letter-spacing: 0.5px; }
+  .component-wrapper { position: relative; }
+  .badge-reuse { position: absolute; top: -8px; right: -2px; background: #4CAF50; color: white; padding: 2px 5px; border-radius: 3px; font-size: 9px; font-family: Arial, sans-serif; font-weight: bold; z-index: 10; white-space: nowrap; pointer-events: none; }
+  .badge-new { position: absolute; top: -8px; right: -2px; background: #FF9800; color: white; padding: 2px 5px; border-radius: 3px; font-size: 9px; font-family: Arial, sans-serif; font-weight: bold; z-index: 10; white-space: nowrap; pointer-events: none; }
+  .wf-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .wf-table th { padding: 8px 12px; text-align: left; background: #f5f5f5; border: 1px solid #ddd; font-size: 10px; color: #666; text-transform: uppercase; }
+  .wf-table td { padding: 9px 12px; border-bottom: 1px solid #eee; }
+  .wf-progress-bg { height: 5px; background: #eee; border-radius: 3px; overflow: hidden; margin-top: 4px; }
+  .wf-progress-fill { height: 100%; background: #666; border-radius: 3px; }
+  .wf-status { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: bold; border: 1px solid #bbb; background: #f5f5f5; }
+  .wf-tag { display: inline-block; border: 1px solid #bbb; border-radius: 20px; padding: 4px 12px; font-size: 11px; cursor: pointer; }
+  .wf-tag.active { background: #222; color: #fff; border-color: #222; }
+  .wf-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  /* Client card grid */
+  .client-card { border: 2px solid #ccc; border-radius: 6px; padding: 14px; background: #fff; text-align: center; }
+  /* Activity sidebar */
+  .activity-item { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 12px; font-size: 11px; }
+  .activity-dot { width: 8px; height: 8px; background: #bbb; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+  /* Command palette pill */
+  .cmd-pill { background: #f5f5f5; border: 2px solid #ddd; border-radius: 20px; padding: 5px 16px; font-size: 11px; color: #999; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .legend { display: flex; gap: 16px; padding: 8px 16px; background: #fafafa; border-top: 1px solid #eee; font-size: 10px; font-family: Arial, sans-serif; }
+  .legend-item { display: flex; align-items: center; gap: 4px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+  /* Mini calendar */
+  .mini-cal { border: 2px solid #ccc; border-radius: 4px; padding: 10px; background: #fafafa; min-width: 180px; font-size: 11px; }
+  .mini-cal-header { text-align: center; font-weight: bold; margin-bottom: 8px; font-size: 12px; }
+  .mini-cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; text-align: center; }
+  .cal-day { padding: 3px; font-size: 10px; }
+  .cal-day.today { background: #333; color: #fff; border-radius: 50%; }
+  .cal-day.has-app { background: #ddd; border-radius: 50%; }
+</style>
+</head>
+<body>
+<div class="wf-header">
+  <h1>🪒 BarberPro — Wireframe · Opção 2: SaaS Top Nav Moderno</h1>
+  <span class="wf-badge">Lo-Fi Balsamiq</span>
+</div>
+<div class="option-label">Opção 2 — Navegação Superior + Layout Full-Width</div>
+<div class="option-desc">Abordagem moderna: top navigation horizontal libera todo o espaço horizontal para o conteúdo. Dashboard com painel de atividades lateral, agenda com mini-calendário, clientes em grid de cards.</div>
+
+<div class="page-tabs">
+  <div class="page-tab active" onclick="showPage('public',this)">🌐 Agend. Público</div>
+  <div class="page-tab" onclick="showPage('login',this)">🔐 Login</div>
+  <div class="page-tab" onclick="showPage('dashboard',this)">📊 Dashboard</div>
+  <div class="page-tab" onclick="showPage('scheduler',this)">📅 Agenda</div>
+  <div class="page-tab" onclick="showPage('clients',this)">👥 Clientes</div>
+  <div class="page-tab" onclick="showPage('finance',this)">💰 Financeiro</div>
+  <div class="page-tab" onclick="showPage('users',this)">🛡️ Usuários</div>
+  <div class="page-tab" onclick="showPage('settings',this)">⚙️ Config.</div>
+</div>
+
+<!-- ===================== PUBLIC BOOKING ===================== -->
+<div class="page active" id="page-public" style="background:#f5f5f5;">
+  <!-- NEW: Full-width hero header for public page -->
+  <div class="component-wrapper">
+    <span class="badge-new" style="top:6px;right:8px;">[NEW] PublicHeroHeader</span>
+    <div style="background:#222;color:#fff;padding:20px 32px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="wf-placeholder" style="width:38px;height:38px;border-radius:8px;font-size:18px;border-color:#555;background:#444;color:#ccc;">✂️</div>
+        <div><div style="font-size:16px;font-weight:bold;">BarbeariaNome</div><div style="font-size:10px;color:#aaa;">Rua das Tesouras, 42 — Centro</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="font-size:11px;color:#aaa;">📞 (11) 98765-0000</div>
+        <button class="wf-btn-secondary" style="font-size:10px;padding:5px 12px;border-color:#555;color:#ccc;background:transparent;">🔐 Área Profissional</button>
+      </div>
+    </div>
+  </div>
+  <div style="max-width:660px;margin:0 auto;padding:28px 20px;width:100%;">
+    <!-- Booking steps as columns - NEW layout -->
+    <div class="component-wrapper" style="margin-bottom:20px;">
+      <span class="badge-new">[NEW] StepIndicatorRow</span>
+      <div style="display:flex;align-items:center;margin-bottom:24px;">
+        <div style="background:#222;color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;flex-shrink:0;">1</div>
+        <div style="flex:1;height:3px;background:#ccc;"></div>
+        <div style="background:#ddd;color:#aaa;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;flex-shrink:0;">2</div>
+        <div style="flex:1;height:3px;background:#ccc;"></div>
+        <div style="background:#ddd;color:#aaa;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;flex-shrink:0;">3</div>
+        <div style="flex:1;height:3px;background:#ccc;"></div>
+        <div style="background:#ddd;color:#aaa;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;flex-shrink:0;">4</div>
+        <div style="flex:1;height:3px;background:#ccc;"></div>
+        <div style="background:#ddd;color:#aaa;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;flex-shrink:0;">5</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:#777;padding:0 4px;">
+        <span style="color:#222;font-weight:bold;">Serviço</span><span>Barbeiro</span><span>Horário</span><span>Dados</span><span>Confirmação</span>
+      </div>
+    </div>
+    <!-- Service selection with 2-col grid -->
+    <div class="wf-box">
+      <div class="wf-box-header">Selecione o Serviço</div>
+      <!-- NEW: ServiceGrid (2-col instead of 1-col list) -->
+      <div class="component-wrapper">
+        <span class="badge-new">[NEW] ServiceGrid (2-col)</span>
+        <div style="padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div style="border:2px solid #222;border-radius:6px;padding:14px;cursor:pointer;">
+            <div style="font-weight:bold;font-size:13px;margin-bottom:4px;">✂️ Corte Social</div>
+            <div style="font-size:10px;color:#777;margin-bottom:8px;">30–40 min</div>
+            <div style="font-weight:bold;font-size:15px;">R$ 35,00</div>
+          </div>
+          <div style="border:1px solid #ddd;border-radius:6px;padding:14px;cursor:pointer;">
+            <div style="font-weight:bold;font-size:13px;margin-bottom:4px;">🧔 Corte + Barba</div>
+            <div style="font-size:10px;color:#777;margin-bottom:8px;">50–60 min</div>
+            <div style="font-weight:bold;font-size:15px;">R$ 55,00</div>
+          </div>
+          <div style="border:1px solid #ddd;border-radius:6px;padding:14px;cursor:pointer;">
+            <div style="font-weight:bold;font-size:13px;margin-bottom:4px;">🪒 Barba Completa</div>
+            <div style="font-size:10px;color:#777;margin-bottom:8px;">20–30 min</div>
+            <div style="font-weight:bold;font-size:15px;">R$ 30,00</div>
+          </div>
+          <div style="border:1px dashed #ddd;border-radius:6px;padding:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;background:#fafafa;">
+            <div style="text-align:center;color:#bbb;font-size:11px;">+ Outros serviços...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== LOGIN ===================== -->
+<div class="page" id="page-login" style="background:#f5f5f5;align-items:center;justify-content:center;">
+  <div style="width:100%;max-width:380px;padding:20px;">
+    <!-- REUSABLE: LoginPage -->
+    <div class="component-wrapper">
+      <span class="badge-reuse">[REUSE] LoginPage</span>
+      <div class="wf-box" style="padding:30px;">
+        <div style="text-align:center;margin-bottom:22px;">
+          <div class="wf-placeholder" style="width:48px;height:48px;border-radius:10px;margin:0 auto 10px;font-size:20px;">✂️</div>
+          <div style="font-size:18px;font-weight:bold;">BarberPro</div>
+          <div style="font-size:11px;color:#777;margin-top:4px;">Acesse sua conta para gerenciar seu negócio.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div><label style="font-size:11px;font-weight:bold;display:block;margin-bottom:5px;">E-mail</label><div style="position:relative;"><span style="position:absolute;left:10px;top:8px;font-size:12px;">✉️</span><input class="wf-input" style="padding-left:30px;" placeholder="seu@email.com"/></div></div>
+          <div><label style="font-size:11px;font-weight:bold;display:block;margin-bottom:5px;">Senha</label><div style="position:relative;"><span style="position:absolute;left:10px;top:8px;font-size:12px;">🔒</span><input class="wf-input" style="padding-left:30px;" placeholder="••••••••" type="password"/></div></div>
+          <button class="wf-btn-primary" style="width:100%;justify-content:center;padding:12px;margin-top:4px;">Entrar →</button>
+          <div style="text-align:center;font-size:11px;color:#777;">Esqueceu a senha? <u>Recuperar</u></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== DASHBOARD ===================== -->
+<div class="page" id="page-dashboard">
+  <!-- NEW: TopNav component -->
+  <div class="component-wrapper">
+    <span class="badge-new" style="top:6px;right:8px;">[NEW] TopNavBar</span>
+    <div class="top-nav">
+      <div class="top-nav-brand">
+        <div class="wf-placeholder" style="width:28px;height:28px;border-radius:6px;font-size:13px;">✂️</div>
+        <span style="font-size:13px;font-weight:bold;letter-spacing:1px;">BARBERPRO</span>
+      </div>
+      <div class="top-nav-item active">📊 Dashboard</div>
+      <div class="top-nav-item">📅 Agenda</div>
+      <div class="top-nav-item">👥 Clientes</div>
+      <div class="top-nav-item">💰 Financeiro</div>
+      <div class="top-nav-item">🛡️ Usuários</div>
+      <div class="top-nav-right">
+        <!-- NEW: CommandPalette -->
+        <div class="component-wrapper">
+          <span class="badge-new">[NEW] CommandSearch</span>
+          <div class="cmd-pill">🔍 Busca rápida... <span style="background:#ddd;padding:1px 6px;border-radius:3px;font-size:9px;">⌘K</span></div>
+        </div>
+        <div class="wf-placeholder" style="width:30px;height:30px;border-radius:50%;font-size:13px;">🔔</div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div class="wf-placeholder" style="width:30px;height:30px;border-radius:50%;font-size:11px;">JB</div>
+          <span style="font-size:11px;font-weight:bold;">João Boss</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="wf-main">
+    <!-- Page header + actions -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:18px;">
+      <div>
+        <h2 style="font-size:20px;margin-bottom:4px;">Workspace</h2>
+        <div style="display:flex;gap:3px;">
+          <button class="wf-btn-primary" style="font-size:10px;padding:4px 10px;">Hoje</button>
+          <button class="wf-btn-secondary" style="font-size:10px;padding:4px 10px;">7 Dias</button>
+          <button class="wf-btn-secondary" style="font-size:10px;padding:4px 10px;">30 Dias</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="wf-btn-secondary">🛒 Venda Rápida</button>
+        <button class="wf-btn-primary">+ Agendamento</button>
+      </div>
+    </div>
+
+    <!-- 2-col layout: main + activity -->
+    <div style="display:grid;grid-template-columns:1fr 280px;gap:18px;">
+      <div>
+        <!-- KPIs - larger, hero style - REUSABLE: StatCard -->
+        <div class="component-wrapper">
+          <span class="badge-reuse">[REUSE] StatCard ×4</span>
+          <div class="wf-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px;">
+            <div class="wf-stat" style="border-top:3px solid #222;">
+              <div class="wf-stat-label">Total Clientes</div>
+              <div class="wf-stat-value">1.284</div>
+              <div style="font-size:9px;background:#eee;display:inline-block;padding:1px 6px;border-radius:3px;margin-top:4px;">↑ +12%</div>
+            </div>
+            <div class="wf-stat">
+              <div class="wf-stat-label">Ocupação</div>
+              <div class="wf-stat-value">78%</div>
+              <div style="font-size:9px;background:#eee;display:inline-block;padding:1px 6px;border-radius:3px;margin-top:4px;">↑ +8%</div>
+            </div>
+            <div class="wf-stat">
+              <div class="wf-stat-label">Ticket Médio</div>
+              <div class="wf-stat-value">R$48</div>
+              <div style="font-size:9px;background:#eee;display:inline-block;padding:1px 6px;border-radius:3px;margin-top:4px;">↓ -2%</div>
+            </div>
+            <div class="wf-stat" style="border-top:3px solid #333;">
+              <div class="wf-stat-label">Receita</div>
+              <div class="wf-stat-value" style="font-size:18px;">R$3.250</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Swimlane Agenda - REUSABLE -->
+        <div class="component-wrapper">
+          <span class="badge-reuse">[REUSE] DailySwimLane</span>
+          <div class="wf-box">
+            <div class="wf-box-header">
+              Agenda Diária
+              <div style="display:flex;align-items:center;gap:6px;">
+                <button class="wf-btn-secondary" style="padding:3px 7px;font-size:11px;">‹</button>
+                <input class="wf-input" type="date" style="width:130px;padding:3px 8px;font-size:11px;"/>
+                <button class="wf-btn-secondary" style="padding:3px 7px;font-size:11px;">›</button>
+              </div>
+            </div>
+            <div style="display:flex;">
+              <div style="width:60px;flex-shrink:0;border-right:1px solid #eee;background:#fafafa;">
+                <div style="height:46px;border-bottom:1px solid #eee;"></div>
+                <div style="height:72px;display:flex;align-items:flex-start;justify-content:center;padding:5px;font-size:10px;color:#aaa;border-bottom:1px dashed #eee;">09:00</div>
+                <div style="height:72px;display:flex;align-items:flex-start;justify-content:center;padding:5px;font-size:10px;color:#aaa;border-bottom:1px dashed #eee;">10:00</div>
+                <div style="height:72px;display:flex;align-items:flex-start;justify-content:center;padding:5px;font-size:10px;color:#aaa;">11:00</div>
+              </div>
+              <div style="flex:1;min-width:130px;border-right:1px solid #eee;">
+                <div style="padding:8px;background:#f0f0f0;border-bottom:1px solid #ddd;text-align:center;font-size:11px;font-weight:bold;">Carlos S.</div>
+                <div style="height:72px;border-bottom:1px dashed #eee;padding:5px;"><div style="background:#eee;border:1px solid #ccc;border-radius:4px;padding:5px;font-size:10px;height:100%;"><div style="font-weight:bold;">Rafael C.</div><div style="color:#777;">Corte</div><div style="font-weight:bold;margin-top:2px;">R$35</div></div></div>
+                <div style="height:72px;border-bottom:1px dashed #eee;padding:5px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#ccc;">— livre —</div>
+                <div style="height:72px;padding:5px;"><div style="background:#f5f5f5;border:1px solid #ccc;border-radius:4px;padding:5px;font-size:10px;height:100%;"><div style="font-weight:bold;">André L.</div><div style="color:#777;">C+Barba</div></div></div>
+              </div>
+              <div style="flex:1;min-width:130px;">
+                <div style="padding:8px;background:#f0f0f0;border-bottom:1px solid #ddd;text-align:center;font-size:11px;font-weight:bold;">Marcos T.</div>
+                <div style="height:72px;border-bottom:1px dashed #eee;padding:5px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#ccc;">— livre —</div>
+                <div style="height:72px;border-bottom:1px dashed #eee;padding:5px;"><div style="background:#f5f5f5;border:1px solid #ccc;border-radius:4px;padding:5px;font-size:10px;height:100%;"><div style="font-weight:bold;">Vitor M.</div><div style="color:#777;">Barba</div></div></div>
+                <div style="height:72px;padding:5px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#ccc;">— livre —</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Activity Feed sidebar -->
+      <!-- NEW: ActivityFeed component -->
+      <div class="component-wrapper">
+        <span class="badge-new">[NEW] ActivityFeed</span>
+        <div class="wf-box" style="height:fit-content;">
+          <div class="wf-box-header">📡 Atividade Recente</div>
+          <div style="padding:12px;">
+            <div class="activity-item"><div class="activity-dot" style="background:#666;"></div><div><div style="font-weight:bold;font-size:11px;">Rafael confirmou</div><div style="color:#999;font-size:10px;">Corte Social — 09:00</div><div style="color:#bbb;font-size:10px;">2 min atrás</div></div></div>
+            <div class="activity-item"><div class="activity-dot"></div><div><div style="font-weight:bold;font-size:11px;">Venda PDV registrada</div><div style="color:#999;font-size:10px;">Pomada Matte × 2 — R$90</div><div style="color:#bbb;font-size:10px;">15 min atrás</div></div></div>
+            <div class="activity-item"><div class="activity-dot"></div><div><div style="font-weight:bold;font-size:11px;">André L. pagou</div><div style="color:#999;font-size:10px;">Corte + Barba — R$55 via Pix</div><div style="color:#bbb;font-size:10px;">32 min atrás</div></div></div>
+            <div class="activity-item"><div class="activity-dot"></div><div><div style="font-weight:bold;font-size:11px;">Novo agendamento online</div><div style="color:#999;font-size:10px;">Marcelo O. — 14:00 com Carlos</div><div style="color:#bbb;font-size:10px;">1h atrás</div></div></div>
+          </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="wf-box" style="margin-top:12px;">
+          <div class="wf-box-header">📌 Hoje em Resumo</div>
+          <div style="padding:12px;display:flex;flex-direction:column;gap:8px;font-size:11px;">
+            <div style="display:flex;justify-content:space-between;"><span>Agendamentos</span><span style="font-weight:bold;">12</span></div>
+            <div style="display:flex;justify-content:space-between;"><span>Concluídos</span><span style="font-weight:bold;">8</span></div>
+            <div style="display:flex;justify-content:space-between;"><span>Em atendimento</span><span style="font-weight:bold;">2</span></div>
+            <div style="display:flex;justify-content:space-between;"><span>Receita do dia</span><span style="font-weight:bold;">R$480,00</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== SCHEDULER ===================== -->
+<div class="page" id="page-scheduler">
+  <div class="top-nav">
+    <div class="top-nav-brand"><div class="wf-placeholder" style="width:28px;height:28px;border-radius:6px;font-size:13px;">✂️</div><span style="font-size:13px;font-weight:bold;">BARBERPRO</span></div>
+    <div class="top-nav-item">📊 Dashboard</div>
+    <div class="top-nav-item active">📅 Agenda</div>
+    <div class="top-nav-item">👥 Clientes</div>
+    <div class="top-nav-item">💰 Financeiro</div>
+    <div class="top-nav-item">🛡️ Usuários</div>
+    <div class="top-nav-right"><div class="cmd-pill">🔍 Busca rápida...</div><div class="wf-placeholder" style="width:30px;height:30px;border-radius:50%;font-size:11px;">JB</div></div>
+  </div>
+  <div class="wf-main">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:16px;">
+      <div><h2 style="font-size:20px;margin-bottom:3px;">Agenda Semanal</h2><p style="font-size:11px;color:#777;">Visão da equipe e capacidade por semana.</p></div>
+      <div style="display:flex;gap:8px;">
+        <!-- NEW: ViewToggle (semana/dia/mês) -->
+        <div class="component-wrapper">
+          <span class="badge-new">[NEW] ViewToggle</span>
+          <div style="display:flex;border:2px solid #bbb;border-radius:4px;overflow:hidden;">
+            <button style="font-family:inherit;font-size:10px;padding:5px 10px;background:#222;color:#fff;border:none;">Semana</button>
+            <button style="font-family:inherit;font-size:10px;padding:5px 10px;border:none;background:#fff;">Dia</button>
+            <button style="font-family:inherit;font-size:10px;padding:5px 10px;border:none;background:#fff;">Mês</button>
+          </div>
+        </div>
+        <button class="wf-btn-primary">+ Agendar</button>
+      </div>
+    </div>
+
+    <!-- 2-col: mini calendar + grid -->
+    <div style="display:grid;grid-template-columns:190px 1fr;gap:14px;">
+      <!-- NEW: MiniCalendarPicker -->
+      <div class="component-wrapper">
+        <span class="badge-new">[NEW] MiniCalendarPicker</span>
+        <div class="mini-cal">
+          <div class="mini-cal-header">Abril 2026</div>
+          <div class="mini-cal-grid">
+            <div class="cal-day" style="font-weight:bold;color:#777;">S</div><div class="cal-day" style="font-weight:bold;color:#777;">T</div><div class="cal-day" style="font-weight:bold;color:#777;">Q</div><div class="cal-day" style="font-weight:bold;color:#777;">Q</div><div class="cal-day" style="font-weight:bold;color:#777;">S</div><div class="cal-day" style="font-weight:bold;color:#777;">S</div><div class="cal-day" style="font-weight:bold;color:#777;">D</div>
+            <div class="cal-day"></div><div class="cal-day">1</div><div class="cal-day has-app">2</div><div class="cal-day has-app">3</div><div class="cal-day has-app">4</div><div class="cal-day has-app">5</div><div class="cal-day">6</div>
+            <div class="cal-day has-app">7</div><div class="cal-day has-app">8</div><div class="cal-day has-app">9</div><div class="cal-day today">10</div><div class="cal-day has-app">11</div><div class="cal-day has-app">12</div><div class="cal-day">13</div>
+            <div class="cal-day">14</div><div class="cal-day">15</div><div class="cal-day">16</div><div class="cal-day">17</div><div class="cal-day">18</div><div class="cal-day">19</div><div class="cal-day">20</div>
+          </div>
+          <div style="margin-top:10px;padding-top:10px;border-top:1px solid #ddd;font-size:10px;color:#777;">
+            <div style="margin-bottom:4px;">• 3 agendamentos hoje</div>
+            <div style="margin-bottom:4px;">• 2 barbeiros ativos</div>
+            <div>• Taxa: 78% ocupação</div>
+          </div>
+        </div>
+
+        <!-- Barber filter list -->
+        <div class="wf-box" style="margin-top:12px;">
+          <div class="wf-box-header" style="font-size:11px;">Filtrar Barbeiro</div>
+          <div style="padding:8px;display:flex;flex-direction:column;gap:4px;">
+            <div style="padding:5px 8px;background:#222;color:#fff;border-radius:4px;font-size:11px;display:flex;align-items:center;gap:6px;cursor:pointer;"><span style="width:10px;height:10px;background:#aaa;border-radius:50%;display:inline-block;"></span>Todos</div>
+            <div style="padding:5px 8px;border-radius:4px;font-size:11px;display:flex;align-items:center;gap:6px;cursor:pointer;"><span style="width:10px;height:10px;background:#ccc;border-radius:50%;display:inline-block;"></span>Carlos S.</div>
+            <div style="padding:5px 8px;border-radius:4px;font-size:11px;display:flex;align-items:center;gap:6px;cursor:pointer;"><span style="width:10px;height:10px;background:#ccc;border-radius:50%;display:inline-block;"></span>Marcos T.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REUSABLE: WeeklyGrid -->
+      <div class="component-wrapper">
+        <span class="badge-reuse">[REUSE] WeeklyGrid</span>
+        <div class="wf-box" style="overflow:auto;">
+          <div style="display:grid;grid-template-columns:55px repeat(7,minmax(80px,1fr));">
+            <div style="padding:8px;background:#f5f5f5;border:1px solid #eee;"></div>
+            <div style="padding:8px;background:#f5f5f5;border:1px solid #eee;text-align:center;font-size:10px;"><div style="color:#777;text-transform:uppercase;">Seg</div><div style="font-size:13px;font-weight:bold;">7</div></div>
+            <div style="padding:8px;background:#f5f5f5;border:1px solid #eee;text-align:center;font-size:10px;"><div style="color:#777;text-transform:uppercase;">Ter</div><div style="font-size:13px;font-weight:bold;">8</div></div>
+            <div style="padding:8px;background:#e8e8e8;border:2px solid #999;text-align:center;font-size:10px;"><div style="color:#333;font-weight:bold;text-transform:uppercase;">Qua ★</div><div style="font-size:13px;font-weight:bold;">9</div></div>
+            <div style="padding:8px;background:#f5f5f5;border:1px solid #eee;text-align:center;font-size:10px;"><div style="color:#777;text-transform:uppercase;">Qui</div><div style="font-size:13px;font-weight:bold;">10</div></div>
+            <div style="padding:8px;background:#f5f5f5;border:1px solid #eee;text-align:center;font-size:10px;"><div style="color:#777;text-transform:uppercase;">Sex</div><div style="font-size:13px;font-weight:bold;">11</div></div>
+            <div style="padding:8px;background:#f5f5f5;border:1px solid #eee;text-align:center;font-size:10px;"><div style="color:#777;text-transform:uppercase;">Sáb</div><div style="font-size:13px;font-weight:bold;">12</div></div>
+            <div style="padding:8px;background:#f5f5f5;border:1px solid #eee;text-align:center;font-size:10px;"><div style="color:#777;text-transform:uppercase;">Dom</div><div style="font-size:13px;font-weight:bold;">13</div></div>
+            <div style="padding:5px;font-size:10px;color:#aaa;border:1px solid #eee;display:flex;align-items:flex-start;">09</div>
+            <div style="height:50px;border:1px solid #eee;padding:3px;"><div style="background:#eee;border:1px solid #ccc;border-radius:3px;padding:4px;font-size:9px;height:100%;"><b>Rafael</b><br/><span style="color:#777;">Corte</span></div></div>
+            <div style="height:50px;border:1px solid #eee;padding:3px;"></div>
+            <div style="height:50px;border:1px solid #eee;padding:3px;background:#f0f0f0;"><div style="background:#e8e8e8;border:1px solid #bbb;border-radius:3px;padding:4px;font-size:9px;height:100%;"><b>André</b><br/><span style="color:#777;">C+B</span></div></div>
+            <div style="height:50px;border:1px solid #eee;padding:3px;"></div>
+            <div style="height:50px;border:1px solid #eee;padding:3px;"></div>
+            <div style="height:50px;border:1px solid #eee;padding:3px;"><div style="background:#eee;border:1px solid #ccc;border-radius:3px;padding:4px;font-size:9px;height:100%;"><b>Vitor</b><br/><span style="color:#777;">Barba</span></div></div>
+            <div style="height:50px;border:1px solid #eee;padding:3px;background:#f8f8f8;display:flex;align-items:center;justify-content:center;font-size:9px;color:#ccc;">Fech.</div>
+            <div style="padding:5px;font-size:10px;color:#aaa;border:1px solid #eee;display:flex;align-items:flex-start;">10</div>
+            <div style="height:50px;border:1px solid #eee;padding:3px;"></div>
+            <div style="height:50px;border:1px solid #eee;padding:3px;"><div style="background:#eee;border:1px solid #ccc;border-radius:3px;padding:4px;font-size:9px;height:100%;"><b>Marcelo</b><br/><span style="color:#777;">Corte</span></div></div>
+            <div style="height:50px;border:1px solid #eee;padding:3px;background:#f0f0f0;"></div>
+            <div style="height:50px;border:1px solid #eee;padding:3px;"></div>
+            <div style="height:50px;border:1px solid #eee;padding:3px;"></div>
+            <div style="height:50px;border:1px solid #eee;padding:3px;"></div>
+            <div style="height:50px;border:1px solid #eee;padding:3px;background:#f8f8f8;display:flex;align-items:center;justify-content:center;font-size:9px;color:#ccc;">Fech.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== CLIENTS ===================== -->
+<div class="page" id="page-clients">
+  <div class="top-nav">
+    <div class="top-nav-brand"><div class="wf-placeholder" style="width:28px;height:28px;border-radius:6px;font-size:13px;">✂️</div><span style="font-size:13px;font-weight:bold;">BARBERPRO</span></div>
+    <div class="top-nav-item">📊 Dashboard</div>
+    <div class="top-nav-item">📅 Agenda</div>
+    <div class="top-nav-item active">👥 Clientes</div>
+    <div class="top-nav-item">💰 Financeiro</div>
+    <div class="top-nav-item">🛡️ Usuários</div>
+    <div class="top-nav-right"><div class="cmd-pill">🔍 Busca rápida...</div><div class="wf-placeholder" style="width:30px;height:30px;border-radius:50%;font-size:11px;">JB</div></div>
+  </div>
+  <div class="wf-main">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+      <div><h2 style="font-size:20px;margin-bottom:3px;">CRM — Gestão de Clientes</h2><p style="font-size:11px;color:#777;">1.284 clientes cadastrados.</p></div>
+      <div style="display:flex;gap:8px;">
+        <!-- NEW: ViewToggle table/grid -->
+        <div class="component-wrapper">
+          <span class="badge-new">[NEW] ViewToggle Table/Grid</span>
+          <div style="display:flex;border:2px solid #bbb;border-radius:4px;overflow:hidden;">
+            <button style="font-family:inherit;font-size:10px;padding:5px 10px;border:none;background:#fff;">≡ Lista</button>
+            <button style="font-family:inherit;font-size:10px;padding:5px 10px;background:#222;color:#fff;border:none;">⊞ Grid</button>
+          </div>
+        </div>
+        <button class="wf-btn-primary">+ Novo Cliente</button>
+      </div>
+    </div>
+    <!-- Search + filters -->
+    <div style="display:flex;gap:8px;margin-bottom:16px;">
+      <div style="flex:1;position:relative;"><span style="position:absolute;left:9px;top:8px;font-size:11px;">🔍</span><input class="wf-input" style="padding-left:28px;" placeholder="Buscar por nome, telefone..."/></div>
+      <select class="wf-select" style="width:130px;"><option>Todos Status</option></select>
+      <select class="wf-select" style="width:150px;"><option>Ordenar por visita</option></select>
+    </div>
+    <!-- NEW: ClientCardGrid -->
+    <div class="component-wrapper">
+      <span class="badge-new">[NEW] ClientCardGrid</span>
+      <div class="wf-grid" style="grid-template-columns:repeat(4,1fr);gap:12px;">
+        <div class="client-card">
+          <div class="wf-placeholder" style="width:48px;height:48px;border-radius:50%;margin:0 auto 10px;font-size:18px;">CS</div>
+          <div style="font-weight:bold;font-size:13px;">Carlos Santos</div>
+          <div style="font-size:10px;color:#777;margin:4px 0;">📞 (11) 98765-4321</div>
+          <div style="font-size:10px;color:#777;">Última visita: 25/03</div>
+          <div style="font-weight:bold;font-size:13px;margin-top:8px;">R$ 850,00</div>
+          <span class="wf-status" style="margin-top:6px;display:inline-block;">Ativo</span>
+          <div style="margin-top:10px;"><button class="wf-btn-secondary" style="font-size:10px;padding:4px 10px;width:100%;justify-content:center;">Ver Perfil</button></div>
+        </div>
+        <div class="client-card">
+          <div class="wf-placeholder" style="width:48px;height:48px;border-radius:50%;margin:0 auto 10px;font-size:18px;">AL</div>
+          <div style="font-weight:bold;font-size:13px;">André Lima</div>
+          <div style="font-size:10px;color:#777;margin:4px 0;">📞 (11) 91234-5678</div>
+          <div style="font-size:10px;color:#777;">Última visita: 10/03</div>
+          <div style="font-weight:bold;font-size:13px;margin-top:8px;">R$ 420,00</div>
+          <span class="wf-status" style="margin-top:6px;display:inline-block;">Inativo</span>
+          <div style="margin-top:10px;"><button class="wf-btn-secondary" style="font-size:10px;padding:4px 10px;width:100%;justify-content:center;">Ver Perfil</button></div>
+        </div>
+        <div class="client-card">
+          <div class="wf-placeholder" style="width:48px;height:48px;border-radius:50%;margin:0 auto 10px;font-size:18px;">RC</div>
+          <div style="font-weight:bold;font-size:13px;">Rafael Costa</div>
+          <div style="font-size:10px;color:#777;margin:4px 0;">📞 (11) 99887-7665</div>
+          <div style="font-size:10px;color:#777;">Última visita: 31/03</div>
+          <div style="font-weight:bold;font-size:13px;margin-top:8px;">R$ 1.100,00</div>
+          <span class="wf-status" style="margin-top:6px;display:inline-block;">Ativo</span>
+          <div style="margin-top:10px;"><button class="wf-btn-secondary" style="font-size:10px;padding:4px 10px;width:100%;justify-content:center;">Ver Perfil</button></div>
+        </div>
+        <div class="client-card" style="border:1px dashed #ccc;background:#fafafa;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;">
+          <div style="font-size:28px;color:#ccc;">+</div>
+          <div style="font-size:11px;color:#bbb;margin-top:6px;">Adicionar cliente</div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:16px;font-size:11px;color:#aaa;">Mostrando 3 de 1.284 · <u style="cursor:pointer;">Carregar mais</u></div>
+  </div>
+</div>
+
+<!-- ===================== FINANCE ===================== -->
+<div class="page" id="page-finance">
+  <div class="top-nav">
+    <div class="top-nav-brand"><div class="wf-placeholder" style="width:28px;height:28px;border-radius:6px;font-size:13px;">✂️</div><span style="font-size:13px;font-weight:bold;">BARBERPRO</span></div>
+    <div class="top-nav-item">📊 Dashboard</div>
+    <div class="top-nav-item">📅 Agenda</div>
+    <div class="top-nav-item">👥 Clientes</div>
+    <div class="top-nav-item active">💰 Financeiro</div>
+    <div class="top-nav-item">🛡️ Usuários</div>
+    <div class="top-nav-right"><div class="cmd-pill">🔍 Busca rápida...</div><div class="wf-placeholder" style="width:30px;height:30px;border-radius:50%;font-size:11px;">JB</div></div>
+  </div>
+  <div class="wf-main">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h2 style="font-size:20px;">Gestão Financeira</h2>
+      <div style="display:flex;align-items:center;gap:8px;font-size:11px;border:2px solid #ccc;border-radius:4px;padding:6px 14px;background:#fff;">
+        De: <input type="date" style="border:none;font-family:inherit;font-size:11px;font-weight:bold;"/>&nbsp; Até: <input type="date" style="border:none;font-family:inherit;font-size:11px;font-weight:bold;"/>
+      </div>
+    </div>
+    <!-- REUSABLE: ViewTabs -->
+    <div class="component-wrapper">
+      <span class="badge-reuse">[REUSE] ViewTabs</span>
+      <div class="wf-tags" style="margin-bottom:14px;">
+        <div class="wf-tag active">📈 Geral</div><div class="wf-tag">🏪 Barbearia</div><div class="wf-tag">Carlos S.</div><div class="wf-tag">Marcos T.</div>
+      </div>
+    </div>
+    <!-- KPIs -->
+    <div class="wf-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px;">
+      <div class="wf-stat" style="border-top:3px solid #333;"><div class="wf-stat-label">Faturamento</div><div class="wf-stat-value" style="font-size:18px;">R$12.480</div></div>
+      <div class="wf-stat"><div class="wf-stat-label">Serviços</div><div class="wf-stat-value" style="font-size:18px;">R$9.850</div></div>
+      <div class="wf-stat"><div class="wf-stat-label">Produtos</div><div class="wf-stat-value" style="font-size:18px;">R$2.630</div></div>
+      <div class="wf-stat" style="background:#f9f9f9;"><div class="wf-stat-label">Lucro Líquido</div><div class="wf-stat-value" style="font-size:18px;">R$8.950</div></div>
+    </div>
+    <!-- 3-col layout: ranking + mix + payment methods -->
+    <div class="wf-grid" style="grid-template-columns:1fr 1fr 1fr;gap:12px;">
+      <div class="component-wrapper">
+        <span class="badge-reuse">[REUSE] BarberRanking</span>
+        <div class="wf-box">
+          <div class="wf-box-header">🏆 Ranking</div>
+          <div style="padding:12px;display:flex;flex-direction:column;gap:10px;">
+            <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;"><span>🥇 Carlos S.</span><span style="font-weight:bold;">R$4.820</span></div><div class="wf-progress-bg"><div class="wf-progress-fill" style="width:100%;background:#333;"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;"><span>🥈 Marcos T.</span><span style="font-weight:bold;">R$3.240</span></div><div class="wf-progress-bg"><div class="wf-progress-fill" style="width:67%;"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;"><span>🥉 Pedro A.</span><span style="font-weight:bold;">R$1.790</span></div><div class="wf-progress-bg"><div class="wf-progress-fill" style="width:37%;background:#bbb;"></div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="component-wrapper">
+        <span class="badge-reuse">[REUSE] ServiceMixBI</span>
+        <div class="wf-box">
+          <div class="wf-box-header">📊 Mix Serviços</div>
+          <div style="padding:12px;display:flex;flex-direction:column;gap:10px;">
+            <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;"><span>Corte Social</span><span>R$4.200</span></div><div class="wf-progress-bg"><div class="wf-progress-fill" style="width:85%;"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;"><span>Corte + Barba</span><span>R$3.850</span></div><div class="wf-progress-bg"><div class="wf-progress-fill" style="width:77%;"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;"><span>Barba Completa</span><span>R$1.800</span></div><div class="wf-progress-bg"><div class="wf-progress-fill" style="width:36%;background:#bbb;"></div></div></div>
+          </div>
+        </div>
+      </div>
+      <!-- NEW: DonutChart placeholder -->
+      <div class="component-wrapper">
+        <span class="badge-new">[NEW] PaymentDonutChart</span>
+        <div class="wf-box">
+          <div class="wf-box-header">💳 Pagamentos</div>
+          <div style="padding:12px;text-align:center;">
+            <div class="wf-placeholder" style="width:100px;height:100px;border-radius:50%;margin:0 auto 12px;font-size:11px;">Donut<br/>Chart</div>
+            <div style="display:flex;flex-direction:column;gap:5px;text-align:left;font-size:10px;">
+              <div style="display:flex;align-items:center;gap:6px;"><div style="width:8px;height:8px;background:#333;border-radius:50%;"></div>Pix — 45%</div>
+              <div style="display:flex;align-items:center;gap:6px;"><div style="width:8px;height:8px;background:#888;border-radius:50%;"></div>Cartão Crédito — 30%</div>
+              <div style="display:flex;align-items:center;gap:6px;"><div style="width:8px;height:8px;background:#bbb;border-radius:50%;"></div>Débito — 15%</div>
+              <div style="display:flex;align-items:center;gap:6px;"><div style="width:8px;height:8px;background:#ddd;border-radius:50%;"></div>Dinheiro — 10%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== USERS ===================== -->
+<div class="page" id="page-users">
+  <div class="top-nav">
+    <div class="top-nav-brand"><div class="wf-placeholder" style="width:28px;height:28px;border-radius:6px;font-size:13px;">✂️</div><span style="font-size:13px;font-weight:bold;">BARBERPRO</span></div>
+    <div class="top-nav-item">📊 Dashboard</div><div class="top-nav-item">📅 Agenda</div><div class="top-nav-item">👥 Clientes</div><div class="top-nav-item">💰 Financeiro</div>
+    <div class="top-nav-item active">🛡️ Usuários</div>
+    <div class="top-nav-right"><div class="cmd-pill">🔍 Busca rápida...</div><div class="wf-placeholder" style="width:30px;height:30px;border-radius:50%;font-size:11px;">JB</div></div>
+  </div>
+  <div class="wf-main">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+      <h2 style="font-size:20px;">Gestão de Usuários</h2>
+      <button class="wf-btn-primary">+ Novo Usuário</button>
+    </div>
+    <div class="wf-grid" style="grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px;">
+      <div class="wf-stat" style="display:flex;align-items:center;gap:10px;"><div class="wf-placeholder" style="width:44px;height:44px;border-radius:50%;font-size:16px;">JB</div><div><div style="font-weight:bold;font-size:13px;">João Boss</div><div style="font-size:10px;color:#777;">Gerente</div><span class="wf-status">Ativo</span></div><button class="wf-btn-secondary" style="margin-left:auto;font-size:10px;padding:3px 8px;">Editar</button></div>
+      <div class="wf-stat" style="display:flex;align-items:center;gap:10px;"><div class="wf-placeholder" style="width:44px;height:44px;border-radius:50%;font-size:16px;">CS</div><div><div style="font-weight:bold;font-size:13px;">Carlos Santos</div><div style="font-size:10px;color:#777;">Barbeiro</div><span class="wf-status">Ativo</span></div><button class="wf-btn-secondary" style="margin-left:auto;font-size:10px;padding:3px 8px;">Editar</button></div>
+      <div class="wf-stat" style="display:flex;align-items:center;gap:10px;"><div class="wf-placeholder" style="width:44px;height:44px;border-radius:50%;font-size:16px;">MT</div><div><div style="font-weight:bold;font-size:13px;">Marcos Torres</div><div style="font-size:10px;color:#777;">Barbeiro</div><span class="wf-status">Ativo</span></div><button class="wf-btn-secondary" style="margin-left:auto;font-size:10px;padding:3px 8px;">Editar</button></div>
+    </div>
+    <div class="component-wrapper">
+      <span class="badge-new">[NEW] PermissionsMatrix</span>
+      <div class="wf-box">
+        <div class="wf-box-header">🛡️ Matriz de Permissões por Módulo</div>
+        <div style="padding:12px;overflow:auto;"><table class="wf-table"><thead><tr><th>Função</th><th>Dashboard</th><th>Agenda</th><th>Clientes</th><th>Financeiro</th><th>Usuários</th><th>Config.</th></tr></thead><tbody><tr><td style="font-weight:bold;">Gerente</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr><tr><td style="font-weight:bold;">Barbeiro</td><td>✅</td><td>✅ (próprio)</td><td>❌</td><td>⚠️ Próprio</td><td>❌</td><td>❌</td></tr></tbody></table></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== SETTINGS ===================== -->
+<div class="page" id="page-settings">
+  <div class="top-nav">
+    <div class="top-nav-brand"><div class="wf-placeholder" style="width:28px;height:28px;border-radius:6px;font-size:13px;">✂️</div><span style="font-size:13px;font-weight:bold;">BARBERPRO</span></div>
+    <div class="top-nav-item">📊 Dashboard</div><div class="top-nav-item">📅 Agenda</div><div class="top-nav-item">👥 Clientes</div><div class="top-nav-item">💰 Financeiro</div><div class="top-nav-item">🛡️ Usuários</div>
+    <div class="top-nav-right"><div class="cmd-pill">🔍 Busca rápida...</div><div class="wf-placeholder" style="width:30px;height:30px;border-radius:50%;font-size:11px;">JB</div></div>
+  </div>
+  <div style="display:flex;flex:1;min-height:0;">
+    <!-- Settings left nav -->
+    <!-- NEW: SettingsSideNav -->
+    <div class="component-wrapper">
+      <span class="badge-new">[NEW] SettingsSideNav</span>
+      <div style="width:180px;border-right:2px solid #eee;padding:16px;background:#fafafa;flex-shrink:0;">
+        <div style="font-size:10px;color:#aaa;text-transform:uppercase;font-weight:bold;margin-bottom:8px;letter-spacing:0.5px;">Configurações</div>
+        <div style="padding:7px 10px;background:#222;color:#fff;border-radius:4px;font-size:12px;margin-bottom:3px;cursor:pointer;">🏪 Barbearia</div>
+        <div style="padding:7px 10px;font-size:12px;margin-bottom:3px;cursor:pointer;color:#555;">✂️ Serviços</div>
+        <div style="padding:7px 10px;font-size:12px;margin-bottom:3px;cursor:pointer;color:#555;">🛒 Estoque</div>
+        <div style="padding:7px 10px;font-size:12px;margin-bottom:3px;cursor:pointer;color:#555;">🕐 Horários</div>
+        <div style="padding:7px 10px;font-size:12px;margin-bottom:3px;cursor:pointer;color:#555;">🔔 Notificações</div>
+        <div style="padding:7px 10px;font-size:12px;margin-bottom:3px;cursor:pointer;color:#555;">🔗 Integrações</div>
+      </div>
+    </div>
+    <div class="wf-main">
+      <h3 style="font-size:16px;margin-bottom:16px;">🏪 Informações da Barbearia</h3>
+      <div class="wf-grid" style="grid-template-columns:1fr 1fr;gap:12px;">
+        <div><label style="font-size:11px;font-weight:bold;display:block;margin-bottom:5px;">Nome da Barbearia</label><input class="wf-input" value="BarbeariaNome"/></div>
+        <div><label style="font-size:11px;font-weight:bold;display:block;margin-bottom:5px;">WhatsApp</label><input class="wf-input" placeholder="(11) 99999-0000"/></div>
+        <div><label style="font-size:11px;font-weight:bold;display:block;margin-bottom:5px;">Endereço</label><input class="wf-input" placeholder="Rua, Número, Bairro"/></div>
+        <div><label style="font-size:11px;font-weight:bold;display:block;margin-bottom:5px;">CNPJ</label><input class="wf-input" placeholder="00.000.000/0001-00"/></div>
+      </div>
+      <div style="margin-top:14px;"><button class="wf-btn-primary">Salvar Alterações</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#4CAF50;"></div><span>REUSE = componente existente reutilizável</span></div>
+  <div class="legend-item"><div class="legend-dot" style="background:#FF9800;"></div><span>NEW = novo componente a criar</span></div>
+</div>
+
+<script>
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>
